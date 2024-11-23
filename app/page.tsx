@@ -1,86 +1,16 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import {
-  Search,
-  PenSquare,
-  Home as HomeIcon,
-  Archive,
-  User,
-  Sparkles,
-  Heart,
-  Mountain,
-} from "lucide-react";
+import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
+import { Sparkles, Heart, Mountain } from "lucide-react";
 import Image from "next/image";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
-
-function NavItem({
-  icon: Icon,
-  activeIcon: ActiveIcon,
-  label,
-  isActive,
-  onClick,
-}: {
-  icon: typeof HomeIcon;
-  activeIcon: typeof HomeIcon;
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex flex-col items-center justify-center relative px-6",
-        isActive ? "text-primary" : "text-muted-foreground"
-      )}
-      data-tab={label.toLowerCase().replace(" ", "-")}
-    >
-      {isActive ? (
-        <ActiveIcon className="h-6 w-6" />
-      ) : (
-        <Icon className="h-6 w-6" />
-      )}
-      <span className="text-xs mt-1">{label}</span>
-    </button>
-  );
-}
+import Navbar from "@/components/layout/navbar";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("home");
-  const [indicatorStyle, setIndicatorStyle] = useState({
-    left: "0px",
-    width: "0px",
-  });
   const navRef = useRef<HTMLDivElement>(null);
-
-  const updateIndicator = (tabName: string) => {
-    if (navRef.current) {
-      const tabElement = navRef.current.querySelector(
-        `[data-tab="${tabName}"]`
-      );
-      if (tabElement) {
-        const { offsetLeft, offsetWidth } = tabElement as HTMLElement;
-        setIndicatorStyle({
-          left: `${offsetLeft}px`,
-          width: `${offsetWidth}px`,
-        });
-      }
-    }
-  };
-
-  useEffect(() => {
-    const timer = setTimeout(() => updateIndicator(activeTab), 0);
-    return () => clearTimeout(timer);
-  }, [activeTab]);
-
-  const handleTabChange = (tabName: string) => {
-    setActiveTab(tabName);
-  };
 
   const recommendedNovels = [
     { title: "난쟁이와 백설공주", image: "/example/temp1.png" },
@@ -101,28 +31,27 @@ export default function Home() {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background relative">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background">
         <div className="container flex h-14 max-w-md items-center justify-between px-4">
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <Image
               src="/neo_emblem.svg"
               alt="NEO Logo"
-              width={32}
-              height={32}
-              className="h-8 w-auto"
+              width={24}
+              height={24}
             />
             <span className="font-semibold text-xl">NEO</span>
-          </div>
-          <div className="flex items-center gap-2">
+          </Link>
+          <div className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
               className="relative bg-purple-500 hover:bg-purple-600 text-white rounded-full p-2 h-6"
             >
               <Image
-                src="/diamond.svg"
+                src="/header/diamond.svg"
                 alt="token icon"
                 height={10}
                 width={10}
@@ -130,7 +59,13 @@ export default function Home() {
               9999
             </Button>
             <Button variant="ghost" size="icon" className="hover:bg-accent">
-              <Search className="h-5 w-5" />
+              <Image
+                src="/search.svg"
+                alt="Search Icon"
+                width={20}
+                height={20}
+                className="h-5 w-5"
+              />
             </Button>
           </div>
         </div>
@@ -228,47 +163,7 @@ export default function Home() {
       </main>
 
       {/* Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background border-t">
-        <div className="container max-w-md">
-          <div
-            className="flex justify-around items-center py-2 relative"
-            ref={navRef}
-          >
-            <NavItem
-              icon={PenSquare}
-              activeIcon={PenSquare}
-              label="소설 제작"
-              isActive={activeTab === "create"}
-              onClick={() => handleTabChange("create")}
-            />
-            <NavItem
-              icon={HomeIcon}
-              activeIcon={HomeIcon}
-              label="홈"
-              isActive={activeTab === "home"}
-              onClick={() => handleTabChange("home")}
-            />
-            <NavItem
-              icon={Archive}
-              activeIcon={Archive}
-              label="보관함"
-              isActive={activeTab === "archive"}
-              onClick={() => handleTabChange("archive")}
-            />
-            <NavItem
-              icon={User}
-              activeIcon={User}
-              label="마이페이지"
-              isActive={activeTab === "mypage"}
-              onClick={() => handleTabChange("mypage")}
-            />
-            <div
-              className="absolute bottom-0 h-1 bg-primary transition-all duration-300 ease-in-out"
-              style={indicatorStyle}
-            />
-          </div>
-        </div>
-      </nav>
+      <Navbar ref={navRef} />
     </div>
   );
 }
