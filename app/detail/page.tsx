@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { ChevronLeft, Users, Clock, Trophy, ChevronRight } from "lucide-react";
 import Image from "next/image";
 
