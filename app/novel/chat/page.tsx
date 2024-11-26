@@ -41,6 +41,7 @@ const API_URL = "http://15.152.208.196:8000";
 export default function Component() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  const [isInitialized, setIsInitialized] = useState(false);
   const [isMessageSending, setIsMessageSending] = useState(false);
 
   const [displayText, setDisplayText] = useState<string[]>();
@@ -96,6 +97,7 @@ export default function Component() {
         const data = await res.json();
         setDisplayText(data.split("\n"));
         setProgressRate(0);
+        setIsInitialized(true);
       } catch (error) {
         console.error(error);
         toast({
@@ -213,7 +215,7 @@ export default function Component() {
 
       {/* Input Area */}
       <div className="p-4">
-        <div className="flex items-center gap-1 bg-neutral-100 rounded-full border-none p-2">
+        <div className="flex items-center gap-1 bg-neutral-100 rounded-2xl border-none p-2">
           <textarea
             ref={textareaRef}
             onChange={handleTextAreaValueChange}
@@ -231,21 +233,23 @@ export default function Component() {
           <div className="flex gap-2 items-center justify-center p-">
             <button
               onClick={() => handleSendMessage({ auto: true })}
-              disabled={isMessageSending}
+              disabled={isMessageSending || !isInitialized}
             >
               <AutoChat
-                className={cn("w-5 h-5 cursor-pointer", {
-                  "opacity-50 pointer-events-none": isMessageSending,
+                className={cn("w-5 h-5 cursor-pointer text-primary", {
+                  "text-gray-400 pointer-events-none":
+                    isMessageSending || !isInitialized,
                 })}
               />
             </button>
             <button
               onClick={() => handleSendMessage({ auto: false })}
-              disabled={isMessageSending}
+              disabled={isMessageSending || !isInitialized}
             >
               <PaperPlane
-                className={cn("w-5 h-5 cursor-pointer", {
-                  "opacity-50 pointer-events-none": isMessageSending,
+                className={cn("w-5 h-5 cursor-pointer text-primary", {
+                  "text-gray-400 pointer-events-none":
+                    isMessageSending || !isInitialized,
                 })}
               />
             </button>
