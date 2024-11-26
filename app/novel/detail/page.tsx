@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { ChevronLeft, Users, Clock, Trophy, ChevronRight } from "lucide-react";
 import Image from "next/image";
-
+import Link from "next/link";
 export default function NovelDetail() {
   const tags = [
     "판타지",
@@ -29,7 +29,7 @@ export default function NovelDetail() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-background pb-20 max-w-md mx-auto">
       <div className="relative z-10">
         {/* Absolute Header */}
         <Button
@@ -182,10 +182,13 @@ export default function NovelDetail() {
       {/* Floating '소설 읽기' Button */}
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-50">
         <div className="container max-w-md mx-auto flex justify-center">
-          <Button className="bg-purple-600 hover:bg-purple-700 text-white pointer-events-auto rounded-full px-6 py-2 flex items-center gap-2">
+          <Link
+            href={"/novel/chat"}
+            className="bg-purple-600 hover:bg-purple-700 text-white pointer-events-auto rounded-full px-6 py-2 flex items-center gap-2"
+          >
             소설 읽기
             <ChevronRight className="w-4 h-4" />
-          </Button>
+          </Link>
         </div>
       </div>
     </div>
