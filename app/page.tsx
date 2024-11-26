@@ -90,7 +90,7 @@ export default function Home() {
               <div className="flex space-x-4">
                 {recommendedNovels.map((novel, index) => (
                   <Card key={index} className="w-[150px] shrink-0">
-                    <Link href="/detail">
+                    <Link href={`/novel/detail`}>
                       <CardContent className="p-0">
                         <Image
                           src={novel.image}
