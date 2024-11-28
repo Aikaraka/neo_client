@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body className="max-w-md mx-auto">{children}</body>
     </html>
   );
 }

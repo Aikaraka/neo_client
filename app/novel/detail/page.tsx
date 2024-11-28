@@ -29,7 +29,7 @@ export default function NovelDetail() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-20 max-w-md mx-auto">
+    <div className="min-h-screen bg-background pb-20">
       <div className="relative z-10">
         {/* Absolute Header */}
         <Button
@@ -40,7 +40,7 @@ export default function NovelDetail() {
         >
           <ChevronLeft className="h-10 w-10" />
         </Button>
-        <div className="container max-w-md">
+        <div className="container">
           {/* Background Image */}
           <div className="absolute w-full h-auto z-0">
             <Image

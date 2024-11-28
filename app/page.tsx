@@ -13,6 +13,7 @@ export default function Home() {
   const navRef = useRef<HTMLDivElement>(null);
 
   const recommendedNovels = [
+    { title: "천공의 연금술사", image: "/example/aetoria.png" },
     { title: "난쟁이와 백설공주", image: "/example/temp1.png" },
     { title: "마법학교 아르피아", image: "/example/temp2.png" },
     { title: "인어공주", image: "/example/temp3.png" },
@@ -97,7 +98,7 @@ export default function Home() {
                           alt={novel.title}
                           width={150}
                           height={150}
-                          className="rounded-t-lg object-cover"
+                          className="object-cover rounded-lg"
                         />
                         <div className="p-2">
                           <p className="text-sm truncate">{novel.title}</p>
@@ -161,7 +162,6 @@ export default function Home() {
           </section>
         </div>
       </main>
-
       {/* Navigation Bar */}
       <Navbar ref={navRef} />
     </div>
