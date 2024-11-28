@@ -52,6 +52,7 @@ const API_URL = "http://15.152.208.196:8000";
 
 export default function Component() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const chatContentRef = useRef<HTMLDivElement>(null);
 
   const [isInitialized, setIsInitialized] = useState(false);
   const [isMessageSending, setIsMessageSending] = useState(false);
@@ -81,6 +82,10 @@ export default function Component() {
       const lines = currentLineText.split("\n");
 
       setAnimatedText(lines);
+
+      if (chatContentRef.current) {
+        chatContentRef.current.scrollTop = chatContentRef.current.scrollHeight;
+      }
 
       currentCharIndex++;
       timeoutIds.push(setTimeout(animateText, 50));
@@ -188,11 +193,10 @@ export default function Component() {
             <span className="font-medium text-sm">일곱난쟁이와 백설공주</span>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">진행률</span>
-              <div className="flex-1 flex items-center">
+              <div className="flex-1 flex items-center w-48">
                 <Progress
-                  value={13}
-                  className="h-1 flex-1 rounded-full" // 진행률 안나오는 버그 수정하기
-                  indicatorClassName="bg-purple-600"
+                  value={progressRate}
+                  className="h-2 flex-1 rounded-full"
                 />
                 <span className="text-xs text-gray-500 ml-2">
                   {progressRate}%
@@ -207,7 +211,10 @@ export default function Component() {
       </div>
 
       {/* Chat Content */}
-      <div className="flex-1 overflow-auto px-4 py-2 space-y-4 [&::-webkit-scrollbar]:hidden">
+      <div
+        ref={chatContentRef}
+        className="flex-1 overflow-auto px-4 py-2 space-y-4 [&::-webkit-scrollbar]:hidden"
+      >
         {animatedText?.map((line, index) => (
           <p
             key={index}
