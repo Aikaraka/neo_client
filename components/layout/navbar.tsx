@@ -27,19 +27,19 @@ const navItems = {
     label: "소설 제작",
     icon: PencilLine,
     activeIcon: PencilFilled,
-    disabled: false,
+    disabled: true,
   },
   "/archive": {
     label: "보관함",
     icon: BoxLine,
     activeIcon: BoxFilled,
-    disabled: false,
+    disabled: true,
   },
   "/mypage": {
     label: "마이페이지",
     icon: UserLine,
     activeIcon: UserFilled,
-    disabled: false,
+    disabled: true,
   },
 };
 
@@ -60,13 +60,17 @@ function NavItem({
 }) {
   const NavIcon = isActive ? activeIcon : icon;
 
-  return (
+  return disabled ? (
+    <div className="flex flex-col items-center justify-center relative p-2 cursor-not-allowed opacity-50">
+      <NavIcon className="h-6 w-6" />
+      <span className="text-xs mt-1">{label}</span>
+    </div>
+  ) : (
     <Link
       key={path}
       href={path}
       className={cn(
         "flex flex-col items-center justify-center relative p-2",
-        disabled ? "cursor-not-allowed opacity-50" : "",
         isActive ? "text-primary" : "text-muted-foreground"
       )}
       data-tab={label.toLowerCase().replace(" ", "-")}
@@ -93,7 +97,7 @@ function NavItem({
 const Navbar = forwardRef<HTMLDivElement>((props, ref) => {
   const pathname = usePathname() || "/";
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-background border-t">
+    <nav className="absolute bottom-0 left-0 right-0 bg-background border-t">
       <div className="container max-w-md">
         <div
           className="flex justify-around items-center py-2 relative"
