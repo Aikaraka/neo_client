@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
 import localFont from "next/font/local";
+import { useRouter } from "next/navigation";
 
 const NanumMyeongjo = localFont({
   src: "../../fonts/NanumMyeongjo.ttf",
@@ -59,10 +60,19 @@ export default function Component() {
 
   const [animatedText, setAnimatedText] = useState<string[]>([]);
   const [originalText, setOriginalText] = useState<string[]>();
+  const [stackedText, setStackedText] = useState<string[]>([]);
+
+  const loadText = (text: string[]) => {
+    if (originalText) {
+      setStackedText((prev) => [...prev, ...originalText]);
+    }
+    setOriginalText(text);
+  };
 
   const [progressRate, setProgressRate] = useState<number>();
 
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     let currentCharIndex = 0;
@@ -105,7 +115,7 @@ export default function Component() {
           method: "POST",
         });
         const data = await res.json();
-        setOriginalText(data.split("\n")); // 원본 텍스트 저장
+        loadText(data.split("\n")); // loadText 함수 사용
         setProgressRate(0);
         setIsInitialized(true);
       } catch (error) {
@@ -143,7 +153,7 @@ export default function Component() {
           }),
         });
         const data = (await res.json()) as Response;
-        setOriginalText(data.story.split("\n"));
+        loadText(data.story.split("\n")); // loadText 함수 사용
         setProgressRate(data.progress_rate);
       } catch (error) {
         console.error(error);
@@ -185,12 +195,19 @@ export default function Component() {
     <div className="flex flex-col h-screen bg-white max-w-md mx-auto relative">
       {/* Header */}
       <div className="px-4 py-3 flex items-center justify-between">
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8"
+          onClick={() => {
+            router.back();
+          }}
+        >
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <div className="flex-1 mx-3">
           <div className="flex flex-col items-center justify-between gap-1">
-            <span className="font-medium text-sm">일곱난쟁이와 백설공주</span>
+            <span className="font-medium text-sm">{TITLE}</span>
             <div className="flex items-center gap-2">
               <span className="text-xs text-gray-500">진행률</span>
               <div className="flex-1 flex items-center w-48">
@@ -215,9 +232,20 @@ export default function Component() {
         ref={chatContentRef}
         className="flex-1 overflow-auto px-4 py-2 space-y-4 [&::-webkit-scrollbar]:hidden"
       >
+        {stackedText.map((line, index) => (
+          <p
+            key={`stacked-${index}`}
+            className={cn(
+              "text-[15px] leading-[1.6] text-gray-800 break-words",
+              NanumMyeongjo.className
+            )}
+          >
+            {line}
+          </p>
+        ))}
         {animatedText?.map((line, index) => (
           <p
-            key={index}
+            key={`animated-${index}`}
             className={cn(
               "text-[15px] leading-[1.6] text-gray-800 break-words",
               NanumMyeongjo.className
