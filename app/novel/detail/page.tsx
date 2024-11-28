@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import Image from "next/image";
 import Link from "next/link";
