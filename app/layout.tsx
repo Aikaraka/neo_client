@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import localFont from "next/font/local";
+import { cn } from "@/lib/utils";
 
 const NanumSquareNeo = localFont({
   src: "./fonts/NanumSquareNeo-Variable.woff2",
@@ -18,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={NanumSquareNeo.className}>
+    <html lang="ko" className={cn(NanumSquareNeo.className, "bg-foreground/5")}>
       <body className="max-w-md mx-auto">{children}</body>
     </html>
   );
