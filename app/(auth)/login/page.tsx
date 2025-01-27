@@ -1,5 +1,5 @@
-import { LoginForm } from "@/components/loginForm";
-import { Button } from "@/components/ui/button";
+import { LoginForm } from "@/components/login/loginForm";
+import SocialLoginButton from "@/components/ui/socialLoginButton";
 import Image from "next/image";
 
 export default function Page() {
@@ -16,15 +16,10 @@ export default function Page() {
             또는 10초만에 로그인 · 회원가입 하기
           </span>
         </div>
-        <Button variant="outline" className="w-full p-6 rounded-lg">
-          <Image
-            src="/auth/google_emblem.svg"
-            alt="google"
-            width={20}
-            height={20}
-          />
-          <span className="text-base font-light">구글 로그인</span>
-        </Button>
+        <div className="w-full flex flex-col justify-center items-center gap-5">
+          <SocialLoginButton type="kakao" />
+          <SocialLoginButton type="google" />
+        </div>
       </div>
     </div>
   );
