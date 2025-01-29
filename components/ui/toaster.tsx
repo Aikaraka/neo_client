@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useToast } from "@/hooks/use-toast"
+import { useToast } from "@/hooks/use-toast";
 import {
   Toast,
   ToastClose,
@@ -8,28 +8,30 @@ import {
   ToastProvider,
   ToastTitle,
   ToastViewport,
-} from "@/components/ui/toast"
+} from "@/components/ui/toast";
 
-export function Toaster() {
-  const { toasts } = useToast()
+interface ToasterProps {
+  children: React.ReactNode;
+}
+
+export function Toaster({ children }: ToasterProps) {
+  const { toasts } = useToast();
 
   return (
     <ToastProvider>
-      {toasts.map(function ({ id, title, description, action, ...props }) {
-        return (
-          <Toast key={id} {...props}>
-            <div className="grid gap-1">
-              {title && <ToastTitle>{title}</ToastTitle>}
-              {description && (
-                <ToastDescription>{description}</ToastDescription>
-              )}
-            </div>
-            {action}
-            <ToastClose />
-          </Toast>
-        )
-      })}
+      {children}{" "}
+      {/* 여기에 children을 포함시켜 다른 컴포넌트에서 사용할 수 있게 합니다. */}
+      {toasts.map(({ id, title, description, action, ...props }) => (
+        <Toast key={id} {...props} className="">
+          <div className="grid gap-1">
+            {title && <ToastTitle>{title}</ToastTitle>}
+            {description && <ToastDescription>{description}</ToastDescription>}
+          </div>
+          {action}
+          <ToastClose />
+        </Toast>
+      ))}
       <ToastViewport />
     </ToastProvider>
-  )
+  );
 }
