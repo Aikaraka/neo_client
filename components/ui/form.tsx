@@ -85,6 +85,18 @@ const FormItem = React.forwardRef<
 });
 FormItem.displayName = "FormItem";
 
+export function useValidation<T extends string>(...args: T[]) {
+  const { getFieldState } = useFormContext();
+
+  const validation = args.map((arg) => {
+    const fieldState = getFieldState<T>(arg);
+    console.log(arg, fieldState);
+    return !fieldState.invalid && fieldState.isDirty;
+  });
+
+  return validation.every((field) => field);
+}
+
 const FormLabel = React.forwardRef<
   React.ElementRef<typeof LabelPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
@@ -147,7 +159,6 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField();
-  console.log(error);
   const body = error ? String(error?.message) : children;
 
   if (!body) {
