@@ -1,29 +1,24 @@
-import * as React from "react";
+import React from "react";
 
-interface SelectProps extends React.ComponentProps<"select"> {
-  label: string;
-  options: string[];
+interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  options: string[] | number[];
 }
 
-const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-  ({ onChange, onBlur, name, label, options, ...props }, ref) => (
-    <div>
-      <label htmlFor={name}>{label}</label>
-      <select
-        id={name}
-        name={name}
-        ref={ref}
-        onChange={onChange}
-        onBlur={onBlur}
-        {...props}
-      >
-        {options.map((option) => (
-          <option value={option}>{option}</option>
-        ))}
-      </select>
-    </div>
-  )
-);
+const Select = React.forwardRef<
+  HTMLSelectElement,
+  SelectProps & {
+    placeholder: string;
+  }
+>(({ options, placeholder, ...props }, ref) => (
+  <select {...props} ref={ref} className="border px-3 py-2 rounded">
+    <option value="">{placeholder}</option>
+    {options.map((option) => (
+      <option key={option} value={option}>
+        {option}
+      </option>
+    ))}
+  </select>
+));
 
 Select.displayName = "Select";
 
