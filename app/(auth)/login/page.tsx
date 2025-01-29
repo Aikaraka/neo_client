@@ -1,10 +1,10 @@
-import { LoginForm } from "@/components/login/loginForm";
+import { LoginForm } from "@/app/(auth)/login/loginForm";
 import SocialLoginButton from "@/components/ui/socialLoginButton";
 import Image from "next/image";
 
 export default function Page() {
   return (
-    <div className="h-screen grid px-8">
+    <div className="h-screen grid px-8 relative">
       <div className="flex flex-col items-center justify-center">
         <Image src="/neo_emblem.svg" alt="logo" width={100} height={100} />
         <span className="text-xl font-bold">NEO</span>

@@ -8,6 +8,7 @@ import { Sparkles, Heart, Mountain } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/layout/navbar";
+import { signout } from "@/utils/supabase/service/auth";
 
 export default function Home() {
   const navRef = useRef<HTMLDivElement>(null);
@@ -161,6 +162,7 @@ export default function Home() {
             </div>
           </section>
         </div>
+        <Button onClick={signout}>로그아웃</Button>
       </main>
       {/* Navigation Bar */}
       <Navbar ref={navRef} />
