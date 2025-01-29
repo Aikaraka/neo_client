@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { useFormContext } from "react-hook-form";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
@@ -28,7 +27,6 @@ const TextInputWithIcon = React.forwardRef<
   HTMLInputElement,
   TextInputWithIconProps
 >(({ className, IconComponent, ...props }, ref) => {
-  const { register } = useFormContext();
   return (
     <div
       className={cn(
