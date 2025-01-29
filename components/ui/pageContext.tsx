@@ -1,3 +1,7 @@
+"use client";
+
+import { ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useState } from "react";
 
 type PageContextType = {
@@ -20,13 +24,18 @@ export const PageProvider = ({
   initialPage,
 }: PageProviderProps) => {
   const [currPage, setCurrPage] = useState(initialPage ?? 0);
+  const navigation = useRouter();
 
   function nextPage() {
     setCurrPage((prev) => (prev < maxPage ? prev + 1 : prev));
   }
 
   function prevPage() {
-    setCurrPage((prev) => (prev > 0 ? prev - 1 : prev));
+    if (!currPage) {
+      navigation.back();
+    } else {
+      setCurrPage((prev) => prev - 1);
+    }
   }
 
   return (
@@ -38,6 +47,14 @@ export const PageProvider = ({
         prevPage,
       }}
     >
+      {currPage === maxPage && (
+        <ChevronLeft
+          className="absolute top-10 left-7 cursor-pointer z-50"
+          size={32}
+          onClick={prevPage}
+        />
+      )}
+
       {children}
     </PageContext.Provider>
   );
