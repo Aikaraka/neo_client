@@ -27,13 +27,13 @@ const navItems = {
     label: "소설 제작",
     icon: PencilLine,
     activeIcon: PencilFilled,
-    disabled: true,
+    disabled: false,
   },
-  "/archive": {
+  "/storage": {
     label: "보관함",
     icon: BoxLine,
     activeIcon: BoxFilled,
-    disabled: true,
+    disabled: false,
   },
   "/mypage": {
     label: "마이페이지",
