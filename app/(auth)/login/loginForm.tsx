@@ -86,9 +86,7 @@ export function LoginForm() {
                       className="text-sm text-primary"
                       asChild
                     >
-                      <Link href="/forgot-password">
-                        계정을 잃어버리셨나요?
-                      </Link>
+                      <Link href="/find">계정을 잃어버리셨나요?</Link>
                     </Button>
                   </div>
                 </FormItem>
