@@ -162,7 +162,6 @@ export default function Home() {
             </div>
           </section>
         </div>
-        <Button onClick={signout}>로그아웃</Button>
       </main>
       {/* Navigation Bar */}
       <Navbar ref={navRef} />
