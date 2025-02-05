@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { cn } from "@/lib/utils";
 import QueryProvider from "@/components/common/queryProvider";
 import { AuthProvider } from "@/utils/supabase/authProvider";
+import ResponsiveWrapper from "@/components/common/responsiveWrapper";
 
 const NanumSquareNeo = localFont({
   src: "./fonts/NanumSquareNeo-Variable.woff2",
@@ -22,11 +23,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={cn(NanumSquareNeo.className, "bg-foreground/5")}>
-      <body className="max-w-md mx-auto">
+      <ResponsiveWrapper>
         <AuthProvider>
           <QueryProvider>{children}</QueryProvider>
         </AuthProvider>
-      </body>
+      </ResponsiveWrapper>
     </html>
   );
 }
