@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 import { createClient } from "@/utils/supabase/server";
 
-const protectedRoutes = ["/dashboard", "/profile", "/settings"];
+const protectedRoutes = ["/dashboard", "/profile", "/settings", "/mypage"];
 const authRoutes = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
@@ -18,7 +18,7 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (!userData.profile_completed && pathname !== "/auth/setting") {
+    if (!userData?.profile_completed && pathname !== "/auth/setting") {
       const profileSettingURL = new URL("/auth/setting", request.url);
       return NextResponse.redirect(profileSettingURL);
     }
