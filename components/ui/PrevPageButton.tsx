@@ -12,7 +12,7 @@ const PrevPageButton = React.forwardRef<
   const router = useRouter();
   return (
     <ChevronLeftIcon
-      className={cn(className, "absolute top-10 left-10 cursor-pointer")}
+      className={cn(className, "absolute top-5 left-5 cursor-pointer z-20")}
       ref={ref}
       size={size ?? 40}
       {...props}
