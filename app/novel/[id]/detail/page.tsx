@@ -1,37 +1,56 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { useSupabase } from "@/utils/supabase/authProvider";
-import { Novel } from "@/types/novel";
-import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import Link from "next/link";
 
-const TITLE = "천공의 연금술사";
-const TAGS = ["판타지", "이세계", "마법", "과학"];
-const GENRE = "판타지";
-const DESCRIPTION =
-  "아에토리아는 마법과 과학이 완벽하게 융합된 독특한 세계입니다. 이곳은 자연의 원리를 이해하고 조작하는 과학과, 신비로운 에너지인 마나를 기반으로 한 마법이 상호작용하며 공존하는 곳입니다. 사람들이 마법을 배우면서도 첨단 기술을 일상적으로 사용하는 모습을 볼 수 있습니다. 예를 들어, 마법으로 구동되는 기계나 마법 에너지로 움직이는 비행선, 그리고 마법사와 과학자가 함께 개발한 치유 기계가 대표적입니다. 이러한 세계는 인간과 다른 종족들이 함께 거주하며 조화를 이루고 있지만, 과거에는 마법과 과학 간의 갈등이 심했던 역사를 가지고 있습니다.";
-
-const RELATED_NOVELS = [
-  { title: "난쟁이와 백설공주", image: "/example/temp1.png" },
-  { title: "마법학교 아르피아", image: "/example/temp2.png" },
-  { title: "인어의 가족들", image: "/example/temp3.png" },
-];
-
-const STRATEGY_NOVELS = [
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-];
+// Supabase AuthProvider 훅
+import { useSupabase } from "@/utils/supabase/authProvider";
+// Novel 타입
+import { Novel } from "@/types/novel";
 
 export default function NovelDetail() {
-  const params = useParams();
-  const supabase = useSupabase();
-  const [novel, setNovel] = useState<Novel | null>(null);
+  // 로딩 상태
   const [loading, setLoading] = useState(true);
 
+  // 소설 정보 상태
+  const [novel, setNovel] = useState<Novel | null>(null);
+
+  // init-story 호출 중 여부
+  const [isInitializing, setIsInitializing] = useState(false);
+
+  // 실제 로그인된 유저 ID
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Next.js 훅
+  const params = useParams();   // URL 파라미터로부터 novelId를 가져옴
+  const router = useRouter();
+
+  // Supabase 인스턴스
+  const supabase = useSupabase();
+
+  // (1) 로그인된 유저 정보 가져오기
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const {
+          data: { user },
+          error,
+        } = await supabase.auth.getUser();
+
+        if (error) {
+          console.error("Error getting user from Supabase:", error);
+        } else {
+          setUserId(user?.id ?? null);
+        }
+      } catch (err) {
+        console.error("유저 정보를 가져오는 중 오류:", err);
+      }
+    };
+    fetchUser();
+  }, [supabase]);
+
+  // (2) novels 테이블에서 해당 소설 정보 가져오기
   useEffect(() => {
     const fetchNovel = async () => {
       try {
@@ -50,16 +69,68 @@ export default function NovelDetail() {
       }
     };
 
-    fetchNovel();
+    if (params.id) {
+      fetchNovel();
+    }
   }, [params.id, supabase]);
 
   if (loading) return <div>로딩 중...</div>;
   if (!novel) return <div>소설을 찾을 수 없습니다.</div>;
 
+  // (3) 소설 읽기 버튼 -> /init-story 호출
+  const handleInitStory = async () => {
+    if (!userId) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+
+    try {
+      setIsInitializing(true);
+
+      const { data: { session } } = await supabase.auth.getSession();
+    
+      if (!session?.access_token) {
+        throw new Error("인증 토큰이 없습니다.");
+      }
+
+      // 여기서 API_URL은 .env 등에 설정해도 되고, 
+      // 아래처럼 절대경로로 써도 됨
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+      // init-story에 user_id와 novel_id 전송
+      const res = await fetch(`${API_URL}/init-story`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${session?.access_token}`,
+          "Refresh-Token": session?.refresh_token  // refresh 토큰 추가
+        },
+        body: JSON.stringify({
+          user_id: userId,
+          novel_id: params.id,
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || "init-story API 호출 실패");
+      }
+
+      // 성공 시 채팅 페이지로 이동
+      router.push(`/novel/chat?novelId=${params.id}`);
+    } catch (err) {
+      console.error("init-story error:", err);
+      alert("소설 시작 중 오류가 발생했습니다.");
+    } finally {
+      setIsInitializing(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20 relative">
       <div className="container max-w-4xl mx-auto p-4">
         <div className="flex gap-6">
+          {/* 커버 이미지 */}
           {novel.image_url ? (
             <Image
               src={novel.image_url}
@@ -71,45 +142,61 @@ export default function NovelDetail() {
           ) : (
             <div className="w-48 h-64 bg-gray-200 rounded-lg shrink-0" />
           )}
-          
+
           <div className="flex-1 space-y-4">
             <h1 className="text-2xl font-bold">{novel.title}</h1>
-            
+
+            {/* mood 태그 */}
             <div className="flex gap-2">
-              {novel.mood.map((tag, index) => (
-                <span 
-                  key={index}
-                  className="px-2 py-1 bg-primary/10 text-primary rounded text-sm"
-                >
-                  {tag}
-                </span>
-              ))}
+              {Array.isArray(novel.mood) &&
+                novel.mood.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-primary/10 text-primary rounded text-sm"
+                  >
+                    {tag}
+                  </span>
+                ))}
             </div>
 
+            {/* 줄거리 */}
             <div className="space-y-2">
               <h2 className="font-semibold">줄거리</h2>
               <p className="text-gray-600">{novel.plot}</p>
             </div>
 
+            {/* 캐릭터 */}
             <div className="space-y-2">
               <h2 className="font-semibold">등장인물</h2>
-              {novel.characters.map((char, index) => (
-                <div key={index} className="p-2 bg-gray-50 rounded">
-                  <span className="font-medium">{char.name}</span>
-                  <p className="text-sm text-gray-600">{char.description}</p>
-                </div>
-              ))}
+              {Array.isArray(novel.characters) &&
+                novel.characters.map((char, index) => (
+                  <div key={index} className="p-2 bg-gray-50 rounded">
+                    <span className="font-medium">{char.name}</span>
+                    <p className="text-sm text-gray-600">{char.description}</p>
+                  </div>
+                ))}
             </div>
 
+            {/* 배경 설명 */}
             <div className="space-y-2">
               <h2 className="font-semibold">배경 설명</h2>
-              <p className="text-gray-600">{novel.background.description}</p>
-              {novel.background.detailedLocations.map((location, index) => (
-                <div key={index} className="text-sm text-gray-600">
-                  • {location}
-                </div>
-              ))}
+              <p className="text-gray-600">{novel.background?.description}</p>
+              {Array.isArray(novel.background?.detailedLocations) &&
+                novel.background.detailedLocations.map((location: string, i: number) => (
+                  <div key={i} className="text-sm text-gray-600">
+                    • {location}
+                  </div>
+                ))}
             </div>
+
+            {/* 소설 읽기 버튼 */}
+            <button
+              onClick={handleInitStory}
+              disabled={isInitializing}
+              className="block w-full bg-[#2D2F45] text-white py-4 rounded-lg text-center font-medium shadow-lg"
+            >
+              {isInitializing ? "초기화 중..." : "소설 읽기"}
+            </button>
           </div>
         </div>
       </div>

@@ -6,39 +6,56 @@ import { useRouter } from "next/navigation";
 import { Novel } from "@/types/novel";
 import Image from "next/image";
 
-export default function StoragePage() {
+export default function MyPage() {
   const supabase = useSupabase();
   const user = useUser();
   const router = useRouter();
-  const [novels, setNovels] = useState<Novel[]>([]);
+  const [recentNovels, setRecentNovels] = useState<Novel[]>([]);
 
   useEffect(() => {
-    const fetchNovels = async () => {
+    const fetchRecentNovels = async () => {
       if (!user) return;
 
+      // novel_views와 novels 테이블을 조인하여 최근 본 소설 정보 가져오기
       const { data, error } = await supabase
-        .from("novels")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+        .from('novel_views')
+        .select(`
+          novel_id,
+          last_viewed_at,
+          novels (
+            id,
+            title,
+            image_url,
+            mood,
+            created_at
+          )
+        `)
+        .eq('user_id', user.id)
+        .order('last_viewed_at', { ascending: false });
 
       if (error) {
-        console.error("Error fetching novels:", error);
+        console.error("Error fetching recent novels:", error);
         return;
       }
 
-      setNovels(data || []);
+      // novels 데이터 추출 및 last_viewed_at 추가
+      const novels = data?.map(item => ({
+        ...item.novels,
+        last_viewed_at: item.last_viewed_at
+      })) || [];
+      
+      setRecentNovels(novels);
     };
 
-    fetchNovels();
+    fetchRecentNovels();
   }, [supabase, user]);
 
   return (
     <div className="container max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">내 소설 보관함</h1>
+      <h1 className="text-2xl font-bold mb-6">최근 본 소설</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {novels.map((novel) => (
+        {recentNovels.map((novel) => (
           <div 
             key={novel.id} 
             className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
@@ -59,7 +76,7 @@ export default function StoragePage() {
             )}
             <h2 className="text-xl font-semibold mb-2">{novel.title}</h2>
             <p className="text-sm text-gray-600 mb-2">
-              {novel.created_at.substring(0, 10)}
+              마지막 조회: {new Date(novel.last_viewed_at).toLocaleDateString()}
             </p>
             <div className="flex gap-2">
               {novel.mood?.map((mood, index) => (
