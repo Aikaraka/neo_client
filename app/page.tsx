@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useSupabase, useUser } from "@/utils/supabase/authProvider";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
@@ -9,22 +10,93 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/layout/navbar";
 import { signout } from "@/utils/supabase/service/auth";
+import { createClient } from "@/utils/supabase/client";
+
+// Novel 타입 정의
+interface Novel {
+  id: string;
+  title: string;
+  image_url: string;
+  settings: {
+    isPublic: boolean;
+  };
+}
 
 export default function Home() {
+  const supabase = useSupabase();
+  const user = useUser();
   const navRef = useRef<HTMLDivElement>(null);
+  const [recommendedNovels, setRecommendedNovels] = useState<Novel[]>([]);
+  const [topNovels, setTopNovels] = useState<Novel[]>([]);
+  const [userTokens, setUserTokens] = useState<number>(0);
 
-  const recommendedNovels = [
-    { title: "천공의 연금술사", image: "/example/aetoria.png" },
-    { title: "난쟁이와 백설공주", image: "/example/temp1.png" },
-    { title: "마법학교 아르피아", image: "/example/temp2.png" },
-    { title: "인어공주", image: "/example/temp3.png" },
-  ];
+  useEffect(() => {
+    // 공개된 소설 가져오기
+    const fetchPublicNovels = async () => {
+      try {
+        const { data: novels, error } = await supabase
+          .from('novels')
+          .select('*')
+          .eq('settings->isPublic', true)
+          .order('created_at', { ascending: false });
 
-  const topNovels = [
-    { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-    { title: "나니아 연대기", image: "/example/temp5.png" },
-    { title: "스타듀밸리", image: "/example/temp6.png" },
-  ];
+        if (error) throw error;
+
+        // 최신 소설 8개를 추천 소설로
+        setRecommendedNovels(novels.slice(0, 8));
+        // 나머지를 인기 소설로 (실제로는 다른 기준 사용 가능)
+        setTopNovels(novels.slice(8, 14));
+      } catch (error) {
+        console.error('소설 로딩 에러:', error);
+      }
+    };
+
+    fetchPublicNovels();
+  }, [supabase]);
+
+  useEffect(() => {
+    const fetchUserTokens = async () => {
+      if (!user) {
+        console.log("No user found");
+        return;
+      }
+      
+      console.log("Fetching tokens for user:", user.id);
+      
+      // single() 대신 일반 쿼리 사용
+      const { data, error } = await supabase
+        .from('user_ai_token')
+        .select('remaining_tokens')
+        .eq('user_id', user.id);
+        
+      if (error) {
+        console.error("Error fetching tokens:", error);
+        return;
+      }
+      
+      // 데이터가 없으면 새로운 레코드 생성
+      if (!data || data.length === 0) {
+        const { data: newData, error: insertError } = await supabase
+          .from('user_ai_token')
+          .insert([
+            { user_id: user.id, remaining_tokens: 300 }
+          ])
+          .select()
+          .single();
+          
+        if (insertError) {
+          console.error("Error creating token record:", insertError);
+          return;
+        }
+        
+        setUserTokens(newData?.remaining_tokens || 0);
+      } else {
+        setUserTokens(data[0]?.remaining_tokens || 0);
+      }
+    };
+
+    fetchUserTokens();
+  }, [supabase, user]);
 
   const genres = [
     { title: "판타지", icon: Sparkles },
@@ -58,7 +130,7 @@ export default function Home() {
                 height={10}
                 width={10}
               />
-              9999
+              {userTokens}
             </Button>
             <Button variant="ghost" size="icon" className="hover:bg-accent">
               <Image
@@ -90,12 +162,12 @@ export default function Home() {
             </h2>
             <ScrollArea className="w-full whitespace-nowrap">
               <div className="flex space-x-4">
-                {recommendedNovels.map((novel, index) => (
-                  <Card key={index} className="w-[150px] shrink-0">
-                    <Link href={`/novel/detail`}>
+                {recommendedNovels.map((novel) => (
+                  <Card key={novel.id} className="w-[150px] shrink-0">
+                    <Link href={`/novel/${novel.id}/detail`}>
                       <CardContent className="p-0">
                         <Image
-                          src={novel.image}
+                          src={novel.image_url || '/default-cover.png'}
                           alt={novel.title}
                           width={150}
                           height={150}
@@ -121,20 +193,22 @@ export default function Home() {
             </h2>
             <ScrollArea className="w-full whitespace-nowrap">
               <div className="flex space-x-4">
-                {topNovels.map((novel, index) => (
-                  <Card key={index} className="w-[150px] shrink-0">
-                    <CardContent className="p-0">
-                      <Image
-                        src={novel.image}
-                        alt={novel.title}
-                        width={150}
-                        height={200}
-                        className="rounded-t-lg object-cover"
-                      />
-                      <div className="p-2">
-                        <p className="text-sm truncate">{novel.title}</p>
-                      </div>
-                    </CardContent>
+                {topNovels.map((novel) => (
+                  <Card key={novel.id} className="w-[150px] shrink-0">
+                    <Link href={`/novel/${novel.id}/detail`}>
+                      <CardContent className="p-0">
+                        <Image
+                          src={novel.image_url || '/default-cover.png'}
+                          alt={novel.title}
+                          width={150}
+                          height={200}
+                          className="rounded-t-lg object-cover"
+                        />
+                        <div className="p-2">
+                          <p className="text-sm truncate">{novel.title}</p>
+                        </div>
+                      </CardContent>
+                    </Link>
                   </Card>
                 ))}
               </div>
