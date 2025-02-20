@@ -1,18 +1,10 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { useSupabase } from "@/utils/supabase/authProvider";
-import { Novel } from "@/types/novel";
+import { getNovelDetail } from "@/app/novel/[id]/detail/_api/novelDetail.server";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
+import PrevPageButton from "@/components/ui/PrevPageButton";
 import Image from "next/image";
 import Link from "next/link";
 
-const TITLE = "천공의 연금술사";
-const TAGS = ["판타지", "이세계", "마법", "과학"];
 const GENRE = "판타지";
-const DESCRIPTION =
-  "아에토리아는 마법과 과학이 완벽하게 융합된 독특한 세계입니다. 이곳은 자연의 원리를 이해하고 조작하는 과학과, 신비로운 에너지인 마나를 기반으로 한 마법이 상호작용하며 공존하는 곳입니다. 사람들이 마법을 배우면서도 첨단 기술을 일상적으로 사용하는 모습을 볼 수 있습니다. 예를 들어, 마법으로 구동되는 기계나 마법 에너지로 움직이는 비행선, 그리고 마법사와 과학자가 함께 개발한 치유 기계가 대표적입니다. 이러한 세계는 인간과 다른 종족들이 함께 거주하며 조화를 이루고 있지만, 과거에는 마법과 과학 간의 갈등이 심했던 역사를 가지고 있습니다.";
 
 const RELATED_NOVELS = [
   { title: "난쟁이와 백설공주", image: "/example/temp1.png" },
@@ -25,92 +17,171 @@ const STRATEGY_NOVELS = [
   { title: "나니아 연대기", image: "/example/temp5.png" },
   { title: "스타듀밸리", image: "/example/temp6.png" },
 ];
+const NOVEL_MAX_LENGTH = 400;
 
-export default function NovelDetail() {
-  const params = useParams();
-  const supabase = useSupabase();
-  const [novel, setNovel] = useState<Novel | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchNovel = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("novels")
-          .select("*")
-          .eq("id", params.id)
-          .single();
-
-        if (error) throw error;
-        setNovel(data);
-      } catch (error) {
-        console.error("Error fetching novel:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchNovel();
-  }, [params.id, supabase]);
-
-  if (loading) return <div>로딩 중...</div>;
-  if (!novel) return <div>소설을 찾을 수 없습니다.</div>;
+export default async function NovelDetail({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const id = (await params).id;
+  const novel = await getNovelDetail(id);
 
   return (
     <div className="min-h-screen bg-background pb-20 relative">
-      <div className="container max-w-4xl mx-auto p-4">
-        <div className="flex gap-6">
-          {novel.image_url ? (
+      <PrevPageButton color="white" />
+      <div className="relative z-10">
+        {/* Absolute Header */}
+        <div className="container">
+          {/* Background Image */}
+          <div className="absolute w-full h-auto z-0">
             <Image
-              src={novel.image_url}
+              src={novel.image_url ?? ""}
               alt={novel.title}
-              width={192}
-              height={256}
-              className="rounded-lg object-cover shrink-0"
+              width={450}
+              height={450}
+              className="w-full h-auto"
             />
-          ) : (
-            <div className="w-48 h-64 bg-gray-200 rounded-lg shrink-0" />
-          )}
-          
-          <div className="flex-1 space-y-4">
-            <h1 className="text-2xl font-bold">{novel.title}</h1>
-            
-            <div className="flex gap-2">
-              {novel.mood.map((tag, index) => (
-                <span 
-                  key={index}
-                  className="px-2 py-1 bg-primary/10 text-primary rounded text-sm"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            <div className="space-y-2">
-              <h2 className="font-semibold">줄거리</h2>
-              <p className="text-gray-600">{novel.plot}</p>
-            </div>
-
-            <div className="space-y-2">
-              <h2 className="font-semibold">등장인물</h2>
-              {novel.characters.map((char, index) => (
-                <div key={index} className="p-2 bg-gray-50 rounded">
-                  <span className="font-medium">{char.name}</span>
-                  <p className="text-sm text-gray-600">{char.description}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="space-y-2">
-              <h2 className="font-semibold">배경 설명</h2>
-              <p className="text-gray-600">{novel.background.description}</p>
-              {novel.background.detailedLocations.map((location, index) => (
-                <div key={index} className="text-sm text-gray-600">
-                  • {location}
-                </div>
-              ))}
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-background" />
           </div>
+          <div className="px-4 py-16 z-10">
+            {/* Novel Thumbnail and Info */}
+            <div className="absolute inset-0 top-10 w-full px-4 my-6">
+              <Image
+                src={novel.image_url ?? ""}
+                alt={novel.title}
+                width={250}
+                height={250}
+                className="w-64 h-64 object-fill rounded-lg shadow-lg mx-auto mb-4"
+              />
+              <div className="text-center max-w-[75%] mx-auto">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <span className="bg-yellow-400 rounded-full font-bold tracking-tighter leading-none text-center text-sm p-1">
+                    12
+                  </span>
+
+                  <h1 className="text-xl font-bold truncate">{novel.title}</h1>
+                </div>
+                <div className="flex flex-wrap justify-center gap-1">
+                  {novel.mood.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-1 bg-transparent rounded-full text-xs border border-gray-300 text-gray-500"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Novel Summary */}
+            <div className="mt-[400px] mb-6 p-1 flex flex-col gap-2">
+              <h2 className="text-base font-bold flex items-center gap-1">
+                <Image
+                  src={"/bookmark.svg"}
+                  alt={"description"}
+                  width={20}
+                  height={20}
+                />
+                소설 줄거리
+              </h2>
+
+              <div className="relative">
+                <Image
+                  src={"/novel/description-bg.png"}
+                  alt={"description"}
+                  width={250}
+                  height={200}
+                  className="w-full h-[350px] relative"
+                />
+                <div className="top-0 p-10 w-full absolute inset-0 overflow-hidden">
+                  <p className="text-sm h-full leading-relaxed text-white font-thin break-words text-ellipsis overflow-hidden">
+                    {novel.plot.length > NOVEL_MAX_LENGTH
+                      ? novel.plot.slice(0, NOVEL_MAX_LENGTH) + "..."
+                      : novel.plot}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <section className="mb-6 p-1 flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <h2 className="text-base font-bold flex items-center leading-none gap-1">
+                  <Image
+                    src={"/snowflake.svg"}
+                    alt={"related"}
+                    width={24}
+                    height={24}
+                  />
+                  &lsquo;{novel.title}&apos;와 함께 본 소설
+                </h2>
+                <ScrollArea className="w-full whitespace-nowrap">
+                  <div className="flex space-x-4">
+                    {RELATED_NOVELS.map((novel, index) => (
+                      <div key={index} className="w-[120px] shrink-0">
+                        <Image
+                          src={novel.image}
+                          alt={novel.title}
+                          width={120}
+                          height={160}
+                          className="rounded-lg object-cover mb-2"
+                        />
+                        <p className="text-xs truncate">{novel.title}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <h2 className="text-base font-bold flex items-center leading-none gap-1">
+                  <Image
+                    src={"/snowflake.svg"}
+                    alt={"strategy"}
+                    width={24}
+                    height={24}
+                  />
+                  &lsquo;{GENRE}&apos; 장르 소설 추천
+                </h2>
+                <ScrollArea className="w-full whitespace-nowrap">
+                  <div className="flex space-x-4">
+                    {STRATEGY_NOVELS.map((novel, index) => (
+                      <div key={index} className="w-[120px] shrink-0">
+                        <Image
+                          src={novel.image}
+                          alt={novel.title}
+                          width={120}
+                          height={160}
+                          className="rounded-lg object-cover mb-2"
+                        />
+                        <p className="text-xs truncate">{novel.title}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating '소설 읽기' Button */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-50">
+        <div className="container max-w-md mx-auto flex justify-center mb-4">
+          <Link
+            href={"/novel/chat"}
+            className=" bg-gradient-to-r from-[#515398] to-[#1B1B32] text-white pointer-events-auto rounded-full px-6 py-4 flex items-center gap-2"
+          >
+            소설 읽기
+            <Image
+              src={"/novel/chevron-right.svg"}
+              alt={"chevron-right"}
+              width={8}
+              height={14}
+            />
+          </Link>
         </div>
       </div>
     </div>

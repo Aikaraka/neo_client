@@ -1,9 +1,13 @@
 export type User = {
   id: string;
   email: string;
-  created_at: string;
-  auth_provider?: "email" | "google" | "kakao"; // OAuth 제공자 정보 추가
-  // 필요한 추가 필드
+  name: string;
+  auth_provider?: "email" | "google" | "kakao";
+  created_at: Date;
+  nickname: string;
+  birthdate: string;
+  gender: string;
+  profile_completed: boolean;
 };
 
 export type AuthError = {

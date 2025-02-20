@@ -1,5 +1,5 @@
-// import { createClient } from "@supabase/supabase-js";
-import type { User, AuthError } from "./types";
+import { Database } from "@/utils/supabase/types/database.types";
+import type { User, AuthError } from "./types/auth.type";
 import { createBrowserClient } from "@supabase/ssr";
 
 if (!process.env.NEXT_PUBLIC_SUPABASE_URL)
@@ -8,7 +8,7 @@ if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
   throw new Error("Missing env.NEXT_PUBLIC_SUPABASE_ANON_KEY");
 
 export const createClient = () => {
-  return createBrowserClient(
+  return createBrowserClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
