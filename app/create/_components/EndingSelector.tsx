@@ -1,16 +1,18 @@
 "use client";
 
-interface EndingSelectorProps {
-  ending: 'happy' | 'sad' | 'open';
-  setEnding: (ending: 'happy' | 'sad' | 'open') => void;
-}
+import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
+import { useFormContext } from "react-hook-form";
 
-export function EndingSelector({ ending, setEnding }: EndingSelectorProps) {
-  const endings = [
-    { value: 'happy', label: '해피엔딩' },
-    { value: 'sad', label: '새드엔딩' },
-    { value: 'open', label: '열린 결말' },
-  ];
+const endings = [
+  { value: "happy", label: "해피엔딩" },
+  { value: "sad", label: "새드엔딩" },
+  { value: "open", label: "열린 결말" },
+];
+type EndingType = "happy" | "sad" | "open";
+
+export function EndingSelector() {
+  const { setValue, watch } = useFormContext<CreateNovelForm>();
+  const ending = watch("ending");
 
   return (
     <div className="space-y-4">
@@ -19,7 +21,7 @@ export function EndingSelector({ ending, setEnding }: EndingSelectorProps) {
         {endings.map((item) => (
           <button
             key={item.value}
-            onClick={() => setEnding(item.value as 'happy' | 'sad' | 'open')}
+            onClick={() => setValue("ending", item.value as EndingType)}
             className={`p-2 rounded-lg border ${
               ending === item.value
                 ? "bg-primary text-white"

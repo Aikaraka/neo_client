@@ -1,3 +1,5 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { FC, forwardRef, SVGProps } from "react";
 
@@ -23,12 +25,6 @@ const navItems = {
     activeIcon: HomeFilled,
     disabled: false,
   },
-  "/create": {
-    label: "소설 제작",
-    icon: PencilLine,
-    activeIcon: PencilFilled,
-    disabled: false,
-  },
   "/storage": {
     label: "보관함",
     icon: BoxLine,
@@ -36,10 +32,10 @@ const navItems = {
     disabled: false,
   },
   "/mypage": {
-    label: "마이페이지",
+    label: "마이네오",
     icon: UserLine,
     activeIcon: UserFilled,
-    disabled: true,
+    disabled: false,
   },
 };
 
@@ -111,7 +107,7 @@ const Navbar = forwardRef<HTMLDivElement>((props, ref) => {
                 label={label}
                 icon={icon}
                 activeIcon={activeIcon}
-                isActive={pathname.includes(path)}
+                isActive={pathname === path}
                 disabled={disabled}
               />
             )

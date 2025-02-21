@@ -1,18 +1,25 @@
+type Relaionship = {
+  relationship: string;
+  targetName: string;
+};
 export interface Character {
-    name: string;
-    description: string;
-    relationships: { character: string; relationship: string }[];
-    role: 'protagonist' | 'supporting';  // 주인공/등장인물 구분
-  }
-  
+  name: string;
+  description: string;
+  relationships: Array<Relaionship>;
+  role: "protagonist" | "supporting"; // 주인공/등장인물 구분
+}
+
 export interface NovelCreationData {
   characters: Character[];
   plot: string;
   background: {
+    place: string;
+    time: string;
+    keywords: string[];
     description: string;
     detailedLocations: string[];
   };
-  ending: 'happy' | 'sad' | 'open';
+  ending: "happy" | "sad" | "open";
   mood: string[];
   settings: {
     hasViolence: boolean;

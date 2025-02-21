@@ -18,6 +18,14 @@ export const signup = async ({
   password,
 }: Pick<SignupFormType, "email" | "password">) => {
   const supabase = await createClient();
+
+  const { data: duplicateData } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .single();
+  if (duplicateData) throw new Error("이미 존재하는 이메일입니다.");
+
   const { data: authData, error } = await supabase.auth.signUp({
     email,
     password,
@@ -25,7 +33,9 @@ export const signup = async ({
       emailRedirectTo: `http://localhost:3000/auth/callback`,
     },
   });
-  if (error) throw new Error("유저 정보를 저장하던 중 오류가 발생했습니다.");
+  if (error) {
+    throw new Error("유저 정보를 저장하던 중 오류가 발생했습니다.");
+  }
   return { authData };
 };
 
