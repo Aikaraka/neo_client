@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/layout/navbar";
 import { Inbox, Search } from "lucide-react";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function StoragePage() {
   const { data: novelList, isPending } = useQuery({
@@ -27,6 +28,12 @@ export default function StoragePage() {
         <Inbox />
         <h1 className="text-2xl font-bold">내 소설 보관함</h1>
       </p>
+      <Button
+        className="bg-neo rounded-xl p-6"
+        onClick={() => router.push("/create")}
+      >
+        소설 생성하러 가기
+      </Button>
       <div className="flex gap-2">
         <input
           type="text"
