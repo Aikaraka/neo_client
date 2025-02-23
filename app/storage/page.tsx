@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/layout/navbar";
 import { Inbox, Search } from "lucide-react";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NovelStorageList } from "@/app/storage/_components/novelStorageList";
 import { Toaster } from "@/components/ui/toaster";
@@ -33,7 +33,7 @@ export default function StoragePage() {
           <Search className="self-center" />
         </div>
 
-        <NovelStorageList />
+        <NovelStorageList searchQuery={searchQuery} />
 
         <Navbar />
       </div>
