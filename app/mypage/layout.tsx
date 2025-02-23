@@ -7,11 +7,11 @@ export default function layout({ children }: { children: React.ReactNode }) {
     <>
       <ScrollArea
         aria-orientation="vertical"
-        className="w-full h-screen whitespace-nowrap pb-20"
+        className="w-full h-screen whitespace-nowrap pb-20 relative"
       >
         {children}
+        <Navbar />
       </ScrollArea>
-      <Navbar />
     </>
   );
 }
