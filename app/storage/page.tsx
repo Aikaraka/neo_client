@@ -1,79 +1,75 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useSupabase, useUser } from "@/utils/supabase/authProvider";
 import { useRouter } from "next/navigation";
-import { Novel } from "@/types/novel";
 import Image from "next/image";
+import { getMyNovels } from "@/app/storage/_api/novels.server";
+import { useQuery } from "@tanstack/react-query";
+import Navbar from "@/components/layout/navbar";
+import { Inbox, Search } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 
 export default function StoragePage() {
-  const supabase = useSupabase();
-  const user = useUser();
+  const { data: novelList, isPending } = useQuery({
+    queryKey: ["storage"],
+    queryFn: getMyNovels,
+  });
+  const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter();
-  const [novels, setNovels] = useState<Novel[]>([]);
+  const novels = searchQuery
+    ? novelList?.filter((novel) => novel.title.includes(searchQuery))
+    : novelList;
 
-  useEffect(() => {
-    const fetchNovels = async () => {
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from("novels")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        console.error("Error fetching novels:", error);
-        return;
-      }
-
-      setNovels(data || []);
-    };
-
-    fetchNovels();
-  }, [supabase, user]);
-
+  if (isPending) return null;
+  if (!novels) return null;
   return (
-    <div className="container max-w-4xl mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">내 소설 보관함</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="container max-w-4xl mx-auto p-6 h-dvh flex flex-col gap-4 pb-20">
+      <p className="flex gap-2 items-center">
+        <Inbox />
+        <h1 className="text-2xl font-bold">내 소설 보관함</h1>
+      </p>
+      <Button
+        className="bg-neo rounded-xl p-6"
+        onClick={() => router.push("/create")}
+      >
+        소설 생성하러 가기
+      </Button>
+      <div className="flex gap-2">
+        <input
+          type="text"
+          className="flex-1 bg-secondary py-2 px-4 rounded-full"
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <Search className="self-center" />
+      </div>
+      <div className="flex flex-col flex-1 gap-4 overflow-auto">
         {novels.map((novel) => (
-          <div 
-            key={novel.id} 
-            className="p-4 border rounded-lg hover:shadow-md transition-shadow cursor-pointer"
+          <div
+            key={novel.id}
+            className="p-2 border-b hover:shadow-md transition-shadow cursor-pointer flex gap-2 last:border-none"
             onClick={() => router.push(`/novel/${novel.id}/detail`)}
           >
             {novel.image_url ? (
-              <div className="aspect-[2/3] mb-4">
-                <Image
-                  src={novel.image_url}
-                  alt={novel.title}
-                  width={300}
-                  height={450}
-                  className="rounded-lg object-cover w-full h-full"
-                />
-              </div>
+              <Image
+                src={novel.image_url}
+                alt={novel.title}
+                width={60}
+                height={60}
+                className="rounded-lg object-contain w-[60px] h-[60px] "
+              />
             ) : (
-              <div className="aspect-[2/3] mb-4 bg-gray-200 rounded-lg" />
+              <div className=" bg-gray-200 rounded-lg w-[60px] h-[60px]" />
             )}
-            <h2 className="text-xl font-semibold mb-2">{novel.title}</h2>
-            <p className="text-sm text-gray-600 mb-2">
-              {novel.created_at.substring(0, 10)}
-            </p>
-            <div className="flex gap-2">
-              {novel.mood?.map((mood, index) => (
-                <span 
-                  key={index}
-                  className="px-2 py-1 bg-primary/10 text-primary rounded text-sm"
-                >
-                  {mood}
-                </span>
-              ))}
+            <div className="flex flex-col flex-1 justify-center">
+              <p className="text-lg font-semibold">{novel.title}</p>
+              <p className="text-xs text-gray-600 mb-2">
+                {novel.created_at.substring(0, 10)}
+              </p>
             </div>
           </div>
         ))}
       </div>
+      <Navbar />
     </div>
   );
 }
