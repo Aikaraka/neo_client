@@ -35,7 +35,11 @@ export async function RecommendedNovelList() {
             <Link href={`/novel/${novel.id}/detail`}>
               <CardContent className="p-0">
                 <Image
-                  src={novel.image_url ?? ""}
+                  src={
+                    novel.image_url
+                      ? novel.image_url
+                      : "https://i.imgur.com/D1fNsoW.png"
+                  }
                   alt={novel.title}
                   width={150}
                   height={150}
@@ -64,7 +68,11 @@ export async function TopNovelList() {
             <Link href={`/novel/${novel.id}/detail`}>
               <CardContent className="p-0">
                 <Image
-                  src={novel.image_url ?? ""}
+                  src={
+                    novel.image_url
+                      ? novel.image_url
+                      : "https://i.imgur.com/D1fNsoW.png"
+                  }
                   alt={novel.title}
                   width={150}
                   height={150}
