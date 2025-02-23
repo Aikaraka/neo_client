@@ -1,6 +1,7 @@
 import { getNovelDetail } from "@/app/novel/[id]/detail/_api/novelDetail.server";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import PrevPageButton from "@/components/ui/PrevPageButton";
+
 import Image from "next/image";
 import Link from "next/link";
 
@@ -24,8 +25,8 @@ export default async function NovelDetail({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const id = (await params).id;
-  const novel = await getNovelDetail(id);
+  const novelId = (await params).id;
+  const novel = await getNovelDetail(novelId);
 
   return (
     <div className="min-h-screen bg-background pb-20 relative">
@@ -171,7 +172,7 @@ export default async function NovelDetail({
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-50">
         <div className="container max-w-md mx-auto flex justify-center mb-4">
           <Link
-            href={"/novel/chat"}
+            href={`/novel/${novelId}/chat`}
             className=" bg-gradient-to-r from-[#515398] to-[#1B1B32] text-white pointer-events-auto rounded-full px-6 py-4 flex items-center gap-2"
           >
             소설 읽기
