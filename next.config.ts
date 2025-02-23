@@ -4,12 +4,13 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'ocdthvsbuvikwyrjogcd.supabase.co',
-        port: '',
-        pathname: '/storage/v1/object/public/**',
+        protocol: "https",
+        hostname: "ocdthvsbuvikwyrjogcd.supabase.co",
+        port: "",
+        pathname: "/storage/v1/object/public/**",
       },
     ],
+    domains: ["i.imgur.com"],
   },
   webpack: (config) => {
     config.module.rules.push({
