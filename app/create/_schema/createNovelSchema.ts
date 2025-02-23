@@ -9,6 +9,8 @@ export const CharacterSchema = z.object({
   name: z.string().min(1, "캐릭터 이름을 입력해주세요."),
   description: z.string().min(10, "캐릭터 설명은 10자 이상 입력해야 합니다."),
   relationships: z.array(RelationshipSchema),
+  gender: z.enum(["MALE", "FEMALE", "NONE"]),
+  age: z.number(),
   role: z.enum(["protagonist", "supporting"]),
   isConfirmed: z.boolean(),
   isEditing: z.boolean(),
@@ -32,9 +34,7 @@ export const createNovelSchema = z.object({
     // keywords: z
     //   .array(z.string())
     //   .min(1, "최소 한 개의 키워드를 입력해야 합니다."),
-    description: z
-      .string()
-      .min(10, "배경 설명을 최소 10자 이상 입력해 주세요."),
+    start: z.string().min(10, "첫 장면은 최소 10자 이상 입력해 주세요."),
     detailedLocations: z.array(z.string()).optional(),
   }),
   ending: z.enum(["happy", "sad", "open"]),
