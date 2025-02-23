@@ -9,7 +9,7 @@ export default async function Page() {
   const userData = await getCurrentUser();
 
   return (
-    <div className="w-full px-8 pt-10 pb-20 ">
+    <div className="w-full px-8 pt-10 pb-20">
       <header className="flex h-7 p-1 justify-between items-center">
         <div className="flex gap-3">
           <User size={24} />
