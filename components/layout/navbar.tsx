@@ -93,7 +93,7 @@ function NavItem({
 const Navbar = forwardRef<HTMLDivElement>((props, ref) => {
   const pathname = usePathname() || "/";
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-background border-t">
+    <nav className="absolute bottom-0 left-0 right-0 bg-background border-t z-10">
       <div className="container max-w-md">
         <div
           className="flex justify-around items-center py-2 relative"
