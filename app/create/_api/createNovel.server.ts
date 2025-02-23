@@ -5,6 +5,7 @@ import { z } from "zod";
 
 export async function createNovel(novel: z.infer<typeof createNovelSchema>) {
   const supabase = await createClient();
+  console.log(novel);
   const {
     data: { user },
     error: userError,
@@ -19,10 +20,20 @@ export async function createNovel(novel: z.infer<typeof createNovelSchema>) {
         title: novel.title,
         image_url: novel.cover_image_url ?? "",
         settings: novel.settings,
-        characters: novel.characters || "{}",
+        characters:
+          novel.characters.length > 0
+            ? novel.characters.map((character) => {
+                const age =
+                  character.age === 0 ? "미정" : character.age.toString();
+                return {
+                  ...character,
+                  age: age,
+                };
+              })
+            : "{}",
         plot: novel.plot || "",
         background: {
-          description: novel.background.description || "",
+          start: novel.background.start || "",
           detailedLocations: novel.background.detailedLocations || "{}",
         },
         ending: novel.ending || "happy",
