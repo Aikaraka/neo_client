@@ -24,8 +24,8 @@ export function Spinner() {
 
 export function SuspenseSpinner() {
   return (
-    <div className="w-full h-screen">
-      <div className="absolute top-0 left-0 w-full h-full bg-foreground bg-opacity-50 flex justify-center items-center z-40">
+    <div className="w-full h-screen bg-white">
+      <div className="absolute top-0 left-0 w-full h-full bg-white flex justify-center items-center z-40">
         <Spinner />
       </div>
     </div>
