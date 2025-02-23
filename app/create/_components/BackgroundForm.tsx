@@ -33,31 +33,23 @@ export function BackgroundForm() {
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <label className="text-sm font-medium">배경 설명</label>
+        <label className="text-sm font-medium">첫 장면</label>
         <textarea
-          value={background.description}
-          onChange={(e) => setValue("background.description", e.target.value)}
-          placeholder="소설의 배경을 자세히 설명해주세요..."
+          value={background.start}
+          onChange={(e) => setValue("background.start", e.target.value)}
+          placeholder="여러분이 만든 소설의 첫 장면은 어떻게 시작하시길 원하는지 적어주세요!"
           className="w-full p-3 border rounded-lg"
           rows={4}
         />
         <p className="text-destructive">
-          {formState.errors.background?.description?.message}
-        </p>
-        <p className="text-sm text-gray-500">
-          최대한 상세하게 묘사할 수록 더 몰입감 있는 스토리 진행이 가능해요!
-        </p>
-        <p className="text-sm text-gray-500 italic">
-          예시) 근미래형 디스토피아 도시 X<br />
-          쓰레기더미가 쌓인 고층 건물 사이를 드론이 순찰하는 2090년 폐허가 된
-          메가시티 O
+          {formState.errors.background?.start?.message}
         </p>
       </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">
-            보다 상세한 주요 사건 발생지를 적고 싶으신가요?
+            주요 사건 발생지를 적고 싶으신가요?
           </span>
           <button
             onClick={() => setShowAddLocation(true)}
