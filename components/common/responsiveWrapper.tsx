@@ -13,7 +13,7 @@ export default function ResponsiveWrapper({
     //TODO : 반응형 추가할 때 max-w-full로 변경
     <body
       className={`${
-        mobileEnvironMent ? "max-w-md" : "max-w-md"
+        mobileEnvironMent ? "max-w-md min-w-[360px]" : "max-w-md min-w-[360px]"
       }  mx-auto relative`}
     >
       {children}
