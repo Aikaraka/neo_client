@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import React from "react";
 
 type ModalProps = {
@@ -37,4 +38,13 @@ export const Modal = ({
       </div>
     </div>
   );
+};
+
+export const LoadingModal = ({ visible = true }: { visible?: boolean }) => {
+  if (visible)
+    return (
+      <div className="absolute top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-40">
+        <Spinner />
+      </div>
+    );
 };

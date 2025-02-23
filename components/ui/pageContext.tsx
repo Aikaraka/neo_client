@@ -1,8 +1,18 @@
 "use client";
 
+import { cva, VariantProps } from "class-variance-authority";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useState } from "react";
+
+const prevButtonVariants = cva("absolute cursor-pointer z-50", {
+  variants: {
+    variant: {
+      default: "top-10 left-7",
+      header: "top-4 left-4",
+    },
+  },
+});
 
 type PageContextType = {
   currPage: number;
@@ -17,15 +27,21 @@ type PageProviderProps = {
   children: React.ReactNode;
   maxPage: number;
   initialPage?: number;
+  prevButton?: boolean;
+  variants?: VariantProps<typeof prevButtonVariants>;
 };
+
 export const PageProvider = ({
   children,
   maxPage,
   initialPage,
+  prevButton = true,
+  variants = { variant: "default" },
 }: PageProviderProps) => {
   const [currPage, setCurrPage] = useState(initialPage ?? 0);
   const navigation = useRouter();
 
+  const prevButtonVisible = currPage > 0 && currPage <= maxPage && prevButton;
   function nextPage() {
     setCurrPage((prev) => (prev < maxPage ? prev + 1 : prev));
   }
@@ -47,14 +63,13 @@ export const PageProvider = ({
         prevPage,
       }}
     >
-      {currPage === maxPage && (
+      {prevButtonVisible && (
         <ChevronLeft
-          className="absolute top-10 left-7 cursor-pointer z-50"
+          className={prevButtonVariants(variants)}
           size={32}
           onClick={prevPage}
         />
       )}
-
       {children}
     </PageContext.Provider>
   );

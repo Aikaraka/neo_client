@@ -12,10 +12,11 @@ import { TextInputWithIcon } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import PrevPageButton from "@/components/ui/PrevPageButton";
 import useModal from "@/hooks/use-modal";
+import { maskEmail } from "@/utils/maskEmail";
 import { findEmail } from "@/utils/supabase/service/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Mail, User } from "lucide-react";
+import { Info, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -55,7 +56,7 @@ export default function Page() {
   const { mutate, isPending } = useMutation({
     mutationFn: findEmail,
     onSuccess: (email) => {
-      setEmailInformMessage(`회원님의 이메일은 ${email}입니다.`);
+      setEmailInformMessage(`회원님의 이메일은 ${maskEmail(email)}입니다.`);
       switchEmailInfromModal();
     },
     onError: (error) => {
@@ -118,6 +119,10 @@ export default function Page() {
         confirmText="로그인"
       >
         {emailInform}
+        <div className="flex text-sm gap-3 bg-muted rounded-lg p-2">
+          <Info />
+          정보 보호를 위해 아이디의 일부만 보여집니다.
+        </div>
       </Modal>
     </div>
   );
