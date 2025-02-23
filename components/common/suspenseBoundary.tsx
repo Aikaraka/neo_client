@@ -1,7 +1,6 @@
 "use client";
 
 import NotFound from "@/app/[...404]/page";
-import { LoadingModal } from "@/components/ui/modal";
 import { SuspenseSpinner } from "@/components/ui/spinner";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
