@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import QueryProvider from "@/components/common/queryProvider";
 import { AuthProvider } from "@/utils/supabase/authProvider";
 import ResponsiveWrapper from "@/components/common/responsiveWrapper";
+import SuspenseBoundary from "@/components/common/suspenseBoundary";
 
 const NanumSquareNeo = localFont({
   src: "./fonts/NanumSquareNeo-Variable.woff2",
@@ -25,7 +26,9 @@ export default function RootLayout({
     <html lang="ko" className={cn(NanumSquareNeo.className, "bg-foreground/5")}>
       <ResponsiveWrapper>
         <AuthProvider>
-          <QueryProvider>{children}</QueryProvider>
+          <QueryProvider>
+            <SuspenseBoundary>{children}</SuspenseBoundary>
+          </QueryProvider>
         </AuthProvider>
       </ResponsiveWrapper>
     </html>

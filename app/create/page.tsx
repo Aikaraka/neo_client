@@ -1,76 +1,72 @@
 "use client";
 
-import { useState } from "react";
+import { createNovel } from "@/app/create/_api/createNovel.server";
+import BackgroundSetting from "@/app/create/_pages/BackgroundDesign";
+import CharactorAndPlotDesign from "@/app/create/_pages/CharactorAndPlotDesign";
+import CoverDesign from "@/app/create/_pages/CoverDesign";
+import { createNovelSchema } from "@/app/create/_schema/createNovelSchema";
+import { Form } from "@/components/ui/form";
+import { LoadingModal } from "@/components/ui/modal";
+import { usePageContext } from "@/components/ui/pageContext";
+import { useToast } from "@/hooks/use-toast";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { Character } from "@/types/novel";
-import { CharacterForm } from "./components/CharacterForm";
-import { RelationshipForm } from "./components/RelationshipForm";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+const PageComponent: Record<number, () => JSX.Element> = {
+  0: () => <CharactorAndPlotDesign />,
+  1: () => <BackgroundSetting />,
+  2: () => <CoverDesign />,
+};
+
+const SUBMIT_ERROR_TITLE = "소설 생성 실패";
 
 export default function CreateNovel() {
+  const { currPage } = usePageContext();
   const router = useRouter();
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [plot, setPlot] = useState("");
+  const form = useForm<z.infer<typeof createNovelSchema>>({
+    resolver: zodResolver(createNovelSchema),
+    defaultValues: {
+      background: {
+        description: "",
+        detailedLocations: [],
+      },
+      characters: [],
+      ending: "happy",
+      mood: [],
+      plot: "",
+      settings: {
+        hasAdultContent: false,
+        hasViolence: false,
+        isPublic: false,
+      },
+    },
+  });
+  const { toast } = useToast();
+  const { isPending, mutate } = useMutation({
+    mutationFn: createNovel,
+    onSuccess: (novelId) => router.push(`/novel/${novelId}/detail`),
+    onError: (error) =>
+      toast({ title: SUBMIT_ERROR_TITLE, description: error.message }),
+  });
 
-  const handleNext = () => {
-    if (characters.length === 0) {
-      // TODO: 에러 메시지 표시
-      return;
-    }
-    
-    if (plot.trim() === "") {
-      // TODO: 에러 메시지 표시
-      return;
-    }
-
-    localStorage.setItem("novelCreationData", JSON.stringify({ characters, plot }));
-    router.push("/create/background");
-  };
-
-  const validateCharacters = (characters: Character[]) => {
-    // 주인공은 반드시 한 명이어야 함
-    const protagonists = characters.filter(c => c.role === 'protagonist');
-    if (protagonists.length !== 1) {
-      throw new Error('주인공은 반드시 한 명이어야 합니다.');
-    }
-    
-    // 최소 한 명의 등장인물이 필요
-    const supporting = characters.filter(c => c.role === 'supporting');
-    if (supporting.length === 0) {
-      throw new Error('최소 한 명의 등장인물이 필요합니다.');
+  const onSubmit = async (data: z.infer<typeof createNovelSchema>) => {
+    const possible = await form.trigger();
+    if (possible) {
+      mutate(data);
     }
   };
 
   return (
-    <div className="container max-w-md mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-6">소설 캐릭터와 줄거리</h1>
-      
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">캐릭터</h2>
-        <CharacterForm characters={characters} setCharacters={setCharacters} />
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">캐릭터 관계</h2>
-        <RelationshipForm characters={characters} setCharacters={setCharacters} />
-      </section>
-
-      <section className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">줄거리</h2>
-        <textarea
-          className="w-full p-3 border rounded-lg"
-          rows={6}
-          value={plot}
-          onChange={(e) => setPlot(e.target.value)}
-          placeholder="소설의 전체적인 줄거리를 입력해주세요..."
-        />
-      </section>
-
-      <button
-        onClick={handleNext}
-        className="w-full bg-primary text-white py-3 rounded-lg"
-      >
-        다음 단계로
-      </button>
-    </div>
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          {PageComponent[currPage]?.()}
+        </form>
+      </Form>
+      <LoadingModal visible={isPending} />
+    </>
   );
 }
