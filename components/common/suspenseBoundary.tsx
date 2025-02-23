@@ -1,13 +1,19 @@
-import React, { Suspense } from "react";
-import {
-  ErrorBoundary,
-  ErrorBoundaryPropsWithFallback,
-  FallbackProps,
-} from "react-error-boundary";
+"use client";
 
-interface SuspenseBoundaryProps
-  extends Omit<ErrorBoundaryPropsWithFallback, "fallback" | "fallbackRender"> {
-  errorFallback?: React.ReactNode | ((props: FallbackProps) => React.ReactNode);
+import NotFound from "@/app/[...404]/page";
+import { LoadingModal } from "@/components/ui/modal";
+import { SuspenseSpinner } from "@/components/ui/spinner";
+import { Suspense } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+
+interface SuspenseBoundaryProps {
+  children: React.ReactNode;
+  errorFallback?:
+    | React.ReactNode
+    | ((props: {
+        error: Error;
+        resetErrorBoundary: () => void;
+      }) => React.ReactNode);
   suspenseFallback?: React.ReactNode;
 }
 
@@ -15,24 +21,17 @@ export default function SuspenseBoundary({
   children,
   errorFallback,
   suspenseFallback,
-  ...props
 }: SuspenseBoundaryProps) {
   const fallbackRender =
     typeof errorFallback === "function"
       ? errorFallback
       : errorFallback
       ? () => <>{errorFallback}</>
-      : ({ error, resetErrorBoundary }: FallbackProps) => (
-          <div role="alert">
-            <p>문제가 발생했습니다:</p>
-            <pre>{error.message}</pre>
-            <button onClick={resetErrorBoundary}>다시 시도</button>
-          </div>
-        );
+      : () => <NotFound />;
 
   return (
-    <ErrorBoundary fallbackRender={fallbackRender} {...props}>
-      <Suspense fallback={suspenseFallback ?? <p>로딩 중입니다...</p>}>
+    <ErrorBoundary fallbackRender={fallbackRender}>
+      <Suspense fallback={suspenseFallback ?? <SuspenseSpinner />}>
         {children}
       </Suspense>
     </ErrorBoundary>
