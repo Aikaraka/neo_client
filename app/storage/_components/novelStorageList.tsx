@@ -31,7 +31,7 @@ export function NovelStorageListSkeleton() {
 }
 
 const TOAST_DELETE_NOVEL_ERROR_TITLE = "소설 삭제 오류";
-export function NovelStorageList() {
+export function NovelStorageList({ searchQuery }: { searchQuery: string }) {
   const queryClient = useQueryClient();
   const { data: novels, isPending } = useQuery({
     queryKey: ["storage"],
@@ -50,12 +50,15 @@ export function NovelStorageList() {
   });
   const router = useRouter();
   const { open: deleteConfirmModal, switchModal } = useModal();
+  const filteredNovel = searchQuery
+    ? novels?.filter((novel) => novel.title.includes(searchQuery))
+    : novels;
 
   if (isPending) return <NovelStorageListSkeleton />;
   if (!novels) return <NotFound />;
   return (
     <div className="flex flex-col flex-1 gap-4 overflow-auto">
-      {novels.map((novel) => (
+      {filteredNovel?.map((novel) => (
         <div
           key={novel.id}
           className="p-2 border-b hover:shadow-md transition-shadow cursor-pointer flex gap-2 last:border-none items-center"
