@@ -1,12 +1,13 @@
 "use client";
 
-import { Character } from "@/types/novel";
+import { Character, Gender } from "@/types/novel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Pencil, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFormContext } from "react-hook-form";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
+import { Label } from "@/components/ui/label";
 
 interface ExtendedCharacter extends Character {
   isConfirmed: boolean;
@@ -16,8 +17,9 @@ interface ExtendedCharacter extends Character {
 const TOAST_TITLE_CHARACTER_ERROR = "캐릭터 생성 오류";
 
 export function CharacterForm() {
-  const { setValue, watch, formState } = useFormContext<CreateNovelForm>();
-  const characters = watch("characters") as ExtendedCharacter[]; // isConfirmed, isEditing 포함
+  const { setValue, watch, formState, register } =
+    useFormContext<CreateNovelForm>();
+  const characters = watch("characters");
 
   const { toast } = useToast();
 
@@ -31,6 +33,8 @@ export function CharacterForm() {
         role: "supporting",
         isConfirmed: false,
         isEditing: true,
+        gender: "NONE",
+        age: 1,
       },
     ]);
   };
@@ -79,6 +83,13 @@ export function CharacterForm() {
       });
       return;
     }
+    if (character.age < 0 && character.age > 9999) {
+      toast({
+        title: TOAST_TITLE_CHARACTER_ERROR,
+        description: "나이는 0~9999 사이의 숫자로 입력해주세요.",
+      });
+      return;
+    }
 
     updateCharacter(index, { isConfirmed: true, isEditing: false });
   };
@@ -102,7 +113,7 @@ export function CharacterForm() {
         {characters.map((character, index) => (
           <div key={index} className="px-2 rounded-lg">
             {character.isEditing ? (
-              <div className="space-y-4 border p-4">
+              <div className="space-y-4 border p-4 rounded-lg">
                 <div className="flex justify-between items-start">
                   <div className="space-y-2 flex-1">
                     <label className="text-sm font-medium">캐릭터 이름</label>
@@ -122,7 +133,62 @@ export function CharacterForm() {
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
-
+                <div className="space-y-2 flex justify-between items-center">
+                  <div className="flex flex-col gap-2">
+                    <Label>성별</Label>
+                    <div className="flex gap-2">
+                      <input
+                        type="radio"
+                        value={"MALE"}
+                        checked={character.gender === "MALE"}
+                        onChange={(e) =>
+                          updateCharacter(index, {
+                            gender: e.target.value as Gender,
+                          })
+                        }
+                      />
+                      <label>남자</label>
+                      <input
+                        type="radio"
+                        value={"FEMALE"}
+                        checked={character.gender === "FEMALE"}
+                        onChange={(e) =>
+                          updateCharacter(index, {
+                            gender: e.target.value as Gender,
+                          })
+                        }
+                      />
+                      <label>여자</label>
+                      <input
+                        type="radio"
+                        value={"NONE"}
+                        checked={character.gender === "NONE"}
+                        onChange={(e) =>
+                          updateCharacter(index, {
+                            gender: e.target.value as Gender,
+                          })
+                        }
+                      />
+                      <label>없음</label>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label>나이</Label>
+                  <Input
+                    className="w-20"
+                    type="number"
+                    min={0}
+                    max={9999}
+                    value={character.age}
+                    onChange={(e) =>
+                      updateCharacter(index, { age: +e.target.value })
+                    }
+                  />
+                  <p className="text-sm text-gray-500 pl-1">
+                    나이를 0으로 입력하면 미정으로 설정됩니다.
+                  </p>
+                </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">역할</label>
                   <div className="flex gap-4">
