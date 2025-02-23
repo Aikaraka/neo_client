@@ -37,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
         setSession(session);
-      } catch (error) {
+      } catch {
         console.error("초기화 오류");
       } finally {
         setLoading(false);
