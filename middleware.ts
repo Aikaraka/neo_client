@@ -2,7 +2,14 @@ import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 import { createClient } from "@/utils/supabase/server";
 
-const protectedRoutes = ["/dashboard", "/profile", "/settings", "/mypage"];
+const protectedRoutes = [
+  "/dashboard",
+  "/profile",
+  "/settings",
+  "/mypage",
+  "/storage",
+  "/create",
+];
 const authRoutes = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
