@@ -1,31 +1,17 @@
-"use client";
-
-import { useRef } from "react";
+import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { Sparkles, Heart, Mountain } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/layout/navbar";
-import { signout } from "@/utils/supabase/service/auth";
+import {
+  NovelListSkeleton,
+  RecommendedNovelList,
+  TopNovelList,
+} from "@/app/_components/NovelList";
 
-export default function Home() {
-  const navRef = useRef<HTMLDivElement>(null);
-
-  const recommendedNovels = [
-    { title: "천공의 연금술사", image: "/example/aetoria.png" },
-    { title: "난쟁이와 백설공주", image: "/example/temp1.png" },
-    { title: "마법학교 아르피아", image: "/example/temp2.png" },
-    { title: "인어공주", image: "/example/temp3.png" },
-  ];
-
-  const topNovels = [
-    { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-    { title: "나니아 연대기", image: "/example/temp5.png" },
-    { title: "스타듀밸리", image: "/example/temp6.png" },
-  ];
-
+export default async function Home() {
   const genres = [
     { title: "판타지", icon: Sparkles },
     { title: "로맨스", icon: Heart },
@@ -88,29 +74,9 @@ export default function Home() {
               />
               네오님의 취향 저격
             </h2>
-            <ScrollArea className="w-full whitespace-nowrap">
-              <div className="flex space-x-4">
-                {recommendedNovels.map((novel, index) => (
-                  <Card key={index} className="w-[150px] shrink-0">
-                    <Link href={`/novel/detail`}>
-                      <CardContent className="p-0">
-                        <Image
-                          src={novel.image}
-                          alt={novel.title}
-                          width={150}
-                          height={150}
-                          className="object-cover rounded-lg"
-                        />
-                        <div className="p-2">
-                          <p className="text-sm truncate">{novel.title}</p>
-                        </div>
-                      </CardContent>
-                    </Link>
-                  </Card>
-                ))}
-              </div>
-              <ScrollBar orientation="horizontal" />
-            </ScrollArea>
+            <Suspense fallback={<NovelListSkeleton />}>
+              <RecommendedNovelList />
+            </Suspense>
           </section>
 
           {/* Top 5 Section */}
@@ -119,27 +85,9 @@ export default function Home() {
               <span className="mr-2">🔥</span>
               실시간 TOP 5 소설
             </h2>
-            <ScrollArea className="w-full whitespace-nowrap">
-              <div className="flex space-x-4">
-                {topNovels.map((novel, index) => (
-                  <Card key={index} className="w-[150px] shrink-0">
-                    <CardContent className="p-0">
-                      <Image
-                        src={novel.image}
-                        alt={novel.title}
-                        width={150}
-                        height={200}
-                        className="rounded-t-lg object-cover"
-                      />
-                      <div className="p-2">
-                        <p className="text-sm truncate">{novel.title}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-              <ScrollBar orientation="horizontal" />
-            </ScrollArea>
+            <Suspense fallback={<NovelListSkeleton />}>
+              <TopNovelList />
+            </Suspense>
           </section>
 
           {/* Genres Section */}
@@ -164,7 +112,7 @@ export default function Home() {
         </div>
       </main>
       {/* Navigation Bar */}
-      <Navbar ref={navRef} />
+      <Navbar />
     </div>
   );
 }
