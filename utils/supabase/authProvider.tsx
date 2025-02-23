@@ -1,13 +1,14 @@
 "use client";
 
 import { createClient } from "@/utils/supabase/client";
-import { SupabaseClient, User } from "@supabase/supabase-js";
+import { Session, SupabaseClient, User } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType {
   supabase: SupabaseClient;
   user: User | null;
+  session: Session | null;
   loading: boolean;
 }
 
@@ -23,6 +24,7 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -34,6 +36,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
+        setSession(session);
       } catch (error) {
         console.error("초기화 오류");
       } finally {
@@ -60,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [router, supabase]);
 
   return (
-    <AuthContext.Provider value={{ supabase, user, loading }}>
+    <AuthContext.Provider value={{ supabase, user, session, loading }}>
       {children}
     </AuthContext.Provider>
   );
@@ -70,6 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useUser() {
   const { user } = useAuth();
   return user;
+}
+
+export function useSession() {
+  const { session } = useAuth();
+  return session;
 }
 
 export function useSupabase() {
