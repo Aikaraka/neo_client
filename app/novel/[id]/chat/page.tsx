@@ -293,12 +293,12 @@ export default function ChatPage() {
           <AutoChat
             onClick={() => handleSendMessage(true)}
             aria-disabled={isMessageSending}
-            className="text-primary"
+            className="text-primary cursor-pointer"
           />
           <PaperPlane
             onClick={() => handleSendMessage(false)}
             aria-disabled={isMessageSending}
-            className="text-primary"
+            className="text-primary cursor-pointer"
           />
         </div>
       </div>
