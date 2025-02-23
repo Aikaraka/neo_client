@@ -9,6 +9,38 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      novel_views: {
+        Row: {
+          created_at: string;
+          id: string;
+          last_viewed_at: string;
+          novel_id: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          last_viewed_at?: string;
+          novel_id: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          last_viewed_at?: string;
+          novel_id?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "novel_views_novel_id_fkey";
+            columns: ["novel_id"];
+            isOneToOne: false;
+            referencedRelation: "novels";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       novels: {
         Row: {
           background: Json;
@@ -54,20 +86,56 @@ export type Database = {
         };
         Relationships: [];
       };
-      user_ai_usage: {
+      token_purchase_history: {
         Row: {
+          amount: number;
+          id: string;
+          payment_method: string | null;
+          payment_status: string | null;
+          price: number;
+          purchase_date: string | null;
+          user_id: string | null;
+        };
+        Insert: {
+          amount: number;
+          id?: string;
+          payment_method?: string | null;
+          payment_status?: string | null;
+          price: number;
+          purchase_date?: string | null;
+          user_id?: string | null;
+        };
+        Update: {
+          amount?: number;
+          id?: string;
+          payment_method?: string | null;
+          payment_status?: string | null;
+          price?: number;
+          purchase_date?: string | null;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
+      user_ai_token: {
+        Row: {
+          last_purchase_date: string | null;
           last_reset_date: string | null;
-          remaining_generations: number | null;
+          remaining_tokens: number | null;
+          total_purchased: number | null;
           user_id: string;
         };
         Insert: {
+          last_purchase_date?: string | null;
           last_reset_date?: string | null;
-          remaining_generations?: number | null;
+          remaining_tokens?: number | null;
+          total_purchased?: number | null;
           user_id: string;
         };
         Update: {
+          last_purchase_date?: string | null;
           last_reset_date?: string | null;
-          remaining_generations?: number | null;
+          remaining_tokens?: number | null;
+          total_purchased?: number | null;
           user_id?: string;
         };
         Relationships: [];
