@@ -5,44 +5,11 @@ import { getCurrentUser } from "@/utils/supabase/service/user";
 import { Plus, User } from "lucide-react";
 import Image from "next/image";
 
-const novels = [
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-  { title: "미래로 왔는데, 돈이 없다.", image: "/example/temp4.png" },
-  { title: "나니아 연대기", image: "/example/temp5.png" },
-  { title: "스타듀밸리", image: "/example/temp6.png" },
-];
-
 export default async function Page() {
-  const user = await getCurrentUser();
-  //   const { toggleSidebar } = useSidebar();
+  const userData = await getCurrentUser();
+
   return (
-    <div className="w-full h-screen px-8 py-10 ">
+    <div className="w-full px-8 pt-10 pb-20 ">
       <header className="flex h-7 p-1 justify-between items-center">
         <div className="flex gap-3">
           <User size={24} />
@@ -60,7 +27,7 @@ export default async function Page() {
               height={10}
               width={10}
             />
-            9999
+            {userData.token.remaining_tokens}
           </Button>
           <SideBar />
         </div>
@@ -75,19 +42,11 @@ export default async function Page() {
               width={70}
               className="rounded-full contain-size bg-slate-300"
             />
-            {user.nickname}
+            {userData.user.nickname}
           </div>
           <Button variant={"outline"} className="rounded-full">
             프로필 편집
           </Button>
-        </div>
-        <div className="flex gap-3">
-          <p>
-            999<span className="font-extralight"> 팔로워</span>
-          </p>
-          <p>
-            999 <span className="font-extralight">팔로잉</span>
-          </p>
         </div>
       </section>
       <section className="py-5">
@@ -96,17 +55,21 @@ export default async function Page() {
         </Button>
       </section>
       <section>
-        <div>내 소설</div>
-        <div className="w-full grid grid-cols-3 place-items-center pb-5">
-          {novels.map((novel, index) => (
+        <p className="mb-5">내 소설</p>
+        <div className="w-full grid grid-cols-3 place-items-center pb-5 gap-x-2 gap-y-4">
+          {userData.novels.map((novel, index) => (
             <Card key={index} className="w-[100px] shrink-0">
               <CardContent className="p-0">
                 <Image
-                  src={novel.image}
+                  src={
+                    novel.image_url
+                      ? novel.image_url
+                      : "/src/public/neo_emblem.svg"
+                  }
                   alt={novel.title}
                   width={150}
-                  height={200}
-                  className="rounded-t-lg object-cover"
+                  height={150}
+                  className="rounded-t-lg object-cover w-[100px] h-[100px]"
                 />
                 <div className="p-2">
                   <p className="text-sm truncate">{novel.title}</p>
