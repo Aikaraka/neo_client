@@ -10,6 +10,7 @@ import {
   RecommendedNovelList,
   TopNovelList,
 } from "@/app/_components/NovelList";
+import TokenBadge from "@/components/common/tokenBadge";
 
 export default async function Home() {
   const genres = [
@@ -33,19 +34,7 @@ export default async function Home() {
             <span className="font-semibold text-xl">NEO</span>
           </Link>
           <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="relative bg-purple-500 hover:bg-purple-600 text-white rounded-full p-2 h-6"
-            >
-              <Image
-                src="/header/diamond.svg"
-                alt="token icon"
-                height={10}
-                width={10}
-              />
-              9999
-            </Button>
+            <TokenBadge />
             <Button variant="ghost" size="icon" className="hover:bg-accent">
               <Image
                 src="/search.svg"
