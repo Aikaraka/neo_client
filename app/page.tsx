@@ -6,11 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/layout/navbar";
 import {
+  NovelListErrorFallback,
   NovelListSkeleton,
   RecommendedNovelList,
   TopNovelList,
 } from "@/app/_components/NovelList";
 import TokenBadge from "@/components/common/tokenBadge";
+import SuspenseBoundary from "@/components/common/suspenseBoundary";
 
 export default async function Home() {
   const genres = [
@@ -63,9 +65,12 @@ export default async function Home() {
               />
               네오님의 취향 저격
             </h2>
-            <Suspense fallback={<NovelListSkeleton />}>
+            <SuspenseBoundary
+              suspenseFallback={<NovelListSkeleton />}
+              errorFallback={<NovelListErrorFallback />}
+            >
               <RecommendedNovelList />
-            </Suspense>
+            </SuspenseBoundary>
           </section>
 
           {/* Top 5 Section */}
@@ -74,9 +79,12 @@ export default async function Home() {
               <span className="mr-2">🔥</span>
               실시간 TOP 5 소설
             </h2>
-            <Suspense fallback={<NovelListSkeleton />}>
+            <SuspenseBoundary
+              suspenseFallback={<NovelListSkeleton />}
+              errorFallback={<NovelListErrorFallback />}
+            >
               <TopNovelList />
-            </Suspense>
+            </SuspenseBoundary>
           </section>
 
           {/* Genres Section */}

@@ -17,8 +17,7 @@ interface ExtendedCharacter extends Character {
 const TOAST_TITLE_CHARACTER_ERROR = "캐릭터 생성 오류";
 
 export function CharacterForm() {
-  const { setValue, watch, formState, register } =
-    useFormContext<CreateNovelForm>();
+  const { setValue, watch, formState } = useFormContext<CreateNovelForm>();
   const characters = watch("characters");
 
   const { toast } = useToast();
