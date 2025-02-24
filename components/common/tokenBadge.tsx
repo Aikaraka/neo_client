@@ -1,36 +1,37 @@
-"use server";
+"use client";
 
-import SuspenseBoundary from "@/components/common/suspenseBoundary";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getUserToken } from "@/utils/supabase/service/token";
+import { useUser } from "@/utils/supabase/authProvider";
+import { getUserToken } from "@/utils/supabase/service/token.server";
+import { useQuery } from "@tanstack/react-query";
+import { Lock } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-export default async function TokenBadge() {
-  return (
-    <SuspenseBoundary
-      suspenseFallback={
-        <Skeleton className="relative bg-primary hover:bg-purple-600 text-primary rounded-full p-2 h-8 items-center justify-center">
-          확인중..
-        </Skeleton>
-      }
-      errorFallback={
-        <Button
-          variant="ghost"
-          size="sm"
-          className="relative bg-purple-500 hover:bg-purple-600 text-white rounded-full p-2 text-sm"
-        >
-          로그인하고 소설 보기
-        </Button>
-      }
-    >
-      <Token />
-    </SuspenseBoundary>
-  );
+export default function TokenBadge() {
+  const user = useUser();
+  const router = useRouter();
+  if (!user)
+    return (
+      <Button
+        variant="ghost"
+        size="sm"
+        className="relative bg-purple-500 hover:bg-purple-600 text-white rounded-full p-2 text-sm"
+        onClick={() => router.push("/login")}
+      >
+        <Lock />
+        로그인
+      </Button>
+    );
+
+  return <Token />;
 }
 
-async function Token() {
-  const token = await getUserToken();
+function Token() {
+  const { data: token } = useQuery({
+    queryKey: ["token"],
+    queryFn: getUserToken,
+  });
   return (
     <Button
       variant="ghost"
@@ -43,7 +44,7 @@ async function Token() {
         height={10}
         width={10}
       />
-      {token}
+      {token ?? 0}
     </Button>
   );
 }
