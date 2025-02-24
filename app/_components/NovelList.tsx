@@ -1,9 +1,32 @@
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getRecommendedNovels } from "@/utils/supabase/service/novel";
+import { getRecommendedNovels } from "@/app/_api/novelList.server";
 import Image from "next/image";
 import Link from "next/link";
+import { Rabbit, Unplug } from "lucide-react";
+
+export function NovelListEmpty() {
+  return (
+    <Card className="w-[150px] shrink-0">
+      <CardContent className="p-0">
+        <div className="w-[150px] h-[150px] rounded-t-lg content-center place-items-center">
+          <Rabbit width={50} height={50} className="opacity-15" />
+        </div>
+        <div className="p-2">등록된 소설이 없습니다.</div>
+      </CardContent>
+    </Card>
+  );
+}
+
+export function NovelListErrorFallback() {
+  return (
+    <div className="w-full flex flex-col justify-center h-28 items-center gap-4">
+      <Unplug width={50} height={50} className="opacity-15" />
+      <p className="opacity-20">소설 목록을 가져오지 못했습니다.</p>
+    </div>
+  );
+}
 
 export function NovelListSkeleton({ count = 5 }: { count?: number }) {
   return (
@@ -27,6 +50,8 @@ export function NovelListSkeleton({ count = 5 }: { count?: number }) {
 
 export async function RecommendedNovelList() {
   const novelList = await getRecommendedNovels();
+
+  if (!novelList.length) return <NovelListEmpty />;
   return (
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex space-x-4">
@@ -60,6 +85,8 @@ export async function RecommendedNovelList() {
 
 export async function TopNovelList() {
   const novelList = await getRecommendedNovels();
+
+  if (!novelList.length) return <NovelListEmpty />;
   return (
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex space-x-4">
