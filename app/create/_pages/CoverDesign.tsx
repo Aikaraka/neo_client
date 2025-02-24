@@ -4,13 +4,10 @@ import { CoverImageUploader } from "@/app/create/_components/CoverImageUploader"
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
-import { useToast } from "@/hooks/use-toast";
 import { useFormContext } from "react-hook-form";
 
 export default function CoverDesign() {
-  const { toast } = useToast();
-  const { watch, setValue, formState } = useFormContext<CreateNovelForm>();
-  console.log(formState.errors);
+  const { watch, setValue } = useFormContext<CreateNovelForm>();
   const hasViolence = watch("settings.hasViolence");
   const hasAdultContent = watch("settings.hasAdultContent");
   const isPublic = watch("settings.isPublic");

@@ -15,14 +15,14 @@ import { cn } from "@/lib/utils";
 // Supabase AuthProvider 훅
 import { useSession, useSupabase } from "@/utils/supabase/authProvider";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { initStory } from "@/utils/supabase/service/story";
+import { initStory } from "@/app/novel/[id]/chat/_api/initStory.api";
 import { AutoChat, PaperPlane } from "@/public/novel/chat";
 import PrevPageButton from "@/components/ui/PrevPageButton";
 import { processNovel } from "@/app/novel/[id]/chat/_api/process.api";
 import { undoLastStory } from "@/app/novel/[id]/chat/_api/undo.api";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { getNovel } from "@/utils/supabase/service/novel.client";
+import { getNovel } from "@/app/novel/_api/novel.client";
 
 const NanumMyeongjo = localFont({
   src: "../../../fonts/NanumMyeongjo.ttf",
