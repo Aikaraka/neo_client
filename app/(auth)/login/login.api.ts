@@ -1,10 +1,5 @@
 import { loginFormSchemaType } from "@/app/(auth)/login/schema";
-import {
-  OAuthProvider,
-  signInWithEmail,
-  signInWithOAuth,
-  User,
-} from "@/utils/supabase/client";
+import { signInWithEmail } from "@/utils/supabase/client";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const handleEmailLogin = async ({
@@ -25,7 +20,6 @@ export const handleEmailLogin = async ({
 
   //소셜 로그인 사용자인지 확인
   if (userData?.auth_provider) {
-    console.log("Auth provider:", userData.auth_provider);
     if (userData.auth_provider !== "email") {
       throw new Error(
         `이 이메일은 ${userData.auth_provider} 로그인을 사용합니다. ${userData.auth_provider} 로그인 버튼을 이용해주세요.`
@@ -48,9 +42,4 @@ export const handleEmailLogin = async ({
       "이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요."
     );
   }
-};
-
-const handleOAuthLogin = async (provider: OAuthProvider) => {
-  const { data, error } = await signInWithOAuth(provider);
-  if (error) throw new Error("로그인 중 오류가 발생했습니다.");
 };

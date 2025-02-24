@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signout } from "@/utils/supabase/service/auth";
+import { signout } from "@/app/(auth)/_api/auth.server";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);

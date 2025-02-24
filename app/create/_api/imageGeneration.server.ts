@@ -72,8 +72,6 @@ export async function generateImage(prompt: string) {
     }
   );
 
-  console.log("Stability AI 응답 상태:", response.status); // 디버깅용
-
   if (!response.ok) {
     const errorText = await response.text();
     console.error("Stability AI 에러:", errorText);
