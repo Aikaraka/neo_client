@@ -11,7 +11,7 @@ import {
 import { TextInputWithIcon } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import useModal from "@/hooks/use-modal";
-import { changePassword } from "@/utils/supabase/service/auth";
+import { changePassword } from "@/app/(auth)/_api/auth.server";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Lock, Mail, User } from "lucide-react";

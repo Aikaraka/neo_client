@@ -5,7 +5,6 @@ import { z } from "zod";
 
 export async function createNovel(novel: z.infer<typeof createNovelSchema>) {
   const supabase = await createClient();
-  console.log(novel);
   const {
     data: { user },
     error: userError,

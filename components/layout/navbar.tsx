@@ -6,11 +6,9 @@ import { FC, forwardRef, SVGProps } from "react";
 import {
   BoxFilled,
   HomeFilled,
-  PencilFilled,
   UserFilled,
   BoxLine,
   HomeLine,
-  PencilLine,
   UserLine,
 } from "@/public/navbar";
 import Link from "next/link";

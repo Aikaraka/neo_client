@@ -1,7 +1,7 @@
 import SideBar from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getCurrentUser } from "@/utils/supabase/service/user";
+import { getCurrentUser } from "@/app/mypage/_api/currentUser.server";
 import { Plus, User } from "lucide-react";
 import Image from "next/image";
 
