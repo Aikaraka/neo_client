@@ -2,7 +2,7 @@
 
 import NotFound from "@/app/[...404]/page";
 import { SuspenseSpinner } from "@/components/ui/spinner";
-import { Suspense } from "react";
+import React, { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 
 interface SuspenseBoundaryProps {
@@ -31,7 +31,7 @@ export default function SuspenseBoundary({
   return (
     <ErrorBoundary fallbackRender={fallbackRender}>
       <Suspense fallback={suspenseFallback ?? <SuspenseSpinner />}>
-        {children}
+        {React.isValidElement(children) ? children : <>{children}</>}
       </Suspense>
     </ErrorBoundary>
   );
