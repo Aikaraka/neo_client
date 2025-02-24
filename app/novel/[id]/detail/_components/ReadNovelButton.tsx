@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { LoadingModal } from "@/components/ui/modal";
-import { getLoginState } from "@/utils/supabase/service/user";
+import { getLoginState } from "@/app/mypage/_api/currentUser.server";
 import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
