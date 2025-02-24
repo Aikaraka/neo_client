@@ -90,7 +90,6 @@ export function useValidation<T extends string>(...args: T[]) {
 
   const validation = args.map((arg) => {
     const fieldState = getFieldState<T>(arg);
-    console.log(arg, fieldState);
     return !fieldState.invalid && fieldState.isDirty;
   });
 

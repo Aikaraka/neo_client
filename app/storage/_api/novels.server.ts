@@ -12,6 +12,5 @@ export async function getMyNovels() {
     .eq("user_id", userData.user.id);
   if (novelError)
     throw new Error("소설 목록을 불러오는 중에 오류가 발생했습니다.");
-  console.log(novelData);
   return novelData;
 }

@@ -24,11 +24,7 @@ export async function getMyNovelList() {
 export async function deleteNovel(novelId: string) {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
-    .from("novels")
-    .delete()
-    .eq("id", novelId);
+  const { error } = await supabase.from("novels").delete().eq("id", novelId);
   if (error) throw new Error("소설 삭제 중 오류가 발생했습니다.");
-  console.log(error, data, novelId);
   return;
 }
