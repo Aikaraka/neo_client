@@ -38,14 +38,3 @@ export const signup = async ({
   }
   return { authData };
 };
-
-export const saveToUserTable = async (userId: string, email: string) => {
-  const supabase = await createClient();
-  const { error: dbError } = await supabase.from("users").insert({
-    id: userId,
-    email: email,
-    auth_provider: "email",
-    created_at: new Date().toISOString(),
-  });
-  if (dbError) throw new Error("유저 정보를 저장하던 중 오류가 발생했습니다.");
-};
