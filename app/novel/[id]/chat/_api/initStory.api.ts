@@ -20,6 +20,7 @@ export async function initStory(novelId: string) {
       Authorization: `Bearer ${session.access_token}`,
       "Refresh-Token": session.refresh_token,
     },
+    credentials: "include",
     body: JSON.stringify({
       user_id: session.user.id,
       novel_id: novelId,
