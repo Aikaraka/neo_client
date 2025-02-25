@@ -34,7 +34,6 @@ export function useSignupForm() {
         return;
       }
       const { authData } = await signup({ email, password });
-      await saveToUserTable(authData.user?.id as string, email);
       nextPage();
     } catch (error) {
       if (error instanceof Error) {
