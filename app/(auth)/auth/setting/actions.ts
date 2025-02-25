@@ -1,7 +1,6 @@
 "use server";
 import { createClient } from "@/utils/supabase/server";
 import { SupabaseClient } from "@supabase/supabase-js";
-import { redirect } from "next/navigation";
 
 export const initialProfileSubmit = async (
   name: string,
@@ -17,7 +16,6 @@ export const initialProfileSubmit = async (
   if (!user) throw new Error("사용자 정보를 찾을 수 없습니다.");
 
   await updateUser(name, nickname, birthdate, gender, user.id, supabase);
-  redirect("/");
 };
 
 const updateUser = async (
@@ -38,5 +36,5 @@ const updateUser = async (
       profile_completed: true,
     })
     .eq("id", userId);
-  if (updateError) throw updateError;
+  if (updateError) throw new Error("프로필 업데이트 중 오류가 발생했습니다.");
 };

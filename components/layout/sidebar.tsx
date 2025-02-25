@@ -89,7 +89,10 @@ export default function SideBar() {
             </div>
 
             <div className="text-sm flex flex-col py-6 border-b px-3 gap-5">
-              <Link href="/" className="hover:text-gray-600 transition-colors">
+              <Link
+                href="/account/setting"
+                className="hover:text-gray-600 transition-colors"
+              >
                 계정 관리
               </Link>
               <Link href="/" className="hover:text-gray-600 transition-colors">

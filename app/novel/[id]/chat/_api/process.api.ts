@@ -13,6 +13,7 @@ export function processNovel(
       "Content-Type": "application/json",
       Authorization: `Bearer ${session?.access_token}`,
     },
+    credentials: "include",
     body: JSON.stringify({
       user_id: session?.user.id,
       novel_id: novelId,
