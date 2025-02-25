@@ -5,6 +5,7 @@ import { settingFormSchema } from "@/app/(auth)/auth/setting/schema";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -23,11 +24,13 @@ export function useSettingForm() {
   const { mutate: submit, isPending } = useMutation({
     mutationFn: (values: z.infer<typeof settingFormSchema>) => onSubmit(values),
   });
+  const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof settingFormSchema>) {
     const { birth, gender, name, nickname } = values;
     try {
       await initialProfileSubmit(name, nickname, birth, gender);
+      router.replace("/");
     } catch (error) {
       if (error instanceof Error) {
         toast({
