@@ -6,6 +6,7 @@ type ModalProps = {
   children: React.ReactNode;
   open: boolean;
   switch: () => void;
+  backgroundClose?: boolean;
   onConfirm?: () => void;
   confirmText?: string;
   type?: "confirm" | "inform";
@@ -15,6 +16,7 @@ export const Modal = ({
   children,
   open,
   switch: toggle,
+  backgroundClose = true,
   onConfirm,
   confirmText,
   type = "confirm",
@@ -23,7 +25,7 @@ export const Modal = ({
 
   const handleBackgroundClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggle();
+    if (backgroundClose) toggle();
   };
 
   return (
