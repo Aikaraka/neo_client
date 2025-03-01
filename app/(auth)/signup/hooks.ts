@@ -1,9 +1,5 @@
 import { signupFormSchema } from "@/app/(auth)/signup/schema";
-import {
-  checkEmailDuplication,
-  saveToUserTable,
-  signup,
-} from "@/app/(auth)/signup/actions";
+import { checkEmailDuplication, signup } from "@/app/(auth)/signup/actions";
 import { usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
