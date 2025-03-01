@@ -1,3 +1,4 @@
+import { fetchWithAuth } from "@/api/fetchWithAuth.client";
 import { Session } from "@supabase/supabase-js";
 
 export function processNovel(
@@ -5,15 +6,8 @@ export function processNovel(
   novelId: string,
   prompt: string
 ) {
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-  return fetch(`${API_URL}/process-input`, {
+  return fetchWithAuth("/process-input", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session?.access_token}`,
-    },
-    credentials: "include",
     body: JSON.stringify({
       user_id: session?.user.id,
       novel_id: novelId,
