@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 // Supabase AuthProvider 훅
 import { useSession, useSupabase } from "@/utils/supabase/authProvider";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { initStory } from "@/app/novel/[id]/chat/_api/initStory.api";
 import { AutoChat, PaperPlane } from "@/public/novel/chat";
 import PrevPageButton from "@/components/ui/PrevPageButton";
@@ -23,6 +23,8 @@ import { undoLastStory } from "@/app/novel/[id]/chat/_api/undo.api";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { getNovel } from "@/app/novel/_api/novel.client";
+import { Button } from "@/components/ui/button";
+import { LoadingModal } from "@/components/ui/modal";
 
 const NanumMyeongjo = localFont({
   src: "../../../fonts/NanumMyeongjo.ttf",
@@ -44,7 +46,7 @@ export default function ChatPage() {
   const router = useRouter();
   const { id: novelId } = useParams<{ id: string }>();
 
-  const { data: novel } = useSuspenseQuery({
+  const { data: novel, isPending } = useQuery({
     queryKey: ["initStory", novelId],
     queryFn: async () => {
       const novel = await getNovel(novelId);
@@ -104,7 +106,7 @@ export default function ChatPage() {
 
       const stream = await processNovel(session, novelId, text);
 
-      if (!stream.body) {
+      if (!stream?.body) {
         throw new Error("ReadableStream not supported.");
       }
 
@@ -227,7 +229,7 @@ export default function ChatPage() {
           <div className="flex-1 mx-3">
             {/* 예: 소설 제목, 진행률 등 표시 */}
             <div className="flex flex-col items-center">
-              <span className="font-medium text-sm">{novel.title}</span>
+              <span className="font-medium text-sm">{novel?.title}</span>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500">진행률</span>
                 <div className="flex-1 flex items-center w-48">
@@ -262,7 +264,7 @@ export default function ChatPage() {
           <div
             className={`bg-primary p-4 text-white rounded-xl ${NanumMyeongjo.className}`}
           >
-            {novel.background?.start ?? "여러분들의 소설을 시작해보세요."}
+            {novel?.background?.start ?? "여러분들의 소설을 시작해보세요."}
           </div>
           {messages.map((msg, i) => {
             if (typeof msg === "string") {
@@ -304,24 +306,32 @@ export default function ChatPage() {
               className="flex-1 bg-input rounded-xl p-2 text-sm resize-none leading-relaxed overflow-auto max-h-10 focus:outline-none focus:ring-0 focus:border-transparent"
               disabled={isMessageSending}
             ></textarea>
-
-            <AutoChat
-              onClick={() => handleSendMessage(true)}
-              aria-disabled={isMessageSending}
-              className={`text-primary  ${
-                isMessageSending ? "opacity-50" : "cursor-pointer"
-              }`}
-            />
-            <PaperPlane
-              onClick={() => handleSendMessage(false)}
-              aria-disabled={isMessageSending}
-              className={`text-primary  ${
-                isMessageSending ? "opacity-50" : "cursor-pointer"
-              }`}
-            />
+            <div className="flex gap-2">
+              <Button
+                variant={"link"}
+                className={`text-primary  ${
+                  isMessageSending ? "opacity-50" : "cursor-pointer"
+                } p-0 flex items-center justify-center [&_svg]:size-5`}
+                disabled={isMessageSending}
+                onClick={() => handleSendMessage(true)}
+              >
+                <AutoChat viewBox="0 0 24 24" />
+              </Button>
+              <Button
+                variant={"link"}
+                onClick={() => handleSendMessage(false)}
+                aria-disabled={isMessageSending}
+                className={`text-primary  ${
+                  isMessageSending ? "opacity-50" : "cursor-pointer"
+                } p-0 flex items-center [&_svg]:size-5`}
+              >
+                <PaperPlane />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
+      <LoadingModal visible={isPending} />
     </Toaster>
   );
 }
