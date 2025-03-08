@@ -13,6 +13,15 @@ export const settingFormSchema = z.object({
     message: "닉네임은 한글, 숫자, 영어를 합쳐 10글자 이내만 가능합니다.",
   }),
   gender: z.enum(["남성", "여성", "알 수 없음"]),
+  termsOfServiceAgreement: z.literal<boolean>(true, {
+    errorMap: () => ({ message: "서비스 이용 약관은 필수로 동의해야 합니다." }),
+  }),
+  privacyPolicyAgreement: z.literal<boolean>(true, {
+    errorMap: () => ({
+      message: "개인정보 처리 약관은 필수로 동의해야 합니다.",
+    }),
+  }),
+  marketingAgreement: z.boolean().optional(),
 });
 
 export type SettingFormType = z.infer<typeof settingFormSchema>;

@@ -4,6 +4,7 @@ import * as React from "react";
 import * as LabelPrimitive from "@radix-ui/react-label";
 import { Slot } from "@radix-ui/react-slot";
 import {
+  Control,
   Controller,
   ControllerProps,
   FieldPath,
@@ -14,6 +15,8 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { cva } from "class-variance-authority";
 
 const Form = FormProvider;
 
@@ -27,6 +30,87 @@ type FormFieldContextValue<
 const FormFieldContext = React.createContext<FormFieldContextValue>(
   {} as FormFieldContextValue
 );
+const inputVariants = cva("", {
+  variants: {
+    type: {
+      text: "flex h-12 w-full items-center rounded-md border border-input px-4 py-2 bg-gray-100 md:text-sm",
+      checkbox: "flex h-7 w-full items-center",
+      email:
+        "flex h-12 w-full items-center rounded-md border border-input px-4 py-2 bg-gray-100 md:text-sm",
+      default:
+        "flex h-12 w-full items-center rounded-md border border-input px-4 py-2 bg-gray-100 md:text-sm",
+    },
+  },
+  defaultVariants: {
+    type: "default",
+  },
+});
+
+const InputFormField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({
+  control,
+  name,
+  label,
+  changeEffect,
+  className,
+  icon,
+  placeHolder,
+  type = "text",
+  children,
+}: {
+  control: Control<TFieldValues>;
+  name: TName;
+  label?: React.ReactNode;
+  changeEffect?: (value: string) => void;
+  className?: React.HTMLAttributes<HTMLInputElement>["className"];
+  icon?: React.ReactNode;
+  placeHolder?: string;
+  type?: React.HTMLInputTypeAttribute;
+  children?: React.ReactNode;
+}) => {
+  const validTypes = ["text", "checkbox", "email", "default"];
+  const variantType = validTypes.includes(type as string) ? type : "default";
+
+  return (
+    <FormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>{label}</FormLabel>
+          <FormControl>
+            <div
+              className={cn(
+                inputVariants({ type: variantType as any }),
+                className
+              )}
+            >
+              <Input
+                type={type}
+                {...field}
+                placeholder={placeHolder ?? ""}
+                onChange={(e) => {
+                  field.onChange(e);
+                  changeEffect?.(e.target.value);
+                }}
+                className="flex-1 inset-1 disabled:opacity-50 disabled:cursor-not-allowed bg-transparent text-base border-none focus-visible:ring-offset-0 focus-visible:ring-0 p-0"
+              />
+              {children}
+              {icon && (
+                <p className=" w-7 text-muted-foreground flex justify-center">
+                  {icon}
+                </p>
+              )}
+            </div>
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
 
 const FormField = <
   TFieldValues extends FieldValues = FieldValues,
@@ -186,4 +270,5 @@ export {
   FormDescription,
   FormMessage,
   FormField,
+  InputFormField,
 };

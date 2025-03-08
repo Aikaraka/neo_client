@@ -1,7 +1,7 @@
 "use client";
 
+import SettingForm from "@/app/(auth)/auth/setting/_components/settingForm";
 import { useSettingForm } from "@/app/(auth)/auth/setting/hooks";
-import SettingForm from "@/app/(auth)/auth/setting/settingForm";
 import { Form } from "@/components/ui/form";
 import { Toaster } from "@/components/ui/toaster";
 

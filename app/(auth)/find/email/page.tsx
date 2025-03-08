@@ -1,5 +1,5 @@
 "use client";
-import DatePicker from "@/app/(auth)/auth/setting/datePicker";
+import DatePicker from "@/app/(auth)/auth/setting/_components/datePicker";
 import { Button } from "@/components/ui/button";
 import {
   Form,

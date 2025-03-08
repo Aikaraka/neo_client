@@ -1,7 +1,7 @@
 "use client";
 
-import { initialProfileSubmit } from "@/app/(auth)/auth/setting/actions";
-import { settingFormSchema } from "@/app/(auth)/auth/setting/schema";
+import { initialProfileSubmit } from "@/app/(auth)/auth/setting/_api/initializeProfile.server";
+import { settingFormSchema } from "@/app/(auth)/auth/setting/_schema";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -27,9 +27,15 @@ export function useSettingForm() {
   const router = useRouter();
 
   async function onSubmit(values: z.infer<typeof settingFormSchema>) {
-    const { birth, gender, name, nickname } = values;
+    const { birth, gender, name, nickname, marketingAgreement } = values;
     try {
-      await initialProfileSubmit(name, nickname, birth, gender);
+      await initialProfileSubmit(
+        name,
+        nickname,
+        birth,
+        gender,
+        marketingAgreement
+      );
       router.replace("/");
     } catch (error) {
       if (error instanceof Error) {

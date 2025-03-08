@@ -15,21 +15,21 @@ export type Database = {
           id: string;
           last_viewed_at: string;
           novel_id: string;
-          user_id: string;
+          user_id: string | null;
         };
         Insert: {
           created_at?: string;
           id?: string;
           last_viewed_at?: string;
           novel_id: string;
-          user_id: string;
+          user_id?: string | null;
         };
         Update: {
           created_at?: string;
           id?: string;
           last_viewed_at?: string;
           novel_id?: string;
-          user_id?: string;
+          user_id?: string | null;
         };
         Relationships: [
           {
@@ -37,6 +37,13 @@ export type Database = {
             columns: ["novel_id"];
             isOneToOne: false;
             referencedRelation: "novels";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "novel_views_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
             referencedColumns: ["id"];
           }
         ];
@@ -54,7 +61,7 @@ export type Database = {
           settings: Json;
           title: string;
           updated_at: string;
-          user_id: string;
+          user_id: string | null;
         };
         Insert: {
           background: Json;
@@ -68,7 +75,7 @@ export type Database = {
           settings: Json;
           title: string;
           updated_at?: string;
-          user_id: string;
+          user_id?: string | null;
         };
         Update: {
           background?: Json;
@@ -82,42 +89,21 @@ export type Database = {
           settings?: Json;
           title?: string;
           updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [];
-      };
-      token_purchase_history: {
-        Row: {
-          amount: number;
-          id: string;
-          payment_method: string | null;
-          payment_status: string | null;
-          price: number;
-          purchase_date: string | null;
-          user_id: string | null;
-        };
-        Insert: {
-          amount: number;
-          id?: string;
-          payment_method?: string | null;
-          payment_status?: string | null;
-          price: number;
-          purchase_date?: string | null;
           user_id?: string | null;
         };
-        Update: {
-          amount?: number;
-          id?: string;
-          payment_method?: string | null;
-          payment_status?: string | null;
-          price?: number;
-          purchase_date?: string | null;
-          user_id?: string | null;
-        };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "novels_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       user_ai_token: {
         Row: {
+          created_at: string | null;
           last_purchase_date: string | null;
           last_reset_date: string | null;
           remaining_tokens: number | null;
@@ -125,6 +111,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          created_at?: string | null;
           last_purchase_date?: string | null;
           last_reset_date?: string | null;
           remaining_tokens?: number | null;
@@ -132,44 +119,53 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          created_at?: string | null;
           last_purchase_date?: string | null;
           last_reset_date?: string | null;
           remaining_tokens?: number | null;
           total_purchased?: number | null;
           user_id?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "user_ai_token_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: true;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
       };
       users: {
         Row: {
-          auth_provider: string | null;
           birthdate: string | null;
           created_at: string;
           email: string;
           gender: string | null;
           id: string;
+          marketing: boolean;
           name: string | null;
           nickname: string | null;
           profile_completed: boolean | null;
         };
         Insert: {
-          auth_provider?: string | null;
           birthdate?: string | null;
           created_at?: string;
           email: string;
           gender?: string | null;
           id: string;
+          marketing?: boolean;
           name?: string | null;
           nickname?: string | null;
           profile_completed?: boolean | null;
         };
         Update: {
-          auth_provider?: string | null;
           birthdate?: string | null;
           created_at?: string;
           email?: string;
           gender?: string | null;
           id?: string;
+          marketing?: boolean;
           name?: string | null;
           nickname?: string | null;
           profile_completed?: boolean | null;

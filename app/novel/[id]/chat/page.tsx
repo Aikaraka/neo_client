@@ -46,7 +46,11 @@ export default function ChatPage() {
   const router = useRouter();
   const { id: novelId } = useParams<{ id: string }>();
 
-  const { data: novel, isPending } = useQuery({
+  const {
+    data: novel,
+    isPending,
+    isError,
+  } = useQuery({
     queryKey: ["initStory", novelId],
     queryFn: async () => {
       const novel = await getNovel(novelId);
@@ -74,7 +78,10 @@ export default function ChatPage() {
   useEffect(() => {
     if (!novelId) {
       alert("novelId가 필요합니다.");
-      router.push("/");
+      router.replace("/");
+    }
+    if (isError) {
+      router.replace("/");
     }
   }, [novelId, router]);
 

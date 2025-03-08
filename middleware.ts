@@ -30,6 +30,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(profileSettingURL);
     }
 
+    if (userData?.profile_completed && pathname === "/auth/setting") {
+      const mainURL = new URL("/", request.url);
+      return NextResponse.redirect(mainURL);
+    }
+
     if (authRoutes.includes(pathname)) {
       const redirectUrl = new URL("/", request.url);
       const redirectResponse = NextResponse.redirect(redirectUrl);

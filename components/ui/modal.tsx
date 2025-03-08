@@ -34,7 +34,7 @@ export const Modal = ({
       onClick={handleBackgroundClick}
     >
       <div
-        className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-[80%] z-50 flex flex-col gap-5"
+        className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-[80%] max-h-[80%] z-50 flex flex-col gap-5 overflow-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
