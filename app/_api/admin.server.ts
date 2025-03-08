@@ -77,10 +77,10 @@ export async function updateTopNovelViews(formData: FormData) {
       novelViewCounts[novelId] += 1;
     });
     
-    // 4. 조회수 기준으로 상위 8개 소설 ID 추출
+    // 4. 조회수 기준으로 상위 15개 소설 ID 추출 (더 많은 소설을 가져와서 필터링)
     const topNovels = Object.entries(novelViewCounts)
       .sort(([, countA], [, countB]) => countB - countA)
-      .slice(0, 8);
+      .slice(0, 15);
     
     console.log(`상위 ${topNovels.length}개 소설을 추출했습니다.`);
     
@@ -103,16 +103,48 @@ export async function updateTopNovelViews(formData: FormData) {
       throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");
     }
     
+    // 6-1. 공개된 소설만 필터링 (settings->isPublic 필드 확인)
+    const publicNovels = novelsData?.filter((novel: any) => {
+      // settings 컬럼의 isPublic 값이 true인지 확인
+      try {
+        // settings가 문자열로 저장된 경우 파싱
+        const settings = typeof novel.settings === 'string' 
+          ? JSON.parse(novel.settings) 
+          : novel.settings;
+        
+        return settings?.isPublic === true;
+      } catch (e) {
+        console.error(`소설 ID ${novel.id}의 settings 파싱 중 오류:`, e);
+        return false; // 파싱 오류 시 비공개로 간주
+      }
+    });
+    
+    console.log(`공개된 소설 ${publicNovels?.length || 0}개를 필터링했습니다.`);
+    
+    if (!publicNovels || publicNovels.length === 0) {
+      console.error("공개된 인기 소설이 없습니다.");
+      return;
+    }
+    
+    // 6-2. 공개된 소설 중 조회수 기준 상위 8개 선택
+    const topPublicNovels = publicNovels
+      .map((novel: any) => {
+        const novelId = novel.id;
+        const count = novelViewCounts[novelId] || 0;
+        return { novel, count };
+      })
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+    
     // 7. top_novel_views 테이블에 데이터 삽입 (관리자 클라이언트 사용)
-    const topNovelViewsData = topNovels.map(([novelId, count], index) => {
-      const novel = novelsData?.find((n: any) => n.id === novelId);
+    const topNovelViewsData = topPublicNovels.map(({ novel, count }, index) => {
       return {
-        novel_id: novelId,
-        title: novel?.title || '',
-        image_url: novel?.image_url || '',
+        novel_id: novel.id,
+        title: novel.title || '',
+        image_url: novel.image_url || '',
         view_count: count,
         calculated_date: todayStr,
-        rank: index + 1
+        rank: index + 1, // 순위 추가
       };
     });
     

@@ -4,17 +4,67 @@ import { createClient } from "@/utils/supabase/server";
 
 export async function getRecommendedNovels() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("novels").select("*").limit(8);
+  
+  try {
+    // 공개된 소설만 가져오기
+    const { data, error } = await supabase
+      .from("novels")
+      .select("*")
+      .filter('settings->isPublic', 'eq', true) // settings 컬럼의 isPublic이 true인 소설만 가져오기
+      .order("created_at", { ascending: false }) // 최신 소설 우선
+      .limit(8);
 
-  if (error) throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");
-  return data;
+    if (error) {
+      console.error("추천 소설 정보를 가져오던 중 오류가 발생했습니다:", error);
+      throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");
+    }
+    
+    // 선택된 소설이 없거나 부족한 경우 공개된 최신 소설 반환
+    if (!data || data.length === 0) {
+      console.log("선택된 추천 소설이 없습니다. 공개된 최신 소설을 가져옵니다.");
+      
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from("novels")
+        .select("*")
+        .filter('settings->isPublic', 'eq', true) // settings 컬럼의 isPublic이 true인 소설만 가져오기
+        .order("created_at", { ascending: false })
+        .limit(8);
+        
+      if (fallbackError) {
+        console.error("대체 소설 정보를 가져오던 중 오류가 발생했습니다:", fallbackError);
+        return [];
+      }
+      
+      return fallbackData || [];
+    }
+    
+    return data;
+  } catch (e) {
+    console.error("추천 소설 정보를 가져오는 중 오류 발생:", e);
+    return [];
+  }
 }
 
 export async function getTopNovels() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from("novels").select("*").limit(8);
-  if (error) throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");
-  return data;
+  try {
+    const { data, error } = await supabase
+      .from("novels")
+      .select("*")
+      .filter('settings->isPublic', 'eq', true) // settings 컬럼의 isPublic이 true인 소설만 가져오기
+      .order("created_at", { ascending: false })
+      .limit(8);
+      
+    if (error) {
+      console.error("소설 정보를 가져오던 중 오류가 발생했습니다:", error);
+      throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");
+    }
+    
+    return data || [];
+  } catch (e) {
+    console.error("소설 정보를 가져오는 중 오류 발생:", e);
+    return [];
+  }
 }
 
 export async function getTopNovelsByViews() {
