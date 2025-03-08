@@ -1,7 +1,7 @@
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getRecommendedNovels } from "@/app/_api/novelList.server";
+import { getRecommendedNovels, getTopNovelsByViews } from "@/app/_api/novelList.server";
 import Image from "next/image";
 import Link from "next/link";
 import { Rabbit, Unplug } from "lucide-react";
@@ -84,13 +84,13 @@ export async function RecommendedNovelList() {
 }
 
 export async function TopNovelList() {
-  const novelList = await getRecommendedNovels();
+  const novelList = await getTopNovelsByViews();
 
-  if (!novelList.length) return <NovelListEmpty />;
+  if (!novelList || !novelList.length) return <NovelListEmpty />;
   return (
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex space-x-4">
-        {novelList?.map((novel, index) => (
+        {novelList?.map((novel: any, index: number) => (
           <Card key={index} className="w-[150px] shrink-0">
             <Link href={`/novel/${novel.id}/detail`}>
               <CardContent className="p-0">

@@ -61,8 +61,8 @@ export default async function Page() {
         <p className="mb-5">내 소설</p>
         <div className="w-full grid grid-cols-3 place-items-center pb-5 gap-x-2 gap-y-4">
           {userData.novels.map((novel, index) => (
-            <Link href={`/novel/${novel.id}/detail`}>
-              <Card key={index} className="w-[100px] shrink-0">
+            <Link href={`/novel/${novel.id}/detail`} key={index}>
+              <Card className="w-[100px] shrink-0">
                 <CardContent className="p-0">
                   <Image
                     src={
