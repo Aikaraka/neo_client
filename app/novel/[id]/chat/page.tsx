@@ -20,6 +20,7 @@ import { AutoChat, PaperPlane } from "@/public/novel/chat";
 import PrevPageButton from "@/components/ui/PrevPageButton";
 import { processNovel } from "@/app/novel/[id]/chat/_api/process.api";
 import { undoLastStory } from "@/app/novel/[id]/chat/_api/undo.api";
+import { fetchPreviousStories } from "@/app/novel/[id]/chat/_api/fetchPreviousStories.api";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { getNovel } from "@/app/novel/_api/novel.client";
@@ -41,16 +42,53 @@ const TOAST_UDNO_NOVEL_ERROR_DECRIPTION = "더 되돌릴 소설이 없습니다.
 // 타입 정의 (간단 예시)
 type Message = string | { type: "background"; content: string };
 
+interface StoryItem {
+  content: string;
+  story_number: number;
+}
+
+interface InitStoryResponse {
+  title: string;
+  story?: string;
+  initial_stories: StoryItem[];
+  has_more_stories: boolean;
+  oldest_story_number: number;
+  background: any;
+  progress_rate: number;
+}
+
 export default function ChatPage() {
   const messageBoxRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const { id: novelId } = useParams<{ id: string }>();
+  const [progressRate, setProgressRate] = useState<number>(0);
 
   const { data: novel, isPending } = useQuery({
     queryKey: ["initStory", novelId],
     queryFn: async () => {
       const novel = await getNovel(novelId);
-      await initStory(novelId);
+      const initData = await initStory(novelId);
+      
+      console.log("Init data:", initData);  // 디버깅용 로그
+
+      if (initData.initial_stories) {
+        setMessages(initData.initial_stories.map((story: StoryItem) => story.content));
+        setOldestStoryNumber(initData.oldest_story_number);
+        setHasMoreStories(initData.has_more_stories);
+        
+        // 진행률 설정
+        if (initData.progress_rate !== undefined) {
+          setProgressRate(initData.progress_rate);
+        }
+        
+        // 초기 데이터 로드 후 스크롤을 최하단으로 이동
+        setTimeout(() => {
+          if (messageBoxRef.current) {
+            messageBoxRef.current.scrollTop = messageBoxRef.current.scrollHeight;
+          }
+        }, 100);
+      }
+            
       return novel;
     },
   });
@@ -62,12 +100,16 @@ export default function ChatPage() {
 
   // 메시지 목록
   const [messages, setMessages] = useState<Message[]>([]);
-  // 진행률
-  const [progressRate, setProgressRate] = useState(0);
 
   // 입력 중인 메시지
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [isMessageSending, setIsMessageSending] = useState(false);
+
+  // 무한 스크롤을 위한 상태 추가
+  const [oldestStoryNumber, setOldestStoryNumber] = useState<number | null>(null);
+  const [hasMoreStories, setHasMoreStories] = useState(true);
+  const [isLoadingPreviousStories, setIsLoadingPreviousStories] = useState(false);
+  const MAX_VISIBLE_MESSAGES = 50; // 메모리에 유지할 최대 메시지 수
 
   // (2) init-story가 끝난 뒤 -> messages에 배경 메시지 등 추가할 수도 있음
   //    여기서는 간단히 "채팅방 진입" 정도만
@@ -206,6 +248,120 @@ export default function ChatPage() {
     }
   };
 
+  // 이전 스토리 로드 함수
+  const loadPreviousStories = async () => {
+    if (isLoadingPreviousStories || !hasMoreStories || oldestStoryNumber === null) return;
+    
+    try {
+      setIsLoadingPreviousStories(true);
+      
+      // 스크롤 위치 기억
+      const messageBox = messageBoxRef.current;
+      if (!messageBox) return;
+      
+      const prevScrollHeight = messageBox.scrollHeight;
+      const prevScrollTop = messageBox.scrollTop;
+      
+      console.log("Loading previous stories before:", oldestStoryNumber);
+      
+      // 이전 스토리 가져오기
+      const result = await fetchPreviousStories(
+        session, 
+        novelId as string, 
+        oldestStoryNumber, 
+        3
+      );
+      
+      console.log("Previous stories result:", result);
+      
+      if (result.stories.length === 0) {
+        setHasMoreStories(false);
+      } else {
+        // 새 스토리를 메시지 배열 앞에 추가
+        const newMessages = result.stories.map(story => story.content);
+        
+        setMessages(prev => {
+          // 새 메시지와 기존 메시지 합치기
+          const combinedMessages = [...newMessages, ...prev];
+          
+          // 메시지가 너무 많아지면 최신 메시지 일부 제거
+          if (combinedMessages.length > MAX_VISIBLE_MESSAGES) {
+            return combinedMessages.slice(0, MAX_VISIBLE_MESSAGES);
+          }
+          return combinedMessages;
+        });
+        
+        // 가장 오래된 스토리 번호 업데이트
+        if (result.stories.length > 0) {
+          const newOldestStory = result.stories.reduce(
+            (oldest, current) => current.story_number < oldest.story_number ? current : oldest,
+            result.stories[0]
+          );
+          setOldestStoryNumber(newOldestStory.story_number);
+        }
+        
+        // 더 이전 스토리 존재 여부 설정
+        setHasMoreStories(result.has_more);
+        
+        // 스크롤 위치 유지 - 개선된 방식
+        // DOM 업데이트가 완료된 후 스크롤 위치를 조정하기 위해 약간의 지연 추가
+        setTimeout(() => {
+          if (messageBox) {
+            const newScrollHeight = messageBox.scrollHeight;
+            const heightDifference = newScrollHeight - prevScrollHeight;
+            
+            // 새로 추가된 콘텐츠의 높이만큼 스크롤 위치 조정
+            messageBox.scrollTop = prevScrollTop + heightDifference;
+            
+            console.log("Scroll adjusted:", {
+              prevScrollHeight,
+              newScrollHeight,
+              heightDifference,
+              prevScrollTop,
+              newScrollTop: prevScrollTop + heightDifference
+            });
+          }
+        }, 50); // 약간의 지연 추가
+      }
+    } catch (error) {
+      console.error("Failed to load previous stories:", error);
+      toast({
+        variant: "destructive",
+        title: "이전 스토리 로드 오류",
+        description: "이전 스토리를 불러오는데 실패했습니다."
+      });
+      setHasMoreStories(false);
+    } finally {
+      setIsLoadingPreviousStories(false);
+    }
+  };
+
+  // 스크롤 감지 useEffect 추가
+  useEffect(() => {
+    const messageBox = messageBoxRef.current;
+    if (!messageBox) return;
+    
+    // 이전 스크롤 위치를 저장할 변수
+    let lastScrollTop = messageBox.scrollTop;
+    
+    const handleScroll = () => {
+      // 스크롤 방향 확인 (위로 스크롤하는 경우에만 이전 스토리 로드)
+      const scrollTop = messageBox.scrollTop;
+      const scrollingUp = scrollTop < lastScrollTop;
+      
+      // 현재 스크롤 위치 저장
+      lastScrollTop = scrollTop;
+      
+      // 위로 스크롤 중이고, 스크롤이 상단에 가까울 때만 이전 스토리 로드
+      if (scrollingUp && scrollTop < 100 && !isLoadingPreviousStories && hasMoreStories) {
+        loadPreviousStories();
+      }
+    };
+    
+    messageBox.addEventListener('scroll', handleScroll);
+    return () => messageBox.removeEventListener('scroll', handleScroll);
+  }, [isLoadingPreviousStories, hasMoreStories, oldestStoryNumber]);
+
   // textarea 자동 높이 조절
   const handleTextAreaChange: FormEventHandler<HTMLTextAreaElement> = (e) => {
     const el = e.currentTarget;
@@ -261,10 +417,20 @@ export default function ChatPage() {
           ref={messageBoxRef}
           className="flex-1 overflow-auto px-4 py-2 space-y-4"
         >
+
+          {/* 로딩 인디케이터 */}
+          {isLoadingPreviousStories && (
+            <div className="flex justify-center py-2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary"></div>
+            </div>
+          )}
+          
           <div
             className={`bg-primary p-4 text-white rounded-xl ${NanumMyeongjo.className}`}
           >
-            {novel?.background?.start ?? "여러분들의 소설을 시작해보세요."}
+            {novel?.background && typeof novel.background === 'object' && 'start' in novel.background 
+              ? String(novel.background.start)
+              : "여러분들의 소설을 시작해보세요."}
           </div>
           {messages.map((msg, i) => {
             if (typeof msg === "string") {
