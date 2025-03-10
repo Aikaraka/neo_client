@@ -13,6 +13,7 @@ import {
 } from "@/app/_components/NovelList";
 import TokenBadge from "@/components/common/tokenBadge";
 import SuspenseBoundary from "@/components/common/suspenseBoundary";
+import SearchIntegrationExample from "@/app/_components/SearchIntegrationExample";
 
 export default async function Home() {
   const genres = [
@@ -37,15 +38,7 @@ export default async function Home() {
           </Link>
           <div className="flex items-center gap-1">
             <TokenBadge />
-            <Button variant="ghost" size="icon" className="hover:bg-accent">
-              <Image
-                src="/search.svg"
-                alt="Search Icon"
-                width={20}
-                height={20}
-                className="h-5 w-5"
-              />
-            </Button>
+            <SearchIntegrationExample />
           </div>
         </div>
       </header>

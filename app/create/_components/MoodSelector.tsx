@@ -4,18 +4,24 @@ import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { useFormContext } from "react-hook-form";
 
 const moodOptions = [
-  "로맨틱",
+  "로맨스",
   "코믹",
-  "미스터리",
-  "스릴러",
   "판타지",
   "SF",
   "액션",
-  "드라마",
   "호러",
-  "힐링",
-  "모험",
-  "일상",
+  "범죄/스릴러",
+  "추리",
+  "무협",
+  "스포츠",
+  "역사",
+  "힐링/일상",
+  "디스토피아/아포칼립스",
+  "초능력",
+  "이세계",
+  "성장물",
+  "여성향",
+  "남성향",
 ];
 
 export function MoodSelector() {

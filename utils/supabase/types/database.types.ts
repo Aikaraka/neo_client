@@ -9,6 +9,35 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      search_history: {
+        Row: {
+          id: string;
+          user_id: string;
+          search_term: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          search_term: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          search_term?: string;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "search_history_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       novel_views: {
         Row: {
           created_at: string;
@@ -34,6 +63,88 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "novel_views_novel_id_fkey";
+            columns: ["novel_id"];
+            isOneToOne: false;
+            referencedRelation: "novels";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      novel_stats: {
+        Row: {
+          id: string;
+          novel_id: string;
+          total_chats: number;
+          daily_chats: number;
+          weekly_chats: number;
+          monthly_chats: number;
+          last_updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          novel_id: string;
+          total_chats?: number;
+          daily_chats?: number;
+          weekly_chats?: number;
+          monthly_chats?: number;
+          last_updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          novel_id?: string;
+          total_chats?: number;
+          daily_chats?: number;
+          weekly_chats?: number;
+          monthly_chats?: number;
+          last_updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "novel_stats_novel_id_fkey";
+            columns: ["novel_id"];
+            isOneToOne: false;
+            referencedRelation: "novels";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      novel_rankings: {
+        Row: {
+          id: string;
+          novel_id: string;
+          title: string;
+          image_url: string | null;
+          chat_count: number;
+          rank: number;
+          ranking_type: string;
+          period_label: string;
+          calculated_at: string;
+        };
+        Insert: {
+          id?: string;
+          novel_id: string;
+          title: string;
+          image_url?: string | null;
+          chat_count: number;
+          rank: number;
+          ranking_type: string;
+          period_label: string;
+          calculated_at?: string;
+        };
+        Update: {
+          id?: string;
+          novel_id?: string;
+          title?: string;
+          image_url?: string | null;
+          chat_count?: number;
+          rank?: number;
+          ranking_type?: string;
+          period_label?: string;
+          calculated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "novel_rankings_novel_id_fkey";
             columns: ["novel_id"];
             isOneToOne: false;
             referencedRelation: "novels";

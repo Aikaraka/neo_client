@@ -1,7 +1,9 @@
 // app/admin/page.tsx
-import { updateTopNovelViews } from "@/app/_api/admin.server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/server";
+import AdminChatStats from "@/app/_components/AdminChatStats";
+import AdminCalculateTopNovels from "@/app/_components/AdminCalculateTopNovels";
+import AdminViewRankings from "@/app/_components/AdminViewRankings";
 
 // 어드민 권한 확인 함수
 async function checkAdminAccess() {
@@ -53,18 +55,15 @@ export default async function AdminPage() {
       <h1 className="text-2xl font-bold mb-6">관리자 페이지</h1>
       
       <div className="bg-white shadow-md rounded p-6 mb-6">
-        <h2 className="text-xl font-semibold mb-4">인기 소설 관리</h2>
-        <p className="text-gray-600 mb-4">
-          어제 하루 동안 가장 많이 조회된 소설 8개를 계산하여 오늘의 인기 소설 목록으로 업데이트합니다.
-        </p>
-        <form action={updateTopNovelViews}>
-          <button 
-            type="submit"
-            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-          >
-            오늘의 인기 소설 업데이트
-          </button>
-        </form>
+        <AdminChatStats />
+      </div>
+      
+      <div className="bg-white shadow-md rounded p-6 mb-6">
+        <AdminCalculateTopNovels />
+      </div>
+      
+      <div className="bg-white shadow-md rounded p-6 mb-6">
+        <AdminViewRankings />
       </div>
       
       {/* 다른 관리 기능들 추가 */}

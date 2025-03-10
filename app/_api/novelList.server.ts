@@ -71,43 +71,27 @@ export async function getTopNovelsByViews() {
   const supabase = await createClient();
   
   try {
-    // 오늘 날짜 계산
-    const today = new Date().toISOString().split('T')[0];
+    // 일별 인기 소설 가져오기 (저장된 랭킹 사용)
+    const { data: dailyRankings, error: dailyError } = await (supabase as any)
+      .rpc('get_latest_novel_rankings', { ranking_type_param: 'daily' });
     
-    // 1. top_novel_views 테이블에서 오늘의 인기 소설 가져오기
-    const { data: topNovels, error: topNovelsError } = await (supabase as any)
-      .from('top_novel_views')
-      .select('*')
-      .eq('calculated_date', today)
-      .order('rank', { ascending: true });
-    
-    // 오늘 데이터가 있으면 바로 반환
-    if (!topNovelsError && topNovels && topNovels.length > 0) {
-      return topNovels;
+    // 데이터가 있으면 바로 반환
+    if (!dailyError && dailyRankings && dailyRankings.length > 0) {
+      return dailyRankings;
     }
     
-    // 2. 어제 날짜 계산
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    // 일별 랭킹이 없으면 전체 랭킹 조회
+    const { data: allTimeRankings, error: allTimeError } = await (supabase as any)
+      .rpc('get_latest_novel_rankings', { ranking_type_param: 'all_time' });
     
-    // 3. 어제의 인기 소설 가져오기
-    const { data: yesterdayTopNovels, error: yesterdayError } = await (supabase as any)
-      .from('top_novel_views')
-      .select('*')
-      .eq('calculated_date', yesterdayStr)
-      .order('rank', { ascending: true });
-    
-    // 어제 데이터가 있으면 반환
-    if (!yesterdayError && yesterdayTopNovels && yesterdayTopNovels.length > 0) {
-      return yesterdayTopNovels;
+    if (!allTimeError && allTimeRankings && allTimeRankings.length > 0) {
+      return allTimeRankings;
     }
     
-    // 4. 데이터가 없는 경우 기본 추천 소설 반환
+    // 여전히 데이터가 없는 경우 기본 추천 소설 반환
     return await getRecommendedNovels();
-  } catch (e) {
-    console.error("소설 조회수 정보를 가져오는 중 오류 발생:", e);
-    // 오류 발생 시 기본 추천 소설 반환
+  } catch (error) {
+    console.error("인기 소설 조회 중 오류가 발생했습니다:", error);
     return await getRecommendedNovels();
   }
 }

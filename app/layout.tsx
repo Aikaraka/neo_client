@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import localFont from "next/font/local";
-import { cn } from "@/lib/utils";
-import QueryProvider from "@/components/common/queryProvider";
-import { AuthProvider } from "@/utils/supabase/authProvider";
 import ResponsiveWrapper from "@/components/common/responsiveWrapper";
-import SuspenseBoundary from "@/components/common/suspenseBoundary";
+import { AuthProvider } from "@/utils/supabase/authProvider";
+import QueryProvider from "@/components/common/queryProvider";
+import { SearchProvider } from "./_components/SearchContext";
 
-const NanumSquareNeo = localFont({
-  src: "./fonts/NanumSquareNeo-Variable.woff2",
-  display: "swap",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "NEO",
@@ -23,14 +19,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={cn(NanumSquareNeo.className, "bg-foreground/5")}>
-      <ResponsiveWrapper>
+    <html lang="ko" className={`${inter.className} bg-foreground/5`}>
+      <body className="max-w-md min-w-[360px]  mx-auto relative">
         <AuthProvider>
           <QueryProvider>
-            <SuspenseBoundary>{children}</SuspenseBoundary>
+            <SearchProvider>
+              <ResponsiveWrapper>{children}</ResponsiveWrapper>
+            </SearchProvider>
           </QueryProvider>
         </AuthProvider>
-      </ResponsiveWrapper>
+      </body>
     </html>
   );
 }

@@ -20,149 +20,257 @@ function createAdminClient() {
 
 // form action으로 사용할 수 있도록 FormData를 매개변수로 받고 void를 반환하도록 수정
 export async function updateTopNovelViews(formData: FormData) {
-  // 일반 클라이언트 (사용자 확인용)
-  const supabase = await createClient();
-  
-  // 관리자 권한 확인
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
-  if (userError || !user) {
-    console.error("사용자 인증 오류:", userError);
-    throw new Error("인증된 사용자가 아닙니다.");
-  }
-  
-  // 관리자 클라이언트 (RLS 우회)
   const supabaseAdmin = createAdminClient();
   
   try {
-    // 오늘 날짜 계산
+    // 일별 채팅 통계 초기화
+    const { error: resetDailyError } = await supabaseAdmin.rpc('reset_daily_chat_stats');
+    
+    if (resetDailyError) {
+      console.error("일별 채팅 통계 초기화 중 오류가 발생했습니다:", resetDailyError);
+      return { success: false, message: "일별 채팅 통계 초기화 중 오류가 발생했습니다." };
+    }
+    
+    // 주간 통계 초기화 (매주 월요일에 실행)
     const today = new Date();
-    const todayStr = today.toISOString().split('T')[0];
-    
-    // 어제 날짜 계산
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
-    
-    console.log(`오늘(${todayStr})의 인기 소설을 계산합니다.`);
-    console.log(`어제(${yesterdayStr})의 조회 데이터를 기준으로 합니다.`);
-    
-    // 1. 기존 오늘 데이터 삭제 (관리자 클라이언트 사용)
-    await supabaseAdmin
-      .from('top_novel_views')
-      .delete()
-      .eq('calculated_date', todayStr);
-    
-    // 2. novel_views 테이블에서 어제 하루 동안의 조회 데이터 가져오기 (관리자 클라이언트 사용)
-    const { data: viewsData, error: viewsError } = await supabaseAdmin
-      .from('novel_views')
-      .select('novel_id, last_viewed_at')
-      .gte('last_viewed_at', `${yesterdayStr}T00:00:00`)
-      .lt('last_viewed_at', `${todayStr}T00:00:00`);
-    
-    if (viewsError) {
-      console.error("조회수 정보를 가져오던 중 오류가 발생했습니다:", viewsError);
-      throw new Error("조회수 정보를 가져오던 중 오류가 발생했습니다.");
-    }
-    
-    console.log(`어제의 조회 데이터 ${viewsData?.length || 0}건을 가져왔습니다.`);
-    
-    // 3. 각 소설별 조회수 계산
-    const novelViewCounts: Record<string, number> = {};
-    
-    viewsData?.forEach((view: any) => {
-      const novelId = view.novel_id;
-      if (!novelViewCounts[novelId]) {
-        novelViewCounts[novelId] = 0;
+    if (today.getDay() === 1) { // 월요일인 경우
+      const { error: resetWeeklyError } = await supabaseAdmin.rpc('reset_weekly_chat_stats');
+      
+      if (resetWeeklyError) {
+        console.error("주별 채팅 통계 초기화 중 오류가 발생했습니다:", resetWeeklyError);
+        return { success: false, message: "주별 채팅 통계 초기화 중 오류가 발생했습니다." };
       }
-      novelViewCounts[novelId] += 1;
-    });
-    
-    // 4. 조회수 기준으로 상위 15개 소설 ID 추출 (더 많은 소설을 가져와서 필터링)
-    const topNovels = Object.entries(novelViewCounts)
-      .sort(([, countA], [, countB]) => countB - countA)
-      .slice(0, 15);
-    
-    console.log(`상위 ${topNovels.length}개 소설을 추출했습니다.`);
-    
-    if (topNovels.length === 0) {
-      console.error("어제의 조회 데이터가 없습니다.");
-      return;
     }
     
-    // 5. 소설 ID 목록
-    const novelIds = topNovels.map(([novelId]) => novelId);
-    
-    // 6. 소설 정보 가져오기 (관리자 클라이언트 사용)
-    const { data: novelsData, error: novelsError } = await supabaseAdmin
-      .from('novels')
-      .select('*')
-      .in('id', novelIds);
-    
-    if (novelsError) {
-      console.error("소설 정보를 가져오던 중 오류가 발생했습니다:", novelsError);
-      throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");
-    }
-    
-    // 6-1. 공개된 소설만 필터링 (settings->isPublic 필드 확인)
-    const publicNovels = novelsData?.filter((novel: any) => {
-      // settings 컬럼의 isPublic 값이 true인지 확인
-      try {
-        // settings가 문자열로 저장된 경우 파싱
-        const settings = typeof novel.settings === 'string' 
-          ? JSON.parse(novel.settings) 
-          : novel.settings;
-        
-        return settings?.isPublic === true;
-      } catch (e) {
-        console.error(`소설 ID ${novel.id}의 settings 파싱 중 오류:`, e);
-        return false; // 파싱 오류 시 비공개로 간주
+    // 월간 통계 초기화 (매월 1일에 실행)
+    if (today.getDate() === 1) { // 1일인 경우
+      const { error: resetMonthlyError } = await supabaseAdmin.rpc('reset_monthly_chat_stats');
+      
+      if (resetMonthlyError) {
+        console.error("월별 채팅 통계 초기화 중 오류가 발생했습니다:", resetMonthlyError);
+        return { success: false, message: "월별 채팅 통계 초기화 중 오류가 발생했습니다." };
       }
-    });
-    
-    console.log(`공개된 소설 ${publicNovels?.length || 0}개를 필터링했습니다.`);
-    
-    if (!publicNovels || publicNovels.length === 0) {
-      console.error("공개된 인기 소설이 없습니다.");
-      return;
     }
     
-    // 6-2. 공개된 소설 중 조회수 기준 상위 8개 선택
-    const topPublicNovels = publicNovels
-      .map((novel: any) => {
-        const novelId = novel.id;
-        const count = novelViewCounts[novelId] || 0;
-        return { novel, count };
-      })
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 8);
+    return { success: true, message: "채팅 통계가 성공적으로 초기화되었습니다." };
+  } catch (error) {
+    console.error("채팅 통계 초기화 중 오류가 발생했습니다:", error);
+    return { success: false, message: "채팅 통계 초기화 중 오류가 발생했습니다." };
+  }
+}
+
+// 인기 소설 계산 및 저장 함수
+export async function calculateAndSaveRankings(formData: FormData) {
+  const supabaseAdmin = createAdminClient();
+  
+  // 소설 랭킹 타입 정의
+  interface NovelRanking {
+    novel_id: string;
+    title: string;
+    image_url: string | null;
+    chat_count: number;
+    rank: number;
+  }
+  
+  try {
+    // 현재 날짜 정보 가져오기 (한국 시간 기준)
+    const now = new Date();
+    const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC에 9시간 추가
     
-    // 7. top_novel_views 테이블에 데이터 삽입 (관리자 클라이언트 사용)
-    const topNovelViewsData = topPublicNovels.map(({ novel, count }, index) => {
-      return {
-        novel_id: novel.id,
-        title: novel.title || '',
-        image_url: novel.image_url || '',
-        view_count: count,
-        calculated_date: todayStr,
-        rank: index + 1, // 순위 추가
+    const year = koreaTime.getFullYear();
+    const month = koreaTime.getMonth() + 1; // 0-based
+    const date = koreaTime.getDate();
+    const day = koreaTime.getDay(); // 0: 일요일, 1: 월요일, ...
+    
+    // 주차 계산 (해당 월의 첫째 주부터 1주차로 계산)
+    const weekOfMonth = Math.ceil(date / 7);
+    
+    // 기간 라벨 생성
+    const dailyLabel = `${year}년 ${month}월 ${date}일`;
+    const weeklyLabel = `${year}년 ${month}월 ${weekOfMonth}주차`;
+    const monthlyLabel = `${year}년 ${month}월`;
+    const allTimeLabel = 'all_time';
+    
+    // 일별 인기 소설 계산
+    const { data: dailyTopNovels, error: dailyError } = await supabaseAdmin
+      .rpc('get_daily_top_novels_by_chat', { top_count: 8 });
+    
+    if (dailyError) {
+      console.error("일별 인기 소설 계산 중 오류가 발생했습니다:", dailyError);
+      return { 
+        success: false, 
+        message: "일별 인기 소설 계산 중 오류가 발생했습니다."
       };
-    });
-    
-    const { error: insertError } = await supabaseAdmin
-      .from('top_novel_views')
-      .insert(topNovelViewsData);
-    
-    if (insertError) {
-      console.error("인기 소설 데이터 저장 중 오류가 발생했습니다:", insertError);
-      throw new Error("인기 소설 데이터 저장 중 오류가 발생했습니다.");
     }
     
-    // 캐시 무효화
+    // 주별 인기 소설 계산
+    const { data: weeklyTopNovels, error: weeklyError } = await supabaseAdmin
+      .rpc('get_weekly_top_novels_by_chat', { top_count: 8 });
+    
+    if (weeklyError) {
+      console.error("주별 인기 소설 계산 중 오류가 발생했습니다:", weeklyError);
+      return { 
+        success: false, 
+        message: "주별 인기 소설 계산 중 오류가 발생했습니다."
+      };
+    }
+    
+    // 월별 인기 소설 계산
+    const { data: monthlyTopNovels, error: monthlyError } = await supabaseAdmin
+      .rpc('get_monthly_top_novels_by_chat', { top_count: 8 });
+    
+    if (monthlyError) {
+      console.error("월별 인기 소설 계산 중 오류가 발생했습니다:", monthlyError);
+      return { 
+        success: false, 
+        message: "월별 인기 소설 계산 중 오류가 발생했습니다."
+      };
+    }
+    
+    // 전체 인기 소설 계산
+    const { data: allTimeTopNovels, error: allTimeError } = await supabaseAdmin
+      .rpc('get_top_novels_by_chat', { top_count: 8 });
+    
+    if (allTimeError) {
+      console.error("전체 인기 소설 계산 중 오류가 발생했습니다:", allTimeError);
+      return { 
+        success: false, 
+        message: "전체 인기 소설 계산 중 오류가 발생했습니다."
+      };
+    }
+    
+    // 기존 랭킹 삭제 (같은 기간 라벨의 랭킹)
+    await supabaseAdmin
+      .from('novel_rankings')
+      .delete()
+      .eq('ranking_type', 'daily')
+      .eq('period_label', dailyLabel);
+      
+    await supabaseAdmin
+      .from('novel_rankings')
+      .delete()
+      .eq('ranking_type', 'weekly')
+      .eq('period_label', weeklyLabel);
+      
+    await supabaseAdmin
+      .from('novel_rankings')
+      .delete()
+      .eq('ranking_type', 'monthly')
+      .eq('period_label', monthlyLabel);
+      
+    await supabaseAdmin
+      .from('novel_rankings')
+      .delete()
+      .eq('ranking_type', 'all_time')
+      .eq('period_label', allTimeLabel);
+    
+    // 일별 랭킹 저장
+    if (dailyTopNovels && dailyTopNovels.length > 0) {
+      const dailyRankings = dailyTopNovels.map((novel: NovelRanking) => ({
+        novel_id: novel.novel_id,
+        title: novel.title,
+        image_url: novel.image_url,
+        chat_count: novel.chat_count,
+        rank: novel.rank,
+        ranking_type: 'daily',
+        period_label: dailyLabel,
+        calculated_at: new Date().toISOString()
+      }));
+      
+      const { error: insertDailyError } = await supabaseAdmin
+        .from('novel_rankings')
+        .insert(dailyRankings);
+        
+      if (insertDailyError) {
+        console.error("일별 랭킹 저장 중 오류가 발생했습니다:", insertDailyError);
+      }
+    }
+    
+    // 주별 랭킹 저장
+    if (weeklyTopNovels && weeklyTopNovels.length > 0) {
+      const weeklyRankings = weeklyTopNovels.map((novel: NovelRanking) => ({
+        novel_id: novel.novel_id,
+        title: novel.title,
+        image_url: novel.image_url,
+        chat_count: novel.chat_count,
+        rank: novel.rank,
+        ranking_type: 'weekly',
+        period_label: weeklyLabel,
+        calculated_at: new Date().toISOString()
+      }));
+      
+      const { error: insertWeeklyError } = await supabaseAdmin
+        .from('novel_rankings')
+        .insert(weeklyRankings);
+        
+      if (insertWeeklyError) {
+        console.error("주별 랭킹 저장 중 오류가 발생했습니다:", insertWeeklyError);
+      }
+    }
+    
+    // 월별 랭킹 저장
+    if (monthlyTopNovels && monthlyTopNovels.length > 0) {
+      const monthlyRankings = monthlyTopNovels.map((novel: NovelRanking) => ({
+        novel_id: novel.novel_id,
+        title: novel.title,
+        image_url: novel.image_url,
+        chat_count: novel.chat_count,
+        rank: novel.rank,
+        ranking_type: 'monthly',
+        period_label: monthlyLabel,
+        calculated_at: new Date().toISOString()
+      }));
+      
+      const { error: insertMonthlyError } = await supabaseAdmin
+        .from('novel_rankings')
+        .insert(monthlyRankings);
+        
+      if (insertMonthlyError) {
+        console.error("월별 랭킹 저장 중 오류가 발생했습니다:", insertMonthlyError);
+      }
+    }
+    
+    // 전체 랭킹 저장
+    if (allTimeTopNovels && allTimeTopNovels.length > 0) {
+      const allTimeRankings = allTimeTopNovels.map((novel: NovelRanking) => ({
+        novel_id: novel.novel_id,
+        title: novel.title,
+        image_url: novel.image_url,
+        chat_count: novel.chat_count,
+        rank: novel.rank,
+        ranking_type: 'all_time',
+        period_label: allTimeLabel,
+        calculated_at: new Date().toISOString()
+      }));
+      
+      const { error: insertAllTimeError } = await supabaseAdmin
+        .from('novel_rankings')
+        .insert(allTimeRankings);
+        
+      if (insertAllTimeError) {
+        console.error("전체 랭킹 저장 중 오류가 발생했습니다:", insertAllTimeError);
+      }
+    }
+    
+    // 캐시 무효화 (메인 페이지 갱신)
     revalidatePath('/');
     
-    console.log(`${topNovelViewsData.length}개의 인기 소설 목록이 업데이트되었습니다.`);
-  } catch (error: any) {
-    console.error("인기 소설 목록 업데이트 중 오류 발생:", error);
-    throw error; // 오류를 다시 던져서 UI에 표시될 수 있도록 함
+    return { 
+      success: true, 
+      message: "인기 소설 랭킹이 성공적으로 계산되고 저장되었습니다.",
+      dailyLabel,
+      weeklyLabel,
+      monthlyLabel,
+      dailyCount: dailyTopNovels?.length || 0,
+      weeklyCount: weeklyTopNovels?.length || 0,
+      monthlyCount: monthlyTopNovels?.length || 0,
+      allTimeCount: allTimeTopNovels?.length || 0
+    };
+  } catch (error) {
+    console.error("인기 소설 랭킹 계산 및 저장 중 오류가 발생했습니다:", error);
+    return { 
+      success: false, 
+      message: "인기 소설 랭킹 계산 및 저장 중 오류가 발생했습니다."
+    };
   }
 } 
