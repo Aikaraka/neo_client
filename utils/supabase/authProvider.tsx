@@ -10,6 +10,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  refreshSession: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -36,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           data: { session },
         } = await supabase.auth.getSession();
         setUser(session?.user ?? null);
-        setSession(session);
+        setSession(session ?? null);
       } catch {
         console.error("초기화 오류");
       } finally {
@@ -57,13 +58,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (event === "SIGNED_OUT") {
         router.refresh();
       }
+      if (event === "TOKEN_REFRESHED") {
+        console.log("refresh");
+        setSession(session);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, [router, supabase]);
 
+  const refreshSession = async () => {
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabase.auth.refreshSession();
+      if (error || !session) throw error;
+      setSession(session);
+      setUser(session.user);
+    } catch {
+      router.refresh();
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ supabase, user, session, loading }}>
+    <AuthContext.Provider
+      value={{ supabase, user, session, loading, refreshSession }}
+    >
       {children}
     </AuthContext.Provider>
   );
