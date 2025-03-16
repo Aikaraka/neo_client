@@ -1,6 +1,25 @@
+import { novelAIServer } from "@/app/novel/_api";
 import { createClient } from "@/utils/supabase/client";
 
-export async function initStory(novelId: string) {
+interface StoryItem {
+  content: string;
+  story_number: number;
+}
+
+export interface InitStoryResponse {
+  title: string;
+  story?: string;
+  initial_stories: StoryItem[];
+  has_more_stories: boolean;
+  oldest_story_number: number;
+  background: {
+    start: string;
+    detailedLocations: string[];
+  };
+  progress_rate: number;
+}
+
+export async function initStory(novelId: string): Promise<InitStoryResponse> {
   const supabase = createClient();
 
   const {
@@ -10,27 +29,16 @@ export async function initStory(novelId: string) {
 
   if (sessionError || !session) throw new Error("세션 오류가 발생했습니다.");
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-
-  // init-story에 user_id와 novel_id 전송
-  const res = await fetch(`${API_URL}/init-story`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-      "Refresh-Token": session.refresh_token,
-    },
-    credentials: "include",
-    body: JSON.stringify({
+  const response = await novelAIServer.post(
+    "/init-story",
+    {
       user_id: session.user.id,
       novel_id: novelId,
-    }),
-  });
+    },
+    {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    }
+  );
 
-  if (!res.ok) {
-    throw new Error("서버와의 오류가 발생했습니다.");
-  }
-
-  const data = await res.json();
-  return data.title;
+  return response.json();
 }

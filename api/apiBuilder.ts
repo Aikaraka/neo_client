@@ -1,6 +1,5 @@
 import { callServerAction } from "@/api/server";
 
-type HTTPParams = Array<string> | string;
 type HttpMethod = "POST" | "GET" | "PUT" | "DELETE";
 type RequestBody = Record<string, unknown>;
 type RequestFunction = () => Promise<Response>;
@@ -13,9 +12,7 @@ type RequestMiddleware<T> = (config: T) => T;
 class API {
   baseURL: string;
   headers?: HeadersInit;
-  params?: HTTPParams;
   timeOut?: number;
-  endPoint?: string;
   withCredentials?: boolean;
   serveraction?: boolean;
   use: {
@@ -27,27 +24,23 @@ class API {
     this.baseURL = baseURL;
     this.use = {
       request: (config) => config,
-      response: async (response, requestConfig) => response,
+      response: async (response) => response,
     };
   }
 
-  getParams() {
-    if (this.params) {
-      return Array.isArray(this.params)
-        ? this.params.join("/")
-        : `/${this.params}`;
-    }
-    return "";
-  }
-
-  async request(method: HttpMethod, data?: RequestBody) {
-    const params = this.getParams();
+  async request(
+    method: HttpMethod,
+    endpoint?: string,
+    data?: RequestBody,
+    additionalOptions?: RequestInit
+  ) {
     const fetchFunction = async () => {
-      const url = this.baseURL + this.endPoint + params;
+      const url = this.baseURL + endpoint;
       let options: RequestInit = {
+        ...additionalOptions,
         method,
         credentials: this.withCredentials ? "include" : "omit",
-        headers: this.headers as HeadersInit,
+        headers: Object.assign({}, this.headers, additionalOptions?.headers),
         ...(data && { body: JSON.stringify(data) }),
       };
 
@@ -60,20 +53,30 @@ class API {
     };
 
     const response = await fetchFunction();
-    return this.use.response(response, fetchFunction);
+    const responseAfterMiddleWare = await this.use.response(
+      response,
+      fetchFunction
+    );
+
+    if (!responseAfterMiddleWare.ok) {
+      const erroMsg = await responseAfterMiddleWare.text();
+      throw new Error(erroMsg);
+    }
+
+    return responseAfterMiddleWare;
   }
 
-  get(data?: RequestBody) {
-    return this.request("GET", data);
+  get(endPoint?: string, options?: RequestInit) {
+    return this.request("GET", endPoint, undefined, options);
   }
-  post(data: RequestBody) {
-    return this.request("POST", data);
+  post(endPoint?: string, data?: RequestBody, options?: RequestInit) {
+    return this.request("POST", endPoint, data, options);
   }
-  delete() {
-    return this.request("DELETE");
+  delete(endPoint?: string, data?: RequestBody, options?: RequestInit) {
+    return this.request("DELETE", endPoint, data, options);
   }
-  put(data: RequestBody) {
-    return this.request("PUT", data);
+  put(endPoint?: string, data?: RequestBody, options?: RequestInit) {
+    return this.request("PUT", endPoint, data, options);
   }
 }
 
@@ -86,16 +89,6 @@ class APIBuilder {
 
   headers(headerOptions: HeadersInit): APIBuilder {
     this._instance.headers = headerOptions;
-    return this;
-  }
-
-  params(params: HTTPParams): APIBuilder {
-    this._instance.params = params;
-    return this;
-  }
-
-  endPoint(endPoint: string): APIBuilder {
-    this._instance.endPoint = endPoint;
     return this;
   }
 

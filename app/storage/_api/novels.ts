@@ -14,8 +14,8 @@ export async function getMyNovelList() {
     throw new Error("유저 정보를 가져오던 중 오류가 발생했습니다.");
 
   const { data, error: novelError } = await supabase
-    .from("novels")
-    .select("*")
+    .from("novel_views")
+    .select("user_id, novel_id, novels(*)")
     .eq("user_id", user.id);
   if (novelError) throw new Error("소설을 가져오던 중 오류가 발생했습니다.");
   return data;
