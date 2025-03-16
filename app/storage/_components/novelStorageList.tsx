@@ -33,7 +33,7 @@ export function NovelStorageListSkeleton() {
 const TOAST_DELETE_NOVEL_ERROR_TITLE = "소설 삭제 오류";
 export function NovelStorageList({ searchQuery }: { searchQuery: string }) {
   const queryClient = useQueryClient();
-  const { data: novels, isPending } = useQuery({
+  const { data: novelData, isPending } = useQuery({
     queryKey: ["storage"],
     queryFn: getMyNovelList,
   });
@@ -51,23 +51,23 @@ export function NovelStorageList({ searchQuery }: { searchQuery: string }) {
   const router = useRouter();
   const { open: deleteConfirmModal, switchModal } = useModal();
   const filteredNovel = searchQuery
-    ? novels?.filter((novel) => novel.title.includes(searchQuery))
-    : novels;
+    ? novelData?.filter((data) => data.novels.title.includes(searchQuery))
+    : novelData;
 
   if (isPending) return <NovelStorageListSkeleton />;
-  if (!novels) return <NotFound />;
+  if (!novelData) return <NotFound />;
   return (
     <div className="flex flex-col flex-1 gap-4 overflow-auto">
-      {filteredNovel?.map((novel) => (
+      {filteredNovel?.map(({ novels }) => (
         <div
-          key={novel.id}
+          key={novels.id}
           className="p-2 border-b hover:shadow-md transition-shadow cursor-pointer flex gap-2 last:border-none items-center"
-          onClick={() => router.push(`/novel/${novel.id}/detail`)}
+          onClick={() => router.push(`/novel/${novels.id}/detail`)}
         >
-          {novel.image_url ? (
+          {novels.image_url ? (
             <Image
-              src={novel.image_url}
-              alt={novel.title}
+              src={novels.image_url}
+              alt={novels.title}
               width={60}
               height={60}
               className="rounded-lg object-contain w-[60px] h-[60px] "
@@ -76,9 +76,9 @@ export function NovelStorageList({ searchQuery }: { searchQuery: string }) {
             <div className=" bg-gray-200 rounded-lg w-[60px] h-[60px]" />
           )}
           <div className="flex flex-col flex-1 justify-center">
-            <p className="text-lg font-semibold">{novel.title}</p>
+            <p className="text-lg font-semibold">{novels.title}</p>
             <p className="text-xs text-gray-600 mb-2">
-              {novel.created_at.substring(0, 10)}
+              {novels.created_at.substring(0, 10)}
             </p>
           </div>
           <Button
@@ -94,7 +94,7 @@ export function NovelStorageList({ searchQuery }: { searchQuery: string }) {
           <Modal
             open={deleteConfirmModal}
             switch={switchModal}
-            onConfirm={() => handleDeleteNovel(novel.id)}
+            onConfirm={() => handleDeleteNovel(novels.id)}
           >
             해당 소설을 삭제하시겠습니까?
           </Modal>
