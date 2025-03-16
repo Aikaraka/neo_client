@@ -110,13 +110,22 @@ export default function SideBar() {
             </div>
 
             <div className="text-sm flex flex-col py-6 border-b px-3 gap-5">
-              <Link href="/" className="hover:text-gray-600 transition-colors">
+              <Link
+                href="/terms/service"
+                className="hover:text-gray-600 transition-colors"
+              >
                 서비스 이용 약관
               </Link>
-              <Link href="/" className="hover:text-gray-600 transition-colors">
+              <Link
+                href="/terms/privacy"
+                className="hover:text-gray-600 transition-colors"
+              >
                 개인정보 처리 방침
               </Link>
-              <Link href="/" className="hover:text-gray-600 transition-colors">
+              <Link
+                href="/terms/copyright"
+                className="hover:text-gray-600 transition-colors"
+              >
                 저작권 및 지식재산권 관리 정책
               </Link>
             </div>
