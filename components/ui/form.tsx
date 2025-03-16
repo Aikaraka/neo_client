@@ -59,6 +59,7 @@ const InputFormField = <
   placeHolder,
   type = "text",
   children,
+  showErrorMessage = true,
 }: {
   control: Control<TFieldValues>;
   name: TName;
@@ -69,6 +70,7 @@ const InputFormField = <
   placeHolder?: string;
   type?: React.HTMLInputTypeAttribute;
   children?: React.ReactNode;
+  showErrorMessage?: boolean;
 }) => {
   const validTypes = ["text", "checkbox", "email", "default"];
   const variantType = validTypes.includes(type as string) ? type : "default";
@@ -105,7 +107,7 @@ const InputFormField = <
               )}
             </div>
           </FormControl>
-          <FormMessage />
+          {showErrorMessage && <FormMessage />}
         </FormItem>
       )}
     />
