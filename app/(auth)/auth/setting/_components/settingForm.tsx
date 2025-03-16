@@ -2,7 +2,7 @@ import {
   MarketingAgreement,
   PrivacyPolicyAgreement,
   TermsOfServiceAgreement,
-} from "@/app/(auth)/auth/setting/_components/agreements";
+} from "@/components/agreements";
 import DatePicker from "@/app/(auth)/auth/setting/_components/datePicker";
 import {
   SettingFormFieldName,
