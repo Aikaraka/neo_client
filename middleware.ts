@@ -10,6 +10,7 @@ const protectedRoutes = [
   "/storage",
   "/create",
 ];
+const adminRoutes = ["/admin"];
 const authRoutes = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
@@ -28,6 +29,18 @@ export async function middleware(request: NextRequest) {
     if (!userData?.profile_completed && pathname !== "/auth/setting") {
       const profileSettingURL = new URL("/auth/setting", request.url);
       return NextResponse.redirect(profileSettingURL);
+    }
+
+    if (adminRoutes.includes(request.nextUrl.pathname)) {
+      if (
+        !JSON.parse(process.env.NEXT_PUBLIC_ADMIN_EMAIL || "[]").includes(
+          user.email || "NOT FOUND"
+        )
+      ) {
+        console.error("관리자 권한이 없습니다.");
+        const mainURL = new URL("/", request.url);
+        return NextResponse.redirect(mainURL);
+      }
     }
 
     if (userData?.profile_completed && pathname === "/auth/setting") {
