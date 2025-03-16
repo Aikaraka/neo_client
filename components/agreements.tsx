@@ -135,7 +135,13 @@ export const TermsOfServiceAgreement = () => {
       <p>
         <strong>시행일: 2025년 3월 3일</strong>
       </p>
+    </div>
+  );
+};
 
+export const CopyrightTerm = () => {
+  return (
+    <div className="flex flex-col gap-5">
       <h1>AI 콘텐츠 정책 (청소년 필터 및 NSFW 관련)</h1>
       <p>
         본 AI 콘텐츠 정책은 <strong>“NEO”</strong> 서비스에서 AI 캐릭터(프로필,

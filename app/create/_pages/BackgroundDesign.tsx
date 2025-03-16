@@ -19,7 +19,7 @@ export default function BackgroundSetting() {
 
   const handleNext = async () => {
     const result = await Promise.all([
-      trigger("background.description"),
+      trigger("background.start"),
       trigger("background.detailedLocations"),
       trigger("ending"),
       trigger("mood"),

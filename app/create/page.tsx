@@ -30,7 +30,7 @@ export default function CreateNovel() {
     resolver: zodResolver(createNovelSchema),
     defaultValues: {
       background: {
-        description: "",
+        start: "",
         detailedLocations: [],
       },
       characters: [],
