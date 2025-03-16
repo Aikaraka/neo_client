@@ -6,9 +6,105 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export type Category =
+  | "로맨틱"
+  | "코믹"
+  | "미스터리"
+  | "스릴러"
+  | "판타지"
+  | "SF"
+  | "액션"
+  | "드라마"
+  | "호러"
+  | "힐링"
+  | "모험"
+  | "일상";
+
 export type Database = {
   public: {
     Tables: {
+      novel_rankings: {
+        Row: {
+          calculated_at: string | null;
+          chat_count: number;
+          id: string;
+          image_url: string | null;
+          novel_id: string;
+          period_label: string;
+          rank: number;
+          ranking_type: string;
+          title: string;
+        };
+        Insert: {
+          calculated_at?: string | null;
+          chat_count: number;
+          id?: string;
+          image_url?: string | null;
+          novel_id: string;
+          period_label: string;
+          rank: number;
+          ranking_type: string;
+          title: string;
+        };
+        Update: {
+          calculated_at?: string | null;
+          chat_count?: number;
+          id?: string;
+          image_url?: string | null;
+          novel_id?: string;
+          period_label?: string;
+          rank?: number;
+          ranking_type?: string;
+          title?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "novel_rankings_novel_id_fkey";
+            columns: ["novel_id"];
+            isOneToOne: false;
+            referencedRelation: "novels";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      novel_stats: {
+        Row: {
+          daily_chats: number | null;
+          id: string;
+          last_updated_at: string | null;
+          monthly_chats: number | null;
+          novel_id: string;
+          total_chats: number | null;
+          weekly_chats: number | null;
+        };
+        Insert: {
+          daily_chats?: number | null;
+          id?: string;
+          last_updated_at?: string | null;
+          monthly_chats?: number | null;
+          novel_id: string;
+          total_chats?: number | null;
+          weekly_chats?: number | null;
+        };
+        Update: {
+          daily_chats?: number | null;
+          id?: string;
+          last_updated_at?: string | null;
+          monthly_chats?: number | null;
+          novel_id?: string;
+          total_chats?: number | null;
+          weekly_chats?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "novel_stats_novel_id_fkey";
+            columns: ["novel_id"];
+            isOneToOne: true;
+            referencedRelation: "novels";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
       novel_views: {
         Row: {
           created_at: string;
@@ -101,6 +197,27 @@ export type Database = {
           }
         ];
       };
+      search_history: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          search_term: string;
+          user_id: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          search_term: string;
+          user_id?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          search_term?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       user_ai_token: {
         Row: {
           created_at: string | null;
@@ -177,7 +294,110 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      get_daily_top_novels_by_chat: {
+        Args: {
+          top_count?: number;
+        };
+        Returns: {
+          novel_id: string;
+          title: string;
+          image_url: string;
+          chat_count: number;
+          rank: number;
+        }[];
+      };
+      get_latest_novel_rankings: {
+        Args: {
+          ranking_type_param: string;
+        };
+        Returns: {
+          novel_id: string;
+          title: string;
+          image_url: string;
+          chat_count: number;
+          rank: number;
+          period_label: string;
+          calculated_at: string;
+        }[];
+      };
+      get_monthly_top_novels_by_chat: {
+        Args: {
+          top_count?: number;
+        };
+        Returns: {
+          novel_id: string;
+          title: string;
+          image_url: string;
+          chat_count: number;
+          rank: number;
+        }[];
+      };
+      get_novel_chat_counts: {
+        Args: {
+          novel_ids: string[];
+        };
+        Returns: {
+          novel_id: string;
+          chat_count: number;
+        }[];
+      };
+      get_novel_rankings: {
+        Args: {
+          ranking_type_param: string;
+          period_label_param: string;
+        };
+        Returns: {
+          novel_id: string;
+          title: string;
+          image_url: string;
+          chat_count: number;
+          rank: number;
+          period_label: string;
+          calculated_at: string;
+        }[];
+      };
+      get_top_novels_by_chat: {
+        Args: {
+          top_count?: number;
+        };
+        Returns: {
+          novel_id: string;
+          title: string;
+          image_url: string;
+          chat_count: number;
+          rank: number;
+        }[];
+      };
+      get_weekly_top_novels_by_chat: {
+        Args: {
+          top_count?: number;
+        };
+        Returns: {
+          novel_id: string;
+          title: string;
+          image_url: string;
+          chat_count: number;
+          rank: number;
+        }[];
+      };
+      increment_chat_stats: {
+        Args: {
+          novel_id_param: string;
+        };
+        Returns: undefined;
+      };
+      reset_daily_chat_stats: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      reset_monthly_chat_stats: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
+      reset_weekly_chat_stats: {
+        Args: Record<PropertyKey, never>;
+        Returns: undefined;
+      };
     };
     Enums: {
       [_ in never]: never;
