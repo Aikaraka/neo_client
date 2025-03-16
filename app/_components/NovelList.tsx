@@ -1,10 +1,15 @@
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getRecommendedNovels } from "@/app/_api/novelList.server";
+import {
+  getNovelsByCategory,
+  getNovelsByView,
+  getRecommendedNovels,
+} from "@/app/_api/novelList.server";
 import Image from "next/image";
 import Link from "next/link";
 import { Rabbit, Unplug } from "lucide-react";
+import { Category } from "@/utils/supabase/types/database.types";
 
 export function NovelListEmpty() {
   return (
@@ -49,71 +54,117 @@ export function NovelListSkeleton({ count = 5 }: { count?: number }) {
 }
 
 export async function RecommendedNovelList() {
-  const novelList = await getRecommendedNovels();
+  try {
+    const novelList = await getRecommendedNovels();
 
-  if (!novelList.length) return <NovelListEmpty />;
-  return (
-    <ScrollArea className="w-full whitespace-nowrap">
-      <div className="flex space-x-4">
-        {novelList?.map((novel, index) => (
-          <Card key={index} className="w-[150px] shrink-0">
-            <Link href={`/novel/${novel.id}/detail`}>
-              <CardContent className="p-0">
-                <Image
-                  src={
-                    novel.image_url
-                      ? novel.image_url
-                      : "https://i.imgur.com/D1fNsoW.png"
-                  }
-                  alt={novel.title}
-                  width={150}
-                  height={150}
-                  className="rounded-t-lg object-cover w-[150px] h-[150px]"
-                />
-                <div className="p-2">
-                  <p className="text-sm truncate">{novel.title}</p>
-                </div>
-              </CardContent>
-            </Link>
-          </Card>
-        ))}
-      </div>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
-  );
+    if (!novelList || !novelList.length) return <NovelListEmpty />;
+    return (
+      <ScrollArea className="w-full whitespace-nowrap">
+        <div className="flex space-x-4">
+          {novelList?.map((novel, index) => (
+            <Card key={index} className="w-[150px] shrink-0">
+              <Link href={`/novel/${novel.id}/detail`}>
+                <CardContent className="p-0">
+                  <Image
+                    src={
+                      novel.image_url
+                        ? novel.image_url
+                        : "https://i.imgur.com/D1fNsoW.png"
+                    }
+                    alt={novel.title ?? "Novel Title"}
+                    width={150}
+                    height={150}
+                    className="rounded-t-lg object-cover w-[150px] h-[150px]"
+                  />
+                  <div className="p-2">
+                    <p className="text-sm truncate">{novel.title}</p>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    );
+  } catch {
+    return <NovelListErrorFallback />;
+  }
 }
 
 export async function TopNovelList() {
-  const novelList = await getRecommendedNovels();
+  try {
+    const novelList = await getNovelsByView();
 
-  if (!novelList.length) return <NovelListEmpty />;
-  return (
-    <ScrollArea className="w-full whitespace-nowrap">
-      <div className="flex space-x-4">
-        {novelList?.map((novel, index) => (
-          <Card key={index} className="w-[150px] shrink-0">
-            <Link href={`/novel/${novel.id}/detail`}>
-              <CardContent className="p-0">
-                <Image
-                  src={
-                    novel.image_url
-                      ? novel.image_url
-                      : "https://i.imgur.com/D1fNsoW.png"
-                  }
-                  alt={novel.title}
-                  width={150}
-                  height={150}
-                  className="rounded-t-lg object-cover w-[150px] h-[150px]"
-                />
-                <div className="p-2">
-                  <p className="text-sm truncate">{novel.title}</p>
-                </div>
-              </CardContent>
-            </Link>
-          </Card>
-        ))}
-      </div>
-      <ScrollBar orientation="horizontal" />
-    </ScrollArea>
-  );
+    if (!novelList || !novelList.length) return <NovelListEmpty />;
+    return (
+      <ScrollArea className="w-full whitespace-nowrap">
+        <div className="flex space-x-4">
+          {novelList?.map((novel, index) => (
+            <Card key={`top-${index}`} className="w-[150px] shrink-0">
+              <Link href={`/novel/${novel.novel_id}/detail`}>
+                <CardContent className="p-0">
+                  <Image
+                    src={
+                      novel.image_url
+                        ? novel.image_url
+                        : "https://i.imgur.com/D1fNsoW.png"
+                    }
+                    alt={novel.title ?? "novel title"}
+                    width={150}
+                    height={150}
+                    className="rounded-t-lg object-cover w-[150px] h-[150px]"
+                  />
+                  <div className="p-2">
+                    <p className="text-sm truncate">{novel.title}</p>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    );
+  } catch {
+    return <NovelListErrorFallback />;
+  }
+}
+
+export async function NovelListByGenre({ genre }: { genre: Category }) {
+  try {
+    const novelList = await getNovelsByCategory(genre);
+    if (!novelList || !novelList.length) return <NovelListEmpty />;
+    return (
+      <ScrollArea className="w-full whitespace-nowrap">
+        <div className="flex space-x-4">
+          {novelList?.map((novel, index) => (
+            <Card key={index} className="w-[150px] shrink-0">
+              <Link href={`/novel/${novel.id}/detail`}>
+                <CardContent className="p-0">
+                  <Image
+                    src={
+                      novel.image_url
+                        ? novel.image_url
+                        : "https://i.imgur.com/D1fNsoW.png"
+                    }
+                    alt={novel.title ?? "novel title"}
+                    width={150}
+                    height={150}
+                    className="rounded-t-lg object-cover w-[150px] h-[150px]"
+                  />
+                  <div className="p-2">
+                    <p className="text-sm truncate">{novel.title}</p>
+                  </div>
+                </CardContent>
+              </Link>
+            </Card>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
+    );
+  } catch {
+    return <NovelListErrorFallback />;
+  }
 }
