@@ -4,14 +4,18 @@ import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
+import { getAIAssist } from "@/app/create/_api/aiAssist.server";
+import { useToast } from "@/hooks/use-toast";
 
 export function RelationshipForm() {
   const { watch, setValue } = useFormContext<CreateNovelForm>();
+  const { toast } = useToast();
   const characters = watch("characters");
   const [selectedCharacter1, setSelectedCharacter1] = useState<number>(-1);
   const [selectedCharacter2, setSelectedCharacter2] = useState<number>(-1);
   const [relationship1to2, setRelationship1to2] = useState("");
   const [relationship2to1, setRelationship2to1] = useState("");
+  const [isAILoading, setIsAILoading] = useState<"1to2" | "2to1" | null>(null);
   const [editingRelation, setEditingRelation] = useState<{
     char1Index: number;
     char2Index: number;
@@ -110,6 +114,40 @@ export function RelationshipForm() {
     setEditingRelation(null);
   };
 
+  const handleAIAssist = async (direction: "1to2" | "2to1") => {
+    if (selectedCharacter1 === -1 || selectedCharacter2 === -1) return;
+
+    try {
+      setIsAILoading(direction);
+      const char1 = characters[selectedCharacter1];
+      const char2 = characters[selectedCharacter2];
+      
+      const response = await getAIAssist({
+        formData: {
+          characters: [char1, char2],
+          title: watch("title"),
+          plot: watch("plot")
+        },
+        targetField: "relationships",
+        characterIndex: direction === "1to2" ? selectedCharacter1 : selectedCharacter2
+      });
+
+      if (direction === "1to2") {
+        setRelationship1to2(response.content);
+      } else {
+        setRelationship2to1(response.content);
+      }
+    } catch (error) {
+      toast({
+        title: "AI 어시스트 오류",
+        description: error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAILoading(null);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -153,13 +191,23 @@ export function RelationshipForm() {
               {characters[selectedCharacter1].name}이(가){" "}
               {characters[selectedCharacter2].name}을(를) 바라보는 관계
             </label>
-            <textarea
-              value={relationship1to2}
-              onChange={(e) => setRelationship1to2(e.target.value)}
-              placeholder="관계를 설명해주세요..."
-              className="w-full p-2 border rounded-lg"
-              rows={2}
-            />
+            <div className="relative">
+              <textarea
+                value={relationship1to2}
+                onChange={(e) => setRelationship1to2(e.target.value)}
+                placeholder="관계를 설명해주세요..."
+                className="w-full p-2 border rounded-lg"
+                rows={2}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-2"
+                onClick={() => handleAIAssist("1to2")}
+                disabled={isAILoading !== null}
+              >
+                {isAILoading === "1to2" ? "생성 중..." : "AI"}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -167,13 +215,23 @@ export function RelationshipForm() {
               {characters[selectedCharacter2].name}이(가){" "}
               {characters[selectedCharacter1].name}을(를) 바라보는 관계
             </label>
-            <textarea
-              value={relationship2to1}
-              onChange={(e) => setRelationship2to1(e.target.value)}
-              placeholder="관계를 설명해주세요..."
-              className="w-full p-2 border rounded-lg"
-              rows={2}
-            />
+            <div className="relative">
+              <textarea
+                value={relationship2to1}
+                onChange={(e) => setRelationship2to1(e.target.value)}
+                placeholder="관계를 설명해주세요..."
+                className="w-full p-2 border rounded-lg"
+                rows={2}
+              />
+              <button
+                type="button"
+                className="absolute right-2 top-2"
+                onClick={() => handleAIAssist("2to1")}
+                disabled={isAILoading !== null}
+              >
+                {isAILoading === "2to1" ? "생성 중..." : "AI"}
+              </button>
+            </div>
           </div>
         </div>
       )}

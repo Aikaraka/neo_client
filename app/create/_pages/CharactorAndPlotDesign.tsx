@@ -1,25 +1,59 @@
 import { CharacterForm } from "@/app/create/_components/CharacterForm";
 import { RelationshipForm } from "@/app/create/_components/RelationshipForm";
+import { getAIAssist } from "@/app/create/_api/aiAssist.server";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Input } from "@/components/ui/input";
 import { usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useFormContext } from "react-hook-form";
+import { useState } from "react";
 
 const TOAST_ERROR_TITLE = "양식 오류";
 const TOAST_ERROR_DESCRIPTION = "형식에 맞게 설정해주세요!";
+
 export default function CharactorAndPlotDesign() {
   const { toast } = useToast();
   const { nextPage } = usePageContext();
+  const [isAILoading, setIsAILoading] = useState(false);
   const {
     formState: { errors },
     trigger,
     setValue,
     watch,
+    getValues,
   } = useFormContext<CreateNovelForm>();
 
-  const plot = watch("plot");
-  const title = watch("title");
+  const plot = watch("plot") ?? "";
+  const title = watch("title") ?? "";
+
+  const handleAIAssist = async (field: "plot" | "characters" | "relationships") => {
+    try {
+      setIsAILoading(true);
+      const formData = getValues();
+      const response = await getAIAssist({
+        formData,
+        targetField: field,
+      });
+
+      if (field === "plot") {
+        setValue(field, response.content);
+      } else if (field === "characters") {
+        // TODO: 캐릭터 AI 어시스트 구현
+        console.log("Character AI assist not implemented yet");
+      } else if (field === "relationships") {
+        // TODO: 관계 AI 어시스트 구현
+        console.log("Relationship AI assist not implemented yet");
+      }
+    } catch (error) {
+      toast({
+        title: "AI 어시스트 오류",
+        description: error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAILoading(false);
+    }
+  };
 
   const handleNext = async () => {
     const result = await Promise.all([
@@ -56,13 +90,23 @@ export default function CharactorAndPlotDesign() {
       </section>
       <section className="mb-8">
         <h2 className="text-xl mb-4">줄거리</h2>
-        <textarea
-          className="w-full p-3 border rounded-lg"
-          rows={6}
-          value={plot}
-          onChange={(e) => setValue("plot", e.target.value)}
-          placeholder="소설의 전체적인 줄거리를 입력해주세요..."
-        />
+        <div className="relative">
+          <textarea
+            className="w-full p-3 border rounded-lg"
+            rows={6}
+            value={plot}
+            onChange={(e) => setValue("plot", e.target.value)}
+            placeholder="소설의 전체적인 줄거리를 입력해주세요..."
+          />
+          <button
+            type="button"
+            className="ai-plot-assist absolute right-2 top-2"
+            onClick={() => handleAIAssist("plot")}
+            disabled={isAILoading}
+          >
+            {isAILoading ? "생성 중..." : "AI"}
+          </button>
+        </div>
         <p className="text-destructive">{errors.plot?.message}</p>
       </section>
 
@@ -73,7 +117,7 @@ export default function CharactorAndPlotDesign() {
       </section>
 
       <section className="mb-8">
-        <h2 className="text-xl  mb-4">캐릭터 관계</h2>
+        <h2 className="text-xl mb-4">캐릭터 관계</h2>
         <RelationshipForm />
       </section>
 
