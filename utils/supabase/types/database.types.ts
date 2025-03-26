@@ -264,6 +264,7 @@ export type Database = {
           name: string | null;
           nickname: string | null;
           profile_completed: boolean | null;
+          role: string | null;
         };
         Insert: {
           birthdate?: string | null;
@@ -275,6 +276,7 @@ export type Database = {
           name?: string | null;
           nickname?: string | null;
           profile_completed?: boolean | null;
+          role?: string | null;
         };
         Update: {
           birthdate?: string | null;
@@ -286,6 +288,7 @@ export type Database = {
           name?: string | null;
           nickname?: string | null;
           profile_completed?: boolean | null;
+          role?: string | null;
         };
         Relationships: [];
       };
