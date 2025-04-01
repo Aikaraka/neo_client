@@ -8,6 +8,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useFormContext } from "react-hook-form";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Label } from "@/components/ui/label";
+import { getAIAssist } from "@/app/create/_api/aiAssist.server";
+import { useState } from "react";
 
 interface ExtendedCharacter extends Character {
   isConfirmed: boolean;
@@ -19,6 +21,7 @@ const TOAST_TITLE_CHARACTER_ERROR = "캐릭터 생성 오류";
 export function CharacterForm() {
   const { setValue, watch, formState } = useFormContext<CreateNovelForm>();
   const characters = watch("characters");
+  const [isAILoading, setIsAILoading] = useState<number | null>(null);
 
   const { toast } = useToast();
 
@@ -95,6 +98,41 @@ export function CharacterForm() {
 
   const editCharacter = (index: number) => {
     updateCharacter(index, { isEditing: true });
+  };
+
+  const handleAIAssist = async (index: number) => {
+    try {
+      setIsAILoading(index);
+      
+      // 깊은 복사를 통해 임시 characters 배열 생성
+      const tempCharacters = characters.map(char => ({
+        ...char,
+        relationships: [...char.relationships]
+      }));
+      
+      // 현재 입력 중인 캐릭터 정보를 임시 배열에 반영
+      const currentCharacter = tempCharacters[index];
+      
+      const response = await getAIAssist({
+        formData: {
+          characters: tempCharacters,  // 전체 캐릭터 배열 전달
+          title: watch("title"),
+          plot: watch("plot")
+        },
+        targetField: "characters",
+        characterIndex: index
+      });
+      
+      updateCharacter(index, { description: response.content });
+    } catch (error) {
+      toast({
+        title: "AI 어시스트 오류",
+        description: error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAILoading(null);
+    }
   };
 
   return (
@@ -228,15 +266,25 @@ export function CharacterForm() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">캐릭터 설명</label>
-                  <Input
-                    value={character.description}
-                    onChange={(e) =>
-                      updateCharacter(index, {
-                        description: e.target.value,
-                      })
-                    }
-                    placeholder="캐릭터의 성격, 외모, 특징 등을 자유롭게 설명해주세요."
-                  />
+                  <div className="relative">
+                    <Input
+                      value={character.description}
+                      onChange={(e) =>
+                        updateCharacter(index, {
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder="캐릭터의 성격, 외모, 특징 등을 자유롭게 설명해주세요."
+                    />
+                    <button
+                      type="button"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                      onClick={() => handleAIAssist(index)}
+                      disabled={isAILoading !== null}
+                    >
+                      {isAILoading === index ? "생성 중..." : "AI"}
+                    </button>
+                  </div>
                 </div>
 
                 <Button

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
-import { createClient } from "@/utils/supabase/server";
+import { createServerClient } from "@supabase/ssr";
+import { Database } from "@/utils/supabase/types/database.types";
 
 const protectedRoutes = [
   "/dashboard",
@@ -16,7 +17,31 @@ const authRoutes = ["/login", "/signup"];
 export async function middleware(request: NextRequest) {
   // 세션 업데이트 처리
   const { supabaseResponse, user } = await updateSession(request);
-  const supabase = await createClient();
+  const supabase = createServerClient<Database>(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: any) {
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
+    }
+  );
   const { pathname } = request.nextUrl;
 
   if (user) {
@@ -32,11 +57,8 @@ export async function middleware(request: NextRequest) {
     }
 
     if (adminRoutes.includes(request.nextUrl.pathname)) {
-      if (
-        !JSON.parse(process.env.NEXT_PUBLIC_ADMIN_EMAIL || "[]").includes(
-          user.email || "NOT FOUND"
-        )
-      ) {
+      // 데이터베이스에서 admin 권한 확인
+      if (userData?.role !== 'admin') {
         console.error("관리자 권한이 없습니다.");
         const mainURL = new URL("/", request.url);
         return NextResponse.redirect(mainURL);
@@ -70,6 +92,24 @@ export async function middleware(request: NextRequest) {
       });
 
       return redirectResponse;
+    }
+  }
+
+  // /admin 경로에 대한 접근 제어
+  if (request.nextUrl.pathname.startsWith("/admin")) {
+    if (!user) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
+
+    // 사용자 역할 확인
+    const { data: userRole } = await supabase
+      .from("users")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    if (userRole?.role !== "admin") {
+      return NextResponse.redirect(new URL("/", request.url));
     }
   }
 
