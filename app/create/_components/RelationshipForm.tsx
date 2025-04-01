@@ -119,17 +119,58 @@ export function RelationshipForm() {
 
     try {
       setIsAILoading(direction);
-      const char1 = characters[selectedCharacter1];
-      const char2 = characters[selectedCharacter2];
+      
+      // 깊은 복사를 통해 임시 characters 배열 생성
+      const tempCharacters = characters.map(char => ({
+        ...char,
+        relationships: [...char.relationships]
+      }));
+      
+      const char1 = tempCharacters[selectedCharacter1];
+      const char2 = tempCharacters[selectedCharacter2];
+      
+      // 현재 입력 중인 관계 정보를 임시 배열에만 추가
+      if (direction === "1to2" && relationship1to2) {
+        const existingRelIndex = char1.relationships.findIndex(
+          rel => rel.targetName === char2.name
+        );
+        if (existingRelIndex !== -1) {
+          char1.relationships[existingRelIndex] = {
+            ...char1.relationships[existingRelIndex],
+            relationship: relationship1to2
+          };
+        } else {
+          char1.relationships.push({
+            targetName: char2.name,
+            relationship: relationship1to2
+          });
+        }
+      } else if (direction === "2to1" && relationship2to1) {
+        const existingRelIndex = char2.relationships.findIndex(
+          rel => rel.targetName === char1.name
+        );
+        if (existingRelIndex !== -1) {
+          char2.relationships[existingRelIndex] = {
+            ...char2.relationships[existingRelIndex],
+            relationship: relationship2to1
+          };
+        } else {
+          char2.relationships.push({
+            targetName: char1.name,
+            relationship: relationship2to1
+          });
+        }
+      }
       
       const response = await getAIAssist({
         formData: {
-          characters: [char1, char2],
+          characters: tempCharacters,
           title: watch("title"),
           plot: watch("plot")
         },
         targetField: "relationships",
-        characterIndex: direction === "1to2" ? selectedCharacter1 : selectedCharacter2
+        characterIndex: direction === "1to2" ? selectedCharacter1 : selectedCharacter2,
+        relationshipIndex: direction === "1to2" ? selectedCharacter2 : selectedCharacter1
       });
 
       if (direction === "1to2") {

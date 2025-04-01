@@ -103,10 +103,19 @@ export function CharacterForm() {
   const handleAIAssist = async (index: number) => {
     try {
       setIsAILoading(index);
-      const character = characters[index];
+      
+      // 깊은 복사를 통해 임시 characters 배열 생성
+      const tempCharacters = characters.map(char => ({
+        ...char,
+        relationships: [...char.relationships]
+      }));
+      
+      // 현재 입력 중인 캐릭터 정보를 임시 배열에 반영
+      const currentCharacter = tempCharacters[index];
+      
       const response = await getAIAssist({
         formData: {
-          characters: [character],
+          characters: tempCharacters,  // 전체 캐릭터 배열 전달
           title: watch("title"),
           plot: watch("plot")
         },

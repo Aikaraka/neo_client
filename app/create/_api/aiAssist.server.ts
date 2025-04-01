@@ -9,6 +9,7 @@ interface AIAssistRequest {
   formData: Partial<CreateNovelForm>;
   targetField: "plot" | "characters" | "relationships" | "background";
   characterIndex?: number; // 캐릭터 수정 시 사용
+  relationshipIndex?: number; // 관계 생성 시 두 번째 캐릭터 인덱스
   backgroundType?: "start" | "location"; // 배경 설정 시 사용
 }
 
