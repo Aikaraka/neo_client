@@ -5,13 +5,10 @@ import React from "react";
 export default function layout({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <ScrollArea
-        aria-orientation="vertical"
-        className="w-full h-screen whitespace-nowrap pb-20 relative"
-      >
+      <div className="w-full h-screen whitespace-nowrap pb-20 relative flex justify-center overflow-x-hidden">
         {children}
         <Navbar />
-      </ScrollArea>
+      </div>
     </>
   );
 }
