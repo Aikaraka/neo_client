@@ -1,3 +1,5 @@
+"use server";
+
 import { Database } from "@/utils/supabase/types/database.types";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
