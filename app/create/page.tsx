@@ -1,17 +1,21 @@
 "use client";
 
 import { createNovel } from "@/app/create/_api/createNovel.server";
+import { CoverImageProvider } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 import BackgroundSetting from "@/app/create/_pages/BackgroundDesign";
 import CharactorAndPlotDesign from "@/app/create/_pages/CharactorAndPlotDesign";
 import CoverDesign from "@/app/create/_pages/CoverDesign";
 import { createNovelSchema } from "@/app/create/_schema/createNovelSchema";
 import { Form } from "@/components/ui/form";
+import Header from "@/components/ui/header";
 import { LoadingModal } from "@/components/ui/modal";
 import { usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import { ChevronLeft, PencilLine } from "lucide-react";
 import { useRouter } from "next/navigation";
+import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -26,6 +30,7 @@ const SUBMIT_ERROR_TITLE = "소설 생성 실패";
 export default function CreateNovel() {
   const { currPage } = usePageContext();
   const router = useRouter();
+  const { prevButtonVisible, prevPage } = usePageContext();
   const form = useForm<z.infer<typeof createNovelSchema>>({
     resolver: zodResolver(createNovelSchema),
     defaultValues: {
@@ -60,13 +65,28 @@ export default function CreateNovel() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          {PageComponent[currPage]?.()}
+          <CoverImageProvider>
+            <Header
+              prevPageButton={false}
+              title="나만의 소설 만들기"
+              icon={<PencilLine />}
+            >
+              {prevButtonVisible && (
+                <ChevronLeft
+                  className="absolute left-5 top-5"
+                  size={32}
+                  onClick={prevPage}
+                />
+              )}
+            </Header>
+            {PageComponent[currPage]()}
+          </CoverImageProvider>
         </form>
       </Form>
       <LoadingModal visible={isPending} />
-    </>
+    </React.Fragment>
   );
 }
