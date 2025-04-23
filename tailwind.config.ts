@@ -10,11 +10,17 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      boxShadow: {
+        bookShelf: "0px 4px 24px 7px rgba(85, 69, 58, 0.19)",
+      },
       backgroundImage: {
         neo: "var(--neo)",
       },
       colors: {
         background: "hsl(var(--background))",
+        bookshelf: {
+          background: "hsl(var(--bookshelf-background))",
+        },
         foreground: "hsl(var(--foreground))",
         buttonHover: "var(--buttonHover)",
         card: {
@@ -73,6 +79,23 @@ const config: Config = {
       },
     },
   },
-  plugins: [tailwindAnimatePlugin],
+  plugins: [
+    tailwindAnimatePlugin,
+    function ({ addUtilities }) {
+      addUtilities({
+        ".text-neo": {
+          background: "var(--neo)",
+          "-webkit-background-clip": "text",
+          "-webkit-text-fill-color": "transparent",
+        },
+        ".stroke-neo": {
+          stroke: "var(--neo)",
+        },
+        ".fill-neo": {
+          fill: "var(--neo)",
+        },
+      });
+    },
+  ],
 };
 export default config;
