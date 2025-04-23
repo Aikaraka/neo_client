@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Pencil } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
+import AiAssistButton from "@/app/create/_components/aiAssist";
 
 export function RelationshipForm() {
   const { watch, setValue } = useFormContext<CreateNovelForm>();
@@ -203,17 +204,24 @@ export function RelationshipForm() {
                 key={`${char1.name}-${rel.targetName}-${relIndex}`}
                 className="p-2 bg-gray-50 rounded-lg text-sm flex justify-between items-center"
               >
-                <span>
+                <span className="px-2">
                   <span className="font-medium">{char1.name}</span> ➔{" "}
                   <span className="font-medium">{rel.targetName}</span>:{" "}
                   {rel.relationship}
                 </span>
-                <button
-                  onClick={() => handleEditRelation(char1Index, char2Index)}
-                  className="text-gray-500 hover:text-primary"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-3">
+                  <AiAssistButton
+                    targetField="relationships"
+                    relationshipIndex={relIndex}
+                    characterIndex={char1Index}
+                  />
+                  <button
+                    onClick={() => handleEditRelation(char1Index, char2Index)}
+                    className="text-gray-500 hover:text-primary"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             );
           })
