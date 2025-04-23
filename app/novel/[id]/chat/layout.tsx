@@ -1,4 +1,5 @@
 import { StoryProvider } from "@/app/novel/[id]/chat/_components/storyProvider";
+import Navbar from "@/components/layout/navbar";
 import { Toaster } from "@/components/ui/toaster";
 
 export default function ChatLayout({
@@ -7,10 +8,11 @@ export default function ChatLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col h-screen bg-white max-w-md mx-auto relative">
+    <div className="flex flex-col w-full  h-screen bg-white mx-auto relative">
       <Toaster>
         <StoryProvider>{children}</StoryProvider>
       </Toaster>
+      <Navbar />
     </div>
   );
 }
