@@ -21,7 +21,7 @@ export function ReadNovelButton({ novelId }: { novelId: string }) {
   });
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-50">
+      <div className="fixed bottom-20 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/80 to-transparent pointer-events-none z-50 md:absolute md:top-[70%]">
         <div className="container max-w-md mx-auto flex justify-center mb-4">
           <Button
             onClick={() => mutate()}
