@@ -1,6 +1,8 @@
 import { getNovelDetail } from "@/app/novel/[id]/detail/_api/novelDetail.server";
 import { ReadNovelButton } from "@/app/novel/[id]/detail/_components/ReadNovelButton";
+import Navbar from "@/components/layout/navbar";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
+import { MainContent } from "@/components/ui/content";
 import PrevPageButton from "@/components/ui/PrevPageButton";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -30,30 +32,29 @@ export default async function NovelDetail({
   const novel = await getNovelDetail(novelId);
 
   return (
-    <div className="min-h-screen bg-background pb-20 relative">
-      <Toaster>
-        <PrevPageButton color="white" />
-        <div className="relative z-10">
-          {/* Absolute Header */}
-          <div className="container">
-            {/* Background Image */}
-            <div className="absolute w-full h-auto z-0">
-              <Image
-                src={
-                  novel.image_url
-                    ? novel.image_url
-                    : "https://i.imgur.com/D1fNsoW.png"
-                }
-                alt={novel.title}
-                width={450}
-                height={450}
-                className="w-full h-auto"
-              />
-              <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-background" />
-            </div>
-            <div className="px-4 py-16 z-10">
-              {/* Novel Thumbnail and Info */}
-              <div className="absolute inset-0 top-10 w-full px-4 my-6">
+    <div className="w-full h-screen bg-background pb-20 relative flex justify-center">
+      <MainContent className="md:border md:h-[479px] overflow-auto self-center">
+        <Toaster>
+          <PrevPageButton color="white" className="md:hidden" />
+          <div className="relative z-10 h-screen md:h-auto md:flex">
+            {/* Absolute Header */}
+            <div className="w-full relative">
+              {/* Background Image */}
+              <div className="absolute w-full h-auto z-0">
+                <Image
+                  src={
+                    novel.image_url
+                      ? novel.image_url
+                      : "https://i.imgur.com/D1fNsoW.png"
+                  }
+                  alt={novel.title}
+                  width={450}
+                  height={450}
+                  className="w-full h-auto"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-background" />
+              </div>
+              <div className="absolute inset-0 top-10 w-full px-4 my-6 ">
                 <Image
                   src={
                     novel.image_url
@@ -67,9 +68,9 @@ export default async function NovelDetail({
                 />
                 <div className="text-center max-w-[75%] mx-auto">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <span className="bg-yellow-400 rounded-full font-bold tracking-tighter leading-none text-center text-sm p-1">
-                      12
-                    </span>
+                    {/* <span className="bg-yellow-400 rounded-full font-bold tracking-tighter leading-none text-center text-sm p-1">
+                        12
+                      </span> */}
 
                     <h1 className="text-xl font-bold truncate">
                       {novel.title}
@@ -87,9 +88,11 @@ export default async function NovelDetail({
                   </div>
                 </div>
               </div>
-
+            </div>
+            {/* Novel Thumbnail and Info */}
+            <div className="px-4 py-16 z-10 md:w-full md:p-4 md:flex md:flex-col md:justify-center">
               {/* Novel Summary */}
-              <div className="mt-[400px] mb-6 p-1 flex flex-col gap-2">
+              <div className="mt-[400px] mb-6 p-1 flex flex-col gap-2 md:mt-0 md:w-full">
                 <h2 className="text-base font-bold flex items-center gap-1">
                   <Image
                     src={"/bookmark.svg"}
@@ -117,7 +120,7 @@ export default async function NovelDetail({
                   </div>
                 </div>
               </div>
-              <section className="mb-6 p-1 flex flex-col gap-4">
+              <section className="mb-6 p-1 flex flex-col gap-4 md:hidden">
                 <div className="flex flex-col gap-2">
                   <h2 className="text-base font-bold flex items-center leading-none gap-1">
                     <Image
@@ -178,11 +181,12 @@ export default async function NovelDetail({
               </section>
             </div>
           </div>
-        </div>
 
-        {/* Floating '소설 읽기' Button */}
-        <ReadNovelButton novelId={novelId} />
-      </Toaster>
+          {/* Floating '소설 읽기' Button */}
+          <ReadNovelButton novelId={novelId} />
+        </Toaster>
+        <Navbar />
+      </MainContent>
     </div>
   );
 }
