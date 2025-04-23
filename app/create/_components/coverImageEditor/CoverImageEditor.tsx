@@ -2,6 +2,7 @@
 
 import CoverImageGenerator from "@/app/create/_components/coverImageEditor/CoverImageGenerator";
 import {
+  fontStyles,
   fontThemes,
   useCoverImageContext,
 } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
@@ -10,12 +11,6 @@ import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import Image from "next/image";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
-import { twMerge } from "tailwind-merge";
-
-const FONT_NAME: Record<(typeof editFontList)[number], string> = {
-  bombaram: "봄바람체",
-  heiroOfLight: "빛의 계승자체",
-};
 
 export default function CoverImageEditor() {
   const { coverImageRef, imageSrc } = useCoverImageContext();
@@ -48,7 +43,7 @@ export default function CoverImageEditor() {
 function TextEdit() {
   const { getValues } = useFormContext<CreateNovelForm>();
   const title = getValues("title");
-  const { fontTheme } = useCoverImageContext();
+  const { fontTheme, fontStyle } = useCoverImageContext();
 
   return (
     <Rnd
@@ -71,7 +66,10 @@ function TextEdit() {
       className="absolute text-black text-2xl font-bold  cursor-pointer z-10 hover:border border-purple-400 p-1"
     >
       <div
-        className={`text-box w-full h-full break-words overflow-auto cursor-pointer text-transparent text-2xl font-bold ${fontThemes[fontTheme]}`}
+        className={`text-box w-full h-full break-words overflow-auto cursor-pointer text-transparent text-2xl font-bold ${fontThemes[fontTheme]} scrollbar-hidden`}
+        style={{
+          fontFamily: fontStyles[fontStyle],
+        }}
       >
         {title}
       </div>
