@@ -1,13 +1,13 @@
 import { callServerAction } from "@/api/server";
 
 type HttpMethod = "POST" | "GET" | "PUT" | "DELETE";
-type RequestBody = Record<string, unknown>;
+type RequestBody = Record<string, any>;
 type RequestFunction = () => Promise<Response>;
 type ResponseMiddleware<T> = (
   data: T,
   request: RequestFunction
 ) => T | Promise<T>;
-type RequestMiddleware<T> = (config: T) => T;
+type RequestMiddleware<T> = (config: T) => Promise<T>;
 
 class API {
   baseURL: string;
@@ -23,7 +23,7 @@ class API {
   constructor(baseURL: string) {
     this.baseURL = baseURL;
     this.use = {
-      request: (config) => config,
+      request: async (config) => config,
       response: async (response) => response,
     };
   }
@@ -44,7 +44,7 @@ class API {
         ...(data && { body: JSON.stringify(data) }),
       };
 
-      options = this.use.request(options);
+      options = await this.use.request(options);
 
       if (this.serveraction) {
         return callServerAction(url, options);
@@ -53,6 +53,11 @@ class API {
     };
 
     const response = await fetchFunction();
+    if (!response.ok) {
+      const erroMsg = await response.text();
+      throw new Error(erroMsg);
+    }
+
     const responseAfterMiddleWare = await this.use.response(
       response,
       fetchFunction
