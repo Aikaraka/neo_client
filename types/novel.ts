@@ -1,4 +1,4 @@
-type Relaionship = {
+export type Relationship = {
   relationship: string;
   targetName: string;
 };
@@ -6,7 +6,7 @@ export type Gender = "MALE" | "FEMALE" | "NONE";
 export interface Character {
   name: string;
   description: string;
-  relationships: Array<Relaionship>;
+  relationships: Array<Relationship>;
   gender: "MALE" | "FEMALE" | "NONE";
   age: number;
   role: "protagonist" | "supporting"; // 주인공/등장인물 구분
