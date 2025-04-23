@@ -19,6 +19,7 @@ type PageContextType = {
   maxPage: number;
   nextPage: () => void;
   prevPage: () => void;
+  prevButtonVisible: boolean;
 };
 
 const PageContext = createContext<PageContextType | undefined>(undefined);
@@ -61,15 +62,9 @@ export const PageProvider = ({
         maxPage,
         nextPage,
         prevPage,
+        prevButtonVisible,
       }}
     >
-      {prevButtonVisible && (
-        <ChevronLeft
-          className={prevButtonVariants(variants)}
-          size={32}
-          onClick={prevPage}
-        />
-      )}
       {children}
     </PageContext.Provider>
   );
