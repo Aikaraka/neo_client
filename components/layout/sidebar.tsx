@@ -60,14 +60,14 @@ export default function SideBar() {
 
       {/* Backdrop */}
       <div
-        className={`absolute top-0 right-0 w-screen h-screen bg-black/50 transition-opacity duration-300 z-40
+        className={`absolute md:fixed top-0 right-0 w-screen h-screen bg-black/50 transition-opacity duration-300 z-40
           ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`}
       />
 
       {/* Sidebar */}
       <div
         id="sidebar-content"
-        className={`absolute right-0 top-0 h-full w-80 bg-white shadow-lg transform transition-transform duration-300 z-50
+        className={`absolute right-0 top-0 md:fixed h-full w-80 bg-white shadow-lg transform transition-transform duration-300 z-50
           ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="flex flex-col justify-between w-full h-full pt-10">
