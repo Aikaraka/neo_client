@@ -10,6 +10,28 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        slideDown: {
+          from: { "max-height": "0px" },
+          to: { "max-height": "var(--radix-accordion-content-height)" },
+        },
+        slideUp: {
+          from: { "max-height": "var(--radix-accordion-content-height)" },
+          to: { "max-height": "0px" },
+        },
+        rotateHalf: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(180deg)" },
+        },
+      },
+      animation: {
+        "accordion-down": "slideDown 0.2s ease-out",
+        "accordion-up": "slideUp 0.2s ease-out",
+        rotateChevron: "rotateHalf 300ms cubic-bezier(0.87, 0, 0.13, 1)",
+      },
+      transitionTimingFunction: {
+        "accordion-ease": "cubic-bezier(0.87, 0, 0.13, 1)",
+      },
       boxShadow: {
         bookShelf: "0px 4px 24px 7px rgba(85, 69, 58, 0.19)",
       },

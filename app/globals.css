@@ -99,44 +99,104 @@
 
   .stroke-gradient {
     color: transparent;
-    -webkit-text-fill-color: white; /* 내부 채우기 투명하게 */
+    -webkit-text-fill-color: white;
     -webkit-text-stroke-width: 4px;
-    -webkit-text-stroke-color: transparent; /* stroke 색도 투명 */
+    -webkit-text-stroke-color: transparent;
     background-clip: text;
     -webkit-background-clip: text;
-    background-size: 100%;
     background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
   }
 
   .sunset-gradient {
-    background-image: linear-gradient(to right, #ff7e5f, #feb47b);
+    background-image: radial-gradient(
+      circle,
+      #ff7e5f 0%,
+      #feb47b 80%,
+      #ff7e5f 100%
+    );
   }
 
   .ocean-gradient {
-    background-image: linear-gradient(to right, #00c6ff, #0072ff);
+    background-image: radial-gradient(
+      circle,
+      #0072ff 0%,
+      #00c6ff 80%,
+      #00c6ff 100%
+    );
   }
 
   .pastel-gradient {
-    background-image: linear-gradient(to right, #fbc2eb, #a6c1ee);
+    background-image: radial-gradient(
+      circle,
+      #fbc2eb 0%,
+      #a6c1ee 80%,
+      #fbc2eb 100%
+    );
   }
 
   .rainbow-gradient {
-    background-image: linear-gradient(
-      to right,
-      #ff6ec4,
-      #7873f5,
-      #42e695,
-      #fdd819,
-      #ff6ec4
+    background-image: radial-gradient(
+      circle,
+      #ff6ec4 0%,
+      #7873f5 30%,
+      #42e695 60%,
+      #fdd819 90%,
+      #ff6ec4 100%
     );
   }
 
   .fire-gradient {
-    background-image: linear-gradient(to right, #f12711, #f5af19);
+    background-image: radial-gradient(
+      circle,
+      #f12711 0%,
+      #f5af19 80%,
+      #f12711 100%
+    );
   }
+  .black-gradient {
+    background-image: radial-gradient(
+      circle,
+      #000000 0%,
+      #434343 80%,
+      #000000 100%
+    );
+  }
+}
 
-  .stroke-black {
-    -webkit-text-stroke: 2px black;
-    color: transparent;
+@keyframes slideDown {
+  from {
+    height: 0;
   }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.AccordionContent[data-state="open"] {
+  animation: slideDown 200ms;
+  overflow: hidden;
+}
+
+.AccordionContent[data-state="closed"] {
+  animation: slideUp 200ms;
+  overflow: hidden;
+}
+
+.AccordionChevron {
+  color: var(--violet-10);
+  transition: transform 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+.AccordionTrigger[data-state="open"] > .AccordionChevron {
+  transform: rotate(180deg);
 }
