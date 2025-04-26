@@ -8,6 +8,7 @@ import {
 } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 import { CoverImageUploader } from "@/app/create/_components/coverImageEditor/CoverImageUploader";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
@@ -18,6 +19,7 @@ export default function CoverImageEditor() {
   return (
     <>
       <div
+        id="cover-image-editor"
         ref={coverImageRef}
         className="border w-[210px] h-[270px] self-center relative"
       >
@@ -34,6 +36,8 @@ export default function CoverImageEditor() {
         )}
         <TextEdit />
       </div>
+      <ColorSelect />
+      <FontSelect />
       <CoverImageUploader />
       <CoverImageGenerator />
     </>
@@ -63,10 +67,10 @@ function TextEdit() {
         topRight: true,
       }}
       dragHandleClassName="text-box"
-      className="absolute text-black text-2xl font-bold  cursor-pointer z-10 hover:border border-purple-400 p-1"
+      className="absolute text-black text-2xl font-bold  cursor-pointer z-10 hover:border hover:border-purple-400 p-1"
     >
       <div
-        className={`text-box w-full h-full break-words overflow-auto cursor-pointer text-transparent text-2xl font-bold ${fontThemes[fontTheme]} scrollbar-hidden`}
+        className={`text-box w-full h-full break-words overflow-auto cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden`}
         style={{
           fontFamily: fontStyles[fontStyle],
         }}
@@ -77,40 +81,42 @@ function TextEdit() {
   );
 }
 
-// function ColorSelect() {
-// //   const { changeFontColor } = useCoverImageContext();
-//   return (
-//     <div className="flex gap-2 self-center">
-//       {Object.keys(fontColorStyles).map((color) => (
-//         <Button
-//           type="button"
-//           variant="outline"
-//           className={`${
-//             fontColorStyles[color as FontColor]
-//           } rounded-full w-5 h-5`}
-//           onClick={() => changeFontColor(color as FontColor)}
-//         ></Button>
-//       ))}
-//     </div>
-//   );
-// }
+function ColorSelect() {
+  const { changeFontTheme } = useCoverImageContext();
+  return (
+    <div className="flex gap-2 self-center">
+      {Object.keys(fontThemes).map((color) => (
+        <Button
+          key={`color-${color}`}
+          type="button"
+          variant="outline"
+          className={`bg-${
+            fontThemes[color as keyof typeof fontThemes]
+          } rounded-full w-5 h-5`}
+          onClick={() => changeFontTheme(color as keyof typeof fontThemes)}
+        ></Button>
+      ))}
+    </div>
+  );
+}
 
-// function FontSelect() {
-//   const { canvasRef, changeTitleFont, selectedFont } = useCoverImageContext();
-//   return (
-//     <div className="flex gap-2 self-center">
-//       {editFontList.map((font) => (
-//         <Button
-//           type="button"
-//           style={{ fontFamily: font }}
-//           variant={selectedFont === font ? "default" : "outline"}
-//           onClick={() => {
-//             changeTitleFont(font);
-//           }}
-//         >
-//           {FONT_NAME[font]}
-//         </Button>
-//       ))}
-//     </div>
-//   );
-// }
+function FontSelect() {
+  const { changeFontStyle, fontStyle } = useCoverImageContext();
+  return (
+    <div className="flex gap-2 self-center">
+      {Object.keys(fontStyles).map((font) => (
+        <Button
+          key={`font-${font}`}
+          type="button"
+          style={{ fontFamily: fontStyles[fontStyle] }}
+          variant={fontStyle === font ? "default" : "outline"}
+          onClick={() => {
+            changeFontStyle(font as keyof typeof fontStyles);
+          }}
+        >
+          {font}
+        </Button>
+      ))}
+    </div>
+  );
+}
