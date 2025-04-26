@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSession } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useMemo } from "react";
 
 type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   messages: string[];
@@ -26,6 +26,8 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   initPending: boolean;
   hasMoreStories: boolean;
   scrollType: ScrollBehavior | "none";
+  currentUserInput: string;
+  isUserInputVisible: boolean;
 };
 
 type Message = string;
@@ -58,6 +60,8 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     "instant"
   );
   const [prevFectching, setPrevFetching] = useState(false);
+  const [currentUserInput, setCurrentUserInput] = useState("");
+  const [isUserInputVisible, setIsUserInputVisible] = useState(false);
 
   const {
     data: initialData,
@@ -82,11 +86,17 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const sendNovelProcessMessage = async (auto = false, input = "") => {
     if (isMessageSending) return;
     setScrollType("smooth");
+    
+    const text = auto ? "계속 진행해주세요." : input;
+    if (!text) {
+        return;
+    }
+
     try {
       setIsMessageSending(true);
 
-      const text = auto ? "계속 진행해주세요." : input;
-      if (!text) return;
+      setCurrentUserInput(text);
+      setIsUserInputVisible(true);
 
       setMessages((prev) => [...prev, ""]);
 
@@ -101,6 +111,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       let done = false;
       let buffer = "";
       let accumulatedText = "";
+      let streamErrorOccurred = false;
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
@@ -117,36 +128,53 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
           if (line.startsWith("data: ")) {
             const dataStr = line.substring(6).trim();
             if (dataStr === "[DONE]") {
+              done = true;
               break;
             }
 
-            const data = JSON.parse(dataStr);
+            try {
+              const data = JSON.parse(dataStr);
 
-            if (data.type === "story") {
-              // 스토리 청크
-              accumulatedText += data.content;
-              setMessages((prev) => {
-                const newMsgs = [...prev];
-                newMsgs[messages.length] = accumulatedText;
-                return newMsgs;
-              });
-            } else if (data.type === "progress") {
-              setProgressRate(data.progress_rate);
-            } else if (data.type === "error") {
-              toast({
-                variant: "destructive",
-                title: TOAST_GEN_NOVEL_ERROR_TITLE,
-                description: TOAST_GEN_NOVEL_ERROR_DESCRIPTION,
-              });
+              if (data.type === "story") {
+                accumulatedText += data.content;
+                setMessages((prev) => {
+                  const newMsgs = [...prev];
+                  newMsgs[newMsgs.length - 1] = accumulatedText;
+                  return newMsgs;
+                });
+              } else if (data.type === "progress") {
+                setProgressRate(data.progress_rate);
+              } else if (data.type === "error") {
+                streamErrorOccurred = true;
+                setMessages((prev) => prev.slice(0, -1));
+                setIsUserInputVisible(false);
+                toast({
+                  variant: "destructive",
+                  title: TOAST_GEN_NOVEL_ERROR_TITLE,
+                  description: data.message || TOAST_GEN_NOVEL_ERROR_DESCRIPTION,
+                });
+                done = true;
+                break;
+              }
+            } catch (e) {
+              console.error("Failed to parse stream data:", dataStr, e);
             }
           }
         }
       }
-    } catch {
+
+      if (buffer.length > 0) {
+        console.warn("Unhandled buffer after stream processing:", buffer);
+      }
+
+    } catch (error) {
+      console.error("Error processing novel message:", error);
+      setMessages((prev) => prev.slice(0, -1));
+      setIsUserInputVisible(false);
       toast({
         variant: "destructive",
         title: TOAST_GEN_NOVEL_ERROR_TITLE,
-        description: TOAST_GEN_NOVEL_ERROR_DESCRIPTION,
+        description: error instanceof Error ? error.message : TOAST_GEN_NOVEL_ERROR_DESCRIPTION,
       });
     } finally {
       setIsMessageSending(false);
@@ -160,9 +188,9 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const res = await undoLastStory(novelId, session?.user.id);
       const data = await res.json();
       if (data.success) {
-        // 마지막 메시지를 삭제
         setMessages((prev) => prev.slice(0, -1));
-        if (data.progress_rate) {
+        setIsUserInputVisible(false);
+        if (data.progress_rate !== undefined) {
           setProgressRate(data.progress_rate);
         }
         toast({
@@ -172,13 +200,14 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       } else {
         toast({
           title: TOAST_UNDO_NOVEL_ERROR_TITLE,
-          description: TOAST_UDNO_NOVEL_ERROR_DECRIPTION,
+          description: data.message || TOAST_UDNO_NOVEL_ERROR_DECRIPTION,
         });
       }
-    } catch {
+    } catch (error) {
+      console.error("Error undoing story:", error);
       toast({
         title: TOAST_UNDO_NOVEL_ERROR_TITLE,
-        description: TOAST_UDNO_NOVEL_ERROR_DECRIPTION,
+        description: error instanceof Error ? error.message : TOAST_UDNO_NOVEL_ERROR_DECRIPTION,
       });
     }
   };
@@ -190,7 +219,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       setPrevFetching(true);
       const { has_more, stories } = await getPreviousStories(
         novelId,
-        currPage - 3
+        currPage > 2 ? currPage - 3 : 0 
       );
       const sortedStories = stories.sort(
         (a, b) => a.story_number - b.story_number
@@ -198,8 +227,9 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const prevMessages = sortedStories.map((s) => s.content);
       setMessages((prev) => [...prevMessages, ...prev]);
       setHasMoreStories(has_more);
-      setCurrPage(sortedStories[0]?.story_number ?? 0);
-    } catch {
+      setCurrPage(sortedStories[0]?.story_number ?? currPage);
+    } catch (error) {
+      console.error("Error fetching previous stories:", error);
       toast({
         title: "이전 스토리 불러오기 오류",
         description: "이전 스토리를 불러오는 중 오류가 발생했습니다.",
@@ -209,34 +239,49 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const contextValue = useMemo(() => ({
+    messages,
+    progressRate,
+    sendNovelProcessMessage,
+    undoStory,
+    isMessageSending,
+    title: initialData?.title ?? "",
+    story: initialData?.story,
+    background: initialData?.background ?? {
+      start: "여러분들의 소설을 시작해보세요",
+      detailedLocations: [],
+    },
+    has_more_stories: initialData?.has_more_stories ?? false,
+    initial_stories: initialData?.initial_stories ?? [],
+    oldest_story_number: initialData?.oldest_story_number ?? 0, 
+    isMessageError: isError,
+    initError: !!initError,
+    fetchMoreStories,
+    currPage,
+    hasMoreStories,
+    scrollType,
+    initPending,
+    currentUserInput,
+    isUserInputVisible,
+  }), [
+    messages,
+    progressRate,
+    isMessageSending,
+    initialData,
+    isError,
+    initError,
+    currPage,
+    hasMoreStories,
+    scrollType,
+    initPending,
+    currentUserInput,
+    isUserInputVisible,
+  ]);
+
   return (
-    <StoryContext.Provider
-      value={{
-        messages,
-        progressRate,
-        sendNovelProcessMessage,
-        undoStory,
-        isMessageSending,
-        title: initialData?.title ?? "",
-        story: initialData?.story,
-        background: initialData?.background ?? {
-          start: "여러분들의 소설을 시작해보세요",
-          detailedLocations: [],
-        },
-        has_more_stories: initialData?.has_more_stories ?? false,
-        initial_stories: initialData?.initial_stories ?? [],
-        oldest_story_number: initialData?.oldest_story_number ?? 0,
-        isMessageError: isError,
-        initError: !!initError,
-        fetchMoreStories,
-        currPage,
-        hasMoreStories,
-        scrollType,
-        initPending,
-      }}
-    >
+    <StoryContext.Provider value={contextValue}>
       {children}
-      <LoadingModal visible={initPending} />
+      <LoadingModal visible={initPending || prevFectching} />
     </StoryContext.Provider>
   );
 }
