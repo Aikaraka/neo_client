@@ -25,7 +25,7 @@ const navItems = {
     activeIcon: HomeFilled,
     disabled: false,
   },
-  "/storage": {
+  "/library": {
     label: "보관함",
     icon: BoxLine,
     activeIcon: BoxFilled,
