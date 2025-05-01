@@ -11,7 +11,7 @@ import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
 
@@ -61,6 +61,22 @@ function TextEdit() {
   const [showEditMode, setShowEditMode] = useState(true);
 
   const dynamicFontSize = (size.width / DEFAULT_WIDTH) * BASE_FONT_SIZE;
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handleClickTextzone(event: MouseEvent) {
+      if (wrapperRef.current) {
+        wrapperRef.current.contains(event.target as Node)
+          ? setShowEditMode(true)
+          : setShowEditMode(false);
+      }
+    }
+
+    document.addEventListener("click", handleClickTextzone);
+    return () => {
+      document.removeEventListener("click", handleClickTextzone);
+    };
+  }, []);
 
   return (
     <Rnd
@@ -108,16 +124,16 @@ function TextEdit() {
         showEditMode ? "border border-primary" : ""
       }`}
     >
-      <div
-        onMouseEnter={() => setShowEditMode(true)}
-        onMouseLeave={() => setShowEditMode(false)}
-        className={`text-box w-full h-full break-words overflow-visible cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden relative`}
-        style={{
-          fontFamily: fontStyles[fontStyle],
-          fontSize: `${dynamicFontSize}px`,
-        }}
-      >
-        {title}
+      <div ref={wrapperRef}>
+        <div
+          className={`text-box w-full h-full break-words overflow-visible cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden relative`}
+          style={{
+            fontFamily: fontStyles[fontStyle],
+            fontSize: `${dynamicFontSize}px`,
+          }}
+        >
+          {title}
+        </div>
       </div>
     </Rnd>
   );
