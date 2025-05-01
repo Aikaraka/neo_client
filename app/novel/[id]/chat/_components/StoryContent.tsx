@@ -92,17 +92,33 @@ export function StoryContent() {
 
         {messages.map((msg, i) => {
           if (typeof msg === "string") {
-            return (
-              <p
-                key={`ai-msg-${i}`}
-                className={cn(
-                  "ai-message text-[15px] leading-[1.6] text-gray-800 whitespace-pre-line",
-                  NanumMyeongjo.className
-                )}
-              >
-                {msg}
-              </p>
-            );
+            if (msg.startsWith("USER:")) {
+              // 사용자 메시지 (보라색 텍스트)
+              return (
+                <div
+                  key={`user-msg-${i}`}
+                  className={cn(
+                    "user-input text-purple-700 p-3 rounded-lg text-[15px] leading-[1.6] whitespace-pre-line",
+                    NanumMyeongjo.className
+                  )}
+                >
+                  {msg.substring(5)} {/* USER: 접두사 제거 */}
+                </div>
+              );
+            } else {
+              // AI 메시지
+              return (
+                <p
+                  key={`ai-msg-${i}`}
+                  className={cn(
+                    "ai-message text-[15px] leading-[1.6] text-gray-800 whitespace-pre-line",
+                    NanumMyeongjo.className
+                  )}
+                >
+                  {msg}
+                </p>
+              );
+            }
           }
           return null;
         })}
@@ -112,7 +128,7 @@ export function StoryContent() {
             key="user-input"
             style={{ animation: "fadeIn 0.3s ease forwards" }}
             className={cn(
-              "user-input bg-blue-100 p-3 rounded-lg border-l-4 border-blue-500 text-[15px] leading-[1.6] text-gray-800 whitespace-pre-line",
+              "user-input text-purple-700 p-3 rounded-lg text-[15px] leading-[1.6] whitespace-pre-line",
               NanumMyeongjo.className
             )}
           >

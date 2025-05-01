@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSession } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { createContext, useContext, useState, useMemo } from "react";
+import { createContext, useContext, useState, useMemo, useEffect } from "react";
 
 type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   messages: string[];
@@ -95,8 +95,9 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     try {
       setIsMessageSending(true);
 
-      setCurrentUserInput(text);
-      setIsUserInputVisible(true);
+      setMessages((prev) => [...prev, `USER:${text}`]);
+      setCurrentUserInput("");
+      setIsUserInputVisible(false);
 
       setMessages((prev) => [...prev, ""]);
 
@@ -277,6 +278,16 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     currentUserInput,
     isUserInputVisible,
   ]);
+
+  useEffect(() => {
+    if (novelId && !initPending && !prevFectching && initialData) {
+      const savedInput = localStorage.getItem(`chat_input_${novelId}`);
+      if (savedInput) {
+        setCurrentUserInput(savedInput);
+        setIsUserInputVisible(true);
+      }
+    }
+  }, [novelId, initialData, initPending, prevFectching]);
 
   return (
     <StoryContext.Provider value={contextValue}>

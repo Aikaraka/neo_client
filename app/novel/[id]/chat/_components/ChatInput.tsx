@@ -16,7 +16,7 @@ export function ChatInput() {
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendNovelProcessMessage(true, textareaRef.current?.value);
+      sendNovelProcessMessage(false, textareaRef.current?.value);
     }
   };
 
