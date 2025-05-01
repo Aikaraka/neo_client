@@ -36,4 +36,5 @@ export interface Novel extends NovelCreationData {
   user_id: string;
   created_at: string;
   title: string;
+  image_url: string;
 }
