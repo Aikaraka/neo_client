@@ -56,3 +56,13 @@ export async function createAdminClient() {
     }
   );
 }
+
+export async function getToken() {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session?.access_token) {
+    throw new Error("Failed to get session");
+  }
+  return data.session?.access_token;
+}
