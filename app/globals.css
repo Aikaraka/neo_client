@@ -31,6 +31,7 @@
     --neo: linear-gradient(127deg, #df25bd 20.48%, #5626a9 83.91%);
     --buttonHover: #d8b3e3;
     --radius: 0.5rem;
+    --bookshelf-background: #dbdbdb;
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
     --sidebar-primary: 240 5.9% 10%;
@@ -55,6 +56,7 @@
     --muted-foreground: 240 5% 64.9%;
     --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
+    --bookshelf-background: #dbdbdb;
     --neo: linear-gradient(127deg, #df25bd 20.48%, #5626a9 83.91%);
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
@@ -94,4 +96,107 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
   }
+
+  .stroke-gradient {
+    color: transparent;
+    -webkit-text-fill-color: white;
+    -webkit-text-stroke-width: 4px;
+    -webkit-text-stroke-color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
+  }
+
+  .sunset-gradient {
+    background-image: radial-gradient(
+      circle,
+      #ff7e5f 0%,
+      #feb47b 80%,
+      #ff7e5f 100%
+    );
+  }
+
+  .ocean-gradient {
+    background-image: radial-gradient(
+      circle,
+      #0072ff 0%,
+      #00c6ff 80%,
+      #00c6ff 100%
+    );
+  }
+
+  .pastel-gradient {
+    background-image: radial-gradient(
+      circle,
+      #fbc2eb 0%,
+      #a6c1ee 80%,
+      #fbc2eb 100%
+    );
+  }
+
+  .rainbow-gradient {
+    background-image: radial-gradient(
+      circle,
+      #ff6ec4 0%,
+      #7873f5 30%,
+      #42e695 60%,
+      #fdd819 90%,
+      #ff6ec4 100%
+    );
+  }
+
+  .fire-gradient {
+    background-image: radial-gradient(
+      circle,
+      #f12711 0%,
+      #f5af19 80%,
+      #f12711 100%
+    );
+  }
+  .black-gradient {
+    background-image: radial-gradient(
+      circle,
+      #000000 0%,
+      #434343 80%,
+      #000000 100%
+    );
+  }
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}
+
+.AccordionContent[data-state="open"] {
+  animation: slideDown 200ms;
+  overflow: hidden;
+}
+
+.AccordionContent[data-state="closed"] {
+  animation: slideUp 200ms;
+  overflow: hidden;
+}
+
+.AccordionChevron {
+  color: var(--violet-10);
+  transition: transform 300ms cubic-bezier(0.87, 0, 0.13, 1);
+}
+.AccordionTrigger[data-state="open"] > .AccordionChevron {
+  transform: rotate(180deg);
 }

@@ -10,10 +10,11 @@ export default function ResponsiveWrapper({
 }) {
   const mobileEnvironMent = useIsMobile();
   return (
-    //TODO : 반응형 추가할 때 max-w-full로 변경
     <body
       className={`${
-        mobileEnvironMent ? "max-w-md min-w-[360px]" : "max-w-md min-w-[360px]"
+        mobileEnvironMent
+          ? "max-w-md min-w-[360px] h-screen"
+          : "min-w-[1366px] min-h-[768px] w-screen h-screen flex justify-center pl-24 "
       }  mx-auto relative`}
     >
       {children}

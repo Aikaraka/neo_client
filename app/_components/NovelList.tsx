@@ -7,9 +7,36 @@ import {
   getRecommendedNovels,
 } from "@/app/_api/novelList.server";
 import Image from "next/image";
-import Link from "next/link";
 import { Rabbit, Unplug } from "lucide-react";
-import { Category } from "@/utils/supabase/types/database.types";
+import { Category, Tables } from "@/utils/supabase/types/database.types";
+import { Book, BookShelf } from "@/components/ui/book";
+import { NovelListByGenreSelector } from "@/app/_components/NovelListByGenre";
+
+export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
+  if (!novelList || !novelList.length) return <NovelListEmpty />;
+  return (
+    <BookShelf>
+      {novelList?.map((novel) => (
+        <Book
+          key={`novel-${novel.id ?? Math.random() * 100}`}
+          href={`/novel/${novel.id}/detail`}
+        >
+          <Image
+            src={
+              novel.image_url
+                ? novel.image_url
+                : "https://i.imgur.com/D1fNsoW.png"
+            }
+            alt={novel.title ?? "Novel Title"}
+            width={180}
+            height={240}
+            className="rounded-t-lg object-cover w-full h-full z-30"
+          />
+        </Book>
+      ))}
+    </BookShelf>
+  );
+}
 
 export function NovelListEmpty() {
   return (
@@ -56,37 +83,7 @@ export function NovelListSkeleton({ count = 5 }: { count?: number }) {
 export async function RecommendedNovelList() {
   try {
     const novelList = await getRecommendedNovels();
-
-    if (!novelList || !novelList.length) return <NovelListEmpty />;
-    return (
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex space-x-4">
-          {novelList?.map((novel, index) => (
-            <Card key={index} className="w-[150px] shrink-0">
-              <Link href={`/novel/${novel.id}/detail`}>
-                <CardContent className="p-0">
-                  <Image
-                    src={
-                      novel.image_url
-                        ? novel.image_url
-                        : "https://i.imgur.com/D1fNsoW.png"
-                    }
-                    alt={novel.title ?? "Novel Title"}
-                    width={150}
-                    height={150}
-                    className="rounded-t-lg object-cover w-[150px] h-[150px]"
-                  />
-                  <div className="p-2">
-                    <p className="text-sm truncate">{novel.title}</p>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-          ))}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    );
+    return <NovelList novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
   }
@@ -95,75 +92,19 @@ export async function RecommendedNovelList() {
 export async function TopNovelList() {
   try {
     const novelList = await getNovelsByView();
-
-    if (!novelList || !novelList.length) return <NovelListEmpty />;
-    return (
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex space-x-4">
-          {novelList?.map((novel, index) => (
-            <Card key={`top-${index}`} className="w-[150px] shrink-0">
-              <Link href={`/novel/${novel.novel_id}/detail`}>
-                <CardContent className="p-0">
-                  <Image
-                    src={
-                      novel.image_url
-                        ? novel.image_url
-                        : "https://i.imgur.com/D1fNsoW.png"
-                    }
-                    alt={novel.title ?? "novel title"}
-                    width={150}
-                    height={150}
-                    className="rounded-t-lg object-cover w-[150px] h-[150px]"
-                  />
-                  <div className="p-2">
-                    <p className="text-sm truncate">{novel.title}</p>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-          ))}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    );
+    //TODO: type 변환
+    return <NovelList novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
   }
 }
 
-export async function NovelListByGenre({ genre }: { genre: Category }) {
+const genre: Category[] = ["판타지", "로맨틱", "미스터리"];
+export async function NovelListByGenre() {
   try {
-    const novelList = await getNovelsByCategory(genre);
-    if (!novelList || !novelList.length) return <NovelListEmpty />;
-    return (
-      <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex space-x-4">
-          {novelList?.map((novel, index) => (
-            <Card key={index} className="w-[150px] shrink-0">
-              <Link href={`/novel/${novel.id}/detail`}>
-                <CardContent className="p-0">
-                  <Image
-                    src={
-                      novel.image_url
-                        ? novel.image_url
-                        : "https://i.imgur.com/D1fNsoW.png"
-                    }
-                    alt={novel.title ?? "novel title"}
-                    width={150}
-                    height={150}
-                    className="rounded-t-lg object-cover w-[150px] h-[150px]"
-                  />
-                  <div className="p-2">
-                    <p className="text-sm truncate">{novel.title}</p>
-                  </div>
-                </CardContent>
-              </Link>
-            </Card>
-          ))}
-        </div>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
-    );
+    const allNovels = Promise.all(genre.map((g) => getNovelsByCategory(g)));
+    const novelList = (await allNovels).flat();
+    return <NovelListByGenreSelector novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
   }

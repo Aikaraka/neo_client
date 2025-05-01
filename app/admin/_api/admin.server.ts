@@ -1,15 +1,15 @@
 "use server";
 
-import { createAdminClient, createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 // form action으로 사용할 수 있도록 FormData를 매개변수로 받고 void를 반환하도록 수정
 export async function updateTopNovelViews() {
-  const supabaseAdmin = await createAdminClient();
+  const supabase = await createClient();
 
   try {
     // 일별 채팅 통계 초기화
-    const { error: resetDailyError } = await supabaseAdmin.rpc(
+    const { error: resetDailyError } = await supabase.rpc(
       "reset_daily_chat_stats"
     );
 
@@ -28,7 +28,7 @@ export async function updateTopNovelViews() {
     const today = new Date();
     if (today.getDay() === 1) {
       // 월요일인 경우
-      const { error: resetWeeklyError } = await supabaseAdmin.rpc(
+      const { error: resetWeeklyError } = await supabase.rpc(
         "reset_weekly_chat_stats"
       );
 
@@ -47,7 +47,7 @@ export async function updateTopNovelViews() {
     // 월간 통계 초기화 (매월 1일에 실행)
     if (today.getDate() === 1) {
       // 1일인 경우
-      const { error: resetMonthlyError } = await supabaseAdmin.rpc(
+      const { error: resetMonthlyError } = await supabase.rpc(
         "reset_monthly_chat_stats"
       );
 
@@ -78,7 +78,7 @@ export async function updateTopNovelViews() {
 
 // 인기 소설 계산 및 저장 함수
 export async function calculateAndSaveRankings(formData: FormData) {
-  const supabaseAdmin = await createAdminClient();
+  const supabase = await createClient();
 
   // 소설 랭킹 타입 정의
   interface NovelRanking {
@@ -108,17 +108,18 @@ export async function calculateAndSaveRankings(formData: FormData) {
   const allTimeLabel = "all_time";
 
   // 일별 인기 소설 계산
-  const { data: dailyTopNovels, error: dailyError } = await supabaseAdmin.rpc(
+  const { data: dailyTopNovels, error: dailyError } = await supabase.rpc(
     "get_daily_top_novels_by_chat",
     { top_count: 8 }
   );
 
   if (dailyError) {
+    console.error("일별 인기 소설 계산 오류:", dailyError);
     throw new Error("일별 인기 소설 계산 중 오류가 발생했습니다.");
   }
 
   // 주별 인기 소설 계산
-  const { data: weeklyTopNovels, error: weeklyError } = await supabaseAdmin.rpc(
+  const { data: weeklyTopNovels, error: weeklyError } = await supabase.rpc(
     "get_weekly_top_novels_by_chat",
     { top_count: 8 }
   );
@@ -128,41 +129,45 @@ export async function calculateAndSaveRankings(formData: FormData) {
   }
 
   // 월별 인기 소설 계산
-  const { data: monthlyTopNovels, error: monthlyError } =
-    await supabaseAdmin.rpc("get_monthly_top_novels_by_chat", { top_count: 8 });
+  const { data: monthlyTopNovels, error: monthlyError } = await supabase.rpc(
+    "get_monthly_top_novels_by_chat",
+    { top_count: 8 }
+  );
 
   if (monthlyError) {
     throw new Error("월별 인기 소설 계산 중 오류가 발생했습니다.");
   }
 
   // 전체 인기 소설 계산
-  const { data: allTimeTopNovels, error: allTimeError } =
-    await supabaseAdmin.rpc("get_top_novels_by_chat", { top_count: 8 });
+  const { data: allTimeTopNovels, error: allTimeError } = await supabase.rpc(
+    "get_top_novels_by_chat",
+    { top_count: 8 }
+  );
 
   if (allTimeError) {
     throw new Error("전체 인기 소설 계산 중 오류가 발생했습니다.");
   }
 
   // 기존 랭킹 삭제 (같은 기간 라벨의 랭킹)
-  await supabaseAdmin
+  await supabase
     .from("novel_rankings")
     .delete()
     .eq("ranking_type", "daily")
     .eq("period_label", dailyLabel);
 
-  await supabaseAdmin
+  await supabase
     .from("novel_rankings")
     .delete()
     .eq("ranking_type", "weekly")
     .eq("period_label", weeklyLabel);
 
-  await supabaseAdmin
+  await supabase
     .from("novel_rankings")
     .delete()
     .eq("ranking_type", "monthly")
     .eq("period_label", monthlyLabel);
 
-  await supabaseAdmin
+  await supabase
     .from("novel_rankings")
     .delete()
     .eq("ranking_type", "all_time")
@@ -181,7 +186,7 @@ export async function calculateAndSaveRankings(formData: FormData) {
       calculated_at: new Date().toISOString(),
     }));
 
-    const { error: insertDailyError } = await supabaseAdmin
+    const { error: insertDailyError } = await supabase
       .from("novel_rankings")
       .insert(dailyRankings);
 
@@ -204,7 +209,7 @@ export async function calculateAndSaveRankings(formData: FormData) {
       calculated_at: new Date().toISOString(),
     }));
 
-    const { error: insertWeeklyError } = await supabaseAdmin
+    const { error: insertWeeklyError } = await supabase
       .from("novel_rankings")
       .insert(weeklyRankings);
 
@@ -226,7 +231,7 @@ export async function calculateAndSaveRankings(formData: FormData) {
       calculated_at: new Date().toISOString(),
     }));
 
-    const { error: insertMonthlyError } = await supabaseAdmin
+    const { error: insertMonthlyError } = await supabase
       .from("novel_rankings")
       .insert(monthlyRankings);
 
@@ -248,7 +253,7 @@ export async function calculateAndSaveRankings(formData: FormData) {
       calculated_at: new Date().toISOString(),
     }));
 
-    const { error: insertAllTimeError } = await supabaseAdmin
+    const { error: insertAllTimeError } = await supabase
       .from("novel_rankings")
       .insert(allTimeRankings);
 

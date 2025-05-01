@@ -1,3 +1,4 @@
+import AiAssistButton from "@/app/create/_components/aiAssist";
 import { CharacterForm } from "@/app/create/_components/CharacterForm";
 import { RelationshipForm } from "@/app/create/_components/RelationshipForm";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
@@ -16,6 +17,7 @@ export default function CharactorAndPlotDesign() {
     trigger,
     setValue,
     watch,
+    register,
   } = useFormContext<CreateNovelForm>();
 
   const plot = watch("plot");
@@ -41,42 +43,45 @@ export default function CharactorAndPlotDesign() {
   };
 
   return (
-    <div className="container p-4">
+    <div className="w-full p-4">
       <section className="mb-8 flex flex-col gap-4">
         <h2 className="text-xl ">소설 제목</h2>
-        <div>
+        <div className="relative">
           <Input
             type="text"
             maxLength={20}
             value={title}
-            onChange={(e) => setValue("title", e.target.value)}
+            {...register("title")}
           />
           <p className="text-destructive">{errors.title?.message}</p>
         </div>
       </section>
       <section className="mb-8">
         <h2 className="text-xl mb-4">줄거리</h2>
-        <textarea
-          className="w-full p-3 border rounded-lg"
-          rows={6}
-          value={plot}
-          onChange={(e) => setValue("plot", e.target.value)}
-          placeholder="소설의 전체적인 줄거리를 입력해주세요..."
-        />
+        <div className="relative">
+          <textarea
+            className="w-full p-3 border rounded-lg pb-6"
+            rows={6}
+            value={plot}
+            onChange={(e) => setValue("plot", e.target.value)}
+            placeholder="소설의 전체적인 줄거리를 입력해주세요..."
+          />
+          <AiAssistButton
+            targetField="plot"
+            className="absolute bottom-2 right-2 hover:bg-transparent"
+          />
+        </div>
         <p className="text-destructive">{errors.plot?.message}</p>
       </section>
-
       <section className="mb-8 relative">
         <h2 className="text-xl mb-4">주요 등장인물</h2>
         <CharacterForm />
         <p>{errors.characters?.[0]?.message}</p>
       </section>
-
-      <section className="mb-8">
+      <section className="mb-8 relative">
         <h2 className="text-xl  mb-4">캐릭터 관계</h2>
         <RelationshipForm />
       </section>
-
       <button
         type="submit"
         onClick={handleNext}
