@@ -15,6 +15,8 @@ import Link from "next/link";
 
 import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
+import Image from "next/image";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const navItems = {
   "/": {
@@ -23,7 +25,7 @@ const navItems = {
     activeIcon: HomeFilled,
     disabled: false,
   },
-  "/storage": {
+  "/library": {
     label: "보관함",
     icon: BoxLine,
     activeIcon: BoxFilled,
@@ -52,6 +54,7 @@ function NavItem({
   isActive: boolean;
   disabled: boolean;
 }) {
+  const isMobile = useIsMobile();
   const NavIcon = isActive ? activeIcon : icon;
 
   return disabled ? (
@@ -73,7 +76,7 @@ function NavItem({
       <NavIcon className="h-6 w-6" />
       <span className="text-xs mt-1">{label}</span>
 
-      {isActive ? (
+      {isActive && isMobile ? (
         <motion.div
           className="absolute h-1 bottom-0 rounded-lg w-full bg-primary dark:bg-gradient-to-r from-transparent to-primary"
           layoutId="sidebar"
@@ -88,10 +91,10 @@ function NavItem({
   );
 }
 
-const Navbar = forwardRef<HTMLDivElement>((props, ref) => {
+const NavBarMobile = forwardRef<HTMLDivElement>((props, ref) => {
   const pathname = usePathname() || "/";
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-background border-t z-10">
+    <nav className="absolute bottom-0 left-0 right-0 bg-background border-b z-30">
       <div className="container max-w-md">
         <div
           className="flex justify-around items-center py-2 relative"
@@ -115,6 +118,42 @@ const Navbar = forwardRef<HTMLDivElement>((props, ref) => {
     </nav>
   );
 });
+NavBarMobile.displayName = "NavBarMobile";
+
+const NavBarDesktop = forwardRef<HTMLDivElement>((props, ref) => {
+  const pathname = usePathname() || "/";
+  return (
+    <nav className="fixed flex flex-col left-0 top-0 bg-background border-b z-50 w-[89px] min-h-[768px] h-full shadow-lg items-center py-6 gap-4 px-3 rounded-3xl">
+      <Image src="/neo_emblem.svg" alt="NEO Logo" width={50} height={50} />
+      <div className="container max-w-md">
+        <div
+          className="flex flex-col justify-around items-center border-t py-2 relative"
+          ref={ref}
+        >
+          {Object.entries(navItems).map(
+            ([path, { label, icon, activeIcon, disabled }]) => (
+              <NavItem
+                key={path}
+                path={path}
+                label={label}
+                icon={icon}
+                activeIcon={activeIcon}
+                isActive={pathname === path}
+                disabled={disabled}
+              />
+            )
+          )}
+        </div>
+      </div>
+    </nav>
+  );
+});
+NavBarDesktop.displayName = "NavBarDesktop";
+
+const Navbar = () => {
+  const isMobile = useIsMobile();
+  return isMobile ? <NavBarMobile /> : <NavBarDesktop />;
+};
 Navbar.displayName = "Navbar";
 
 export default Navbar;

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus, X } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
+import AiAssistButton from "@/app/create/_components/aiAssist";
 
 export function BackgroundForm() {
   const [showAddLocation, setShowAddLocation] = useState(false);
@@ -34,13 +35,19 @@ export function BackgroundForm() {
     <div className="space-y-6">
       <div className="space-y-2">
         <label className="text-sm font-medium">첫 장면</label>
-        <textarea
-          value={background.start}
-          onChange={(e) => setValue("background.start", e.target.value)}
-          placeholder="여러분이 만든 소설의 첫 장면은 어떻게 시작하시길 원하는지 적어주세요!"
-          className="w-full p-3 border rounded-lg"
-          rows={4}
-        />
+        <div className="w-full border rounded-lg pb-8 relative">
+          <textarea
+            value={background.start}
+            onChange={(e) => setValue("background.start", e.target.value)}
+            placeholder="여러분이 만든 소설의 첫 장면은 어떻게 시작하시길 원하는지 적어주세요!"
+            className="w-full"
+            rows={4}
+          />
+          <AiAssistButton
+            targetField="background.start"
+            className="absolute bottom-0 right-0"
+          />
+        </div>
         <p className="text-destructive">
           {formState.errors.background?.start?.message}
         </p>

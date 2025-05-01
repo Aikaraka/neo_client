@@ -34,4 +34,14 @@ export const signInWithEmail = async (email: string, password: string) => {
   });
 };
 
+export const getToken = async () => {
+  const supabase = createClient();
+
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session?.access_token) {
+    throw new Error("Failed to get session");
+  }
+  return data.session?.access_token;
+};
+
 export type { User, AuthError };

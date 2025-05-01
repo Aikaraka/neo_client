@@ -1,5 +1,7 @@
+"use server";
+
 import { novelAIServer } from "@/app/novel/_api";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
 interface StoryItem {
   content: string;
@@ -20,8 +22,7 @@ export interface InitStoryResponse {
 }
 
 export async function initStory(novelId: string): Promise<InitStoryResponse> {
-  const supabase = createClient();
-
+  const supabase = await createClient();
   const {
     data: { session },
     error: sessionError,
@@ -29,16 +30,18 @@ export async function initStory(novelId: string): Promise<InitStoryResponse> {
 
   if (sessionError || !session) throw new Error("세션 오류가 발생했습니다.");
 
-  const response = await novelAIServer.post(
-    "/init-story",
-    {
-      user_id: session.user.id,
-      novel_id: novelId,
-    },
-    {
-      headers: { Authorization: `Bearer ${session.access_token}` },
-    }
-  );
+  const initialData = await (
+    await novelAIServer.post(
+      "/init-story",
+      {
+        user_id: session.user.id,
+        novel_id: novelId,
+      },
+      {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      }
+    )
+  ).json();
 
-  return response.json();
+  return initialData;
 }

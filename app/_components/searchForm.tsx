@@ -2,7 +2,7 @@ import { saveSearchTerm } from "@/app/_api/search.server";
 import { Button } from "@/components/ui/button";
 import { Form, InputFormField } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -35,12 +35,12 @@ export default function SeacrhForm() {
         })}
       >
         <InputFormField
-          className="rounded-full m-0"
+          className="rounded-full lg:rounded-none lg:bg-background lg:border-x-0 lg:border-t-0 m-0"
           control={form.control}
           name="query"
           showErrorMessage={false}
           icon={
-            <Button variant={"ghost"}>
+            <Button variant={"ghost"} className="[&_svg]:size-5">
               <Search className="cursor-pointer" />
             </Button>
           }

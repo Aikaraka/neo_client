@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import React from "react";
+import React, { useEffect } from "react";
 
 type ModalProps = {
   children: React.ReactNode;
@@ -9,7 +9,8 @@ type ModalProps = {
   backgroundClose?: boolean;
   onConfirm?: () => void;
   confirmText?: string;
-  type?: "confirm" | "inform";
+  fixed?: boolean;
+  type?: "confirm" | "inform" | "none";
 };
 
 export const Modal = ({
@@ -19,8 +20,10 @@ export const Modal = ({
   backgroundClose = true,
   onConfirm,
   confirmText,
+  fixed = false,
   type = "confirm",
 }: ModalProps) => {
+  const displayOption = fixed ? "fixed" : "absolute";
   if (!open) return null;
 
   const handleBackgroundClick = (e: React.MouseEvent) => {
@@ -30,7 +33,7 @@ export const Modal = ({
 
   return (
     <div
-      className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-5 flex justify-center items-center z-40"
+      className={`${displayOption} md:fixed absolute top-0 left-0 w-full h-full bg-black bg-opacity-30 flex justify-center items-center z-40`}
       onClick={handleBackgroundClick}
     >
       <div
@@ -38,7 +41,7 @@ export const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         {children}
-        {type === "confirm" ? (
+        {type === "confirm" && (
           <div className="w-full flex gap-4 justify-center">
             <Button variant={"destructive"} className="w-3/4" onClick={toggle}>
               취소
@@ -54,7 +57,8 @@ export const Modal = ({
               {confirmText ?? "확인"}
             </Button>
           </div>
-        ) : (
+        )}
+        {type === "inform" && (
           <Button type="button" onClick={onConfirm ?? toggle}>
             {confirmText ?? "확인"}
           </Button>
@@ -67,7 +71,7 @@ export const Modal = ({
 export const LoadingModal = ({ visible = true }: { visible?: boolean }) => {
   if (visible)
     return (
-      <div className="absolute top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+      <div className="absolute md:fixed top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
         <Spinner />
       </div>
     );
