@@ -37,9 +37,10 @@ export async function getNovels() {
   }
 
   // 일별 랭킹이 없으면 전체 랭킹 조회
-  const { data: allTimeRankings, error: allTimeError } = await (
-    supabase as any
-  ).rpc("get_latest_novel_rankings", { ranking_type_param: "all_time" });
+  const { data: allTimeRankings, error: allTimeError } = await supabase.rpc(
+    "get_latest_novel_rankings",
+    { ranking_type_param: "all_time" }
+  );
 
   if (allTimeError) {
     throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");

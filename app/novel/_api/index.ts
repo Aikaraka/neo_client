@@ -1,5 +1,5 @@
 import { APIBuilder } from "@/api/apiBuilder";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
 export const novelAIServer = new APIBuilder(
   process.env.NEXT_PUBLIC_API_URL as string
@@ -12,7 +12,7 @@ export const novelAIServer = new APIBuilder(
 
 novelAIServer.use.response = async (response, requestFunction) => {
   if (response.status === 401) {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     console.warn("401 Unauthorized - Refreshing token...");
 
@@ -31,6 +31,17 @@ novelAIServer.use.response = async (response, requestFunction) => {
   return response;
 };
 
-novelAIServer.use.request = (options) => {
+novelAIServer.use.request = async (options) => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getSession();
+  if (error || !data.session) {
+    throw new Error("세션이 없습니다.");
+  }
+  const accessToken = data.session.access_token;
+  options.headers = {
+    ...options.headers,
+    Authorization: `Bearer ${accessToken}`,
+  };
+
   return options;
 };
