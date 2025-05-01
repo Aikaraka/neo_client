@@ -35,17 +35,17 @@ export function BackgroundForm() {
     <div className="space-y-6">
       <div className="space-y-2">
         <label className="text-sm font-medium">첫 장면</label>
-        <div className="w-full border rounded-lg pb-8 relative">
+        <div className="w-full rounded-lg relative">
           <textarea
             value={background.start}
             onChange={(e) => setValue("background.start", e.target.value)}
             placeholder="여러분이 만든 소설의 첫 장면은 어떻게 시작하시길 원하는지 적어주세요!"
-            className="w-full"
+            className="w-full border p-2"
             rows={4}
           />
           <AiAssistButton
             targetField="background.start"
-            className="absolute bottom-0 right-0"
+            className="absolute bottom-2 right-2 z-10 bg-white border"
           />
         </div>
         <p className="text-destructive">
