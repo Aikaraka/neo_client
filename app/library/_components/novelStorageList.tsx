@@ -1,18 +1,10 @@
 "use client";
 
 import NotFound from "@/app/[...404]/page";
-import { deleteNovel, getMyNovelList } from "@/app/library/_api/novels";
+import { getMyNovelList } from "@/app/library/_api/novels";
+import NovelGridView from "@/app/library/_components/novelGridView";
 import NovelListView from "@/app/library/_components/novelListView";
-import { Button } from "@/components/ui/button";
-import { LoadingModal, Modal } from "@/components/ui/modal";
-import useModal from "@/hooks/use-modal";
-import { useToast } from "@/hooks/use-toast";
-import { Novel } from "@/types/novel";
-import { Tables } from "@/utils/supabase/types/database.types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight } from "lucide-react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 
 export function NovelStorageListSkeleton() {
   return (
@@ -33,33 +25,26 @@ export function NovelStorageListSkeleton() {
   );
 }
 
-const TOAST_DELETE_NOVEL_ERROR_TITLE = "소설 삭제 오류";
-export function NovelStorageList({
+export function NovelLibrary({
   searchQuery,
   layout,
 }: {
   searchQuery: string;
-  layout: "list" | "grid";
+  layout: "list" | "grid" | "smallGrid";
 }) {
-  const queryClient = useQueryClient();
   const { data: novelData, isPending } = useQuery({
-    queryKey: ["storage"],
+    queryKey: ["library"],
     queryFn: getMyNovelList,
+    throwOnError: true,
   });
 
   const filteredNovel = searchQuery
-    ? novelData?.filter((data) => data.novels.title.includes(searchQuery))
+    ? novelData?.filter((data) => data.title.includes(searchQuery))
     : novelData;
-
   if (isPending) return <NovelStorageListSkeleton />;
   if (!novelData) return <NotFound />;
-  return (
-    <div
-      className={`flex-1 gap-4 overflow-auto ${
-        layout === "grid" ? "grid grid-cols-3" : "flex flex-col"
-      }`}
-    >
-      {layout === "list" && <NovelListView novelList={filteredNovel} />}
-    </div>
-  );
+
+  if (layout === "grid" || layout === "smallGrid")
+    return <NovelGridView layout={layout} novelList={filteredNovel} />;
+  if (layout === "list") return <NovelListView novelList={filteredNovel} />;
 }
