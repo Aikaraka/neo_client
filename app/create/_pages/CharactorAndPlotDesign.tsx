@@ -60,7 +60,7 @@ export default function CharactorAndPlotDesign() {
         <h2 className="text-xl mb-4">줄거리</h2>
         <div className="relative">
           <textarea
-            className="w-full p-3 border rounded-lg pb-6"
+            className="w-full p-3 border rounded-lg resize-none"
             rows={6}
             value={plot}
             onChange={(e) => setValue("plot", e.target.value)}
@@ -68,7 +68,7 @@ export default function CharactorAndPlotDesign() {
           />
           <AiAssistButton
             targetField="plot"
-            className="absolute bottom-2 right-2 hover:bg-transparent"
+            className="absolute bottom-2 right-1 bg-white border"
           />
         </div>
         <p className="text-destructive">{errors.plot?.message}</p>
