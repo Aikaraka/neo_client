@@ -8,6 +8,7 @@ import {
 } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Sparkles } from "lucide-react";
 import { HtmlHTMLAttributes } from "react";
@@ -79,7 +80,7 @@ export default function AiAssistButton({
   return (
     <Button
       type="button"
-      className={`${props.className} hover:bg-transparent`}
+      className={cn(props.className, `hover:bg-transparent z-10 bg-white`)}
       variant={"ghost"}
       onClick={assistFieldValue}
       disabled={isPending}

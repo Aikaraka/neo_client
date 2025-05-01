@@ -44,7 +44,7 @@ export default async function NovelDetail({
           <PrevPageButton color="white" className="md:hidden" />
           <div className="relative z-10 h-screen md:h-auto md:flex">
             {/* Absolute Header */}
-            <div className="w-full relative">
+            <div className="w-full h-auto relative">
               {/* Background Image */}
               <div className="absolute w-full h-auto z-0">
                 <Image
@@ -107,7 +107,7 @@ export default async function NovelDetail({
             {/* Novel Thumbnail and Info */}
             <div className="px-4 py-16 z-10 md:w-full md:p-4 md:flex md:flex-col md:justify-center">
               {/* Novel Summary */}
-              <div className="mt-[400px] mb-6 p-1 flex flex-col gap-5 md:mt-0 md:w-full">
+              <div className="mt-[550px] mb-6 p-1 flex flex-col gap-5 md:mt-0 md:w-full">
                 <NovelPlot plot={novel.plot} />
                 <NovelCharacters characters={novel.characters as Character[]} />
               </div>
