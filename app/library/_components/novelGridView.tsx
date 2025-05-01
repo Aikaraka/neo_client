@@ -56,8 +56,8 @@ function NovelGridView({
                     {novel.title}
                   </p>
                   <div className="flex items-center justify-between gap-1">
-                    <Progress className="h-3" value={40} />
-                    <span>45%</span>
+                    <Progress className="h-3" value={novel.progress_rate} />
+                    <span>{novel.progress_rate}%</span>
                   </div>
                 </div>
               </div>
