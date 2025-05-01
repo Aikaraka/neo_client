@@ -200,3 +200,11 @@
 .AccordionTrigger[data-state="open"] > .AccordionChevron {
   transform: rotate(180deg);
 }
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #782fa0;
+  border-radius: 14px;
+  box-shadow: 0 0 0 2px var(--ring);
+}
