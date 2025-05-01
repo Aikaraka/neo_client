@@ -1,9 +1,9 @@
 import { Book } from "@/components/ui/book";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { LibraryNovel } from "@/types/library";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 function NovelListView({
   novelList,
@@ -13,7 +13,8 @@ function NovelListView({
   return (
     <>
       {novelList?.map((novel) => (
-        <div
+        <Link
+          href={`/novel/${novel.novel_id}/chat`}
           key={novel.novel_id}
           className="p-2  hover:shadow-md transition-shadow cursor-pointer flex gap-2 items-center"
         >
@@ -42,11 +43,11 @@ function NovelListView({
               <span>{novel.progress_rate}%</span>
             </div>
           </div>
-          <Button variant={"ghost"} className="hover:bg-none">
+          <div className="flex items-center text-sm px-2">
             이어보기
             <ChevronRight />
-          </Button>
-        </div>
+          </div>
+        </Link>
       ))}
     </>
   );
