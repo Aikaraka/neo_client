@@ -9,7 +9,9 @@ import {
 import { CoverImageUploader } from "@/app/create/_components/coverImageEditor/CoverImageUploader";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { HTMLAttributes, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
 
@@ -44,18 +46,29 @@ export default function CoverImageEditor() {
   );
 }
 
+const DEFAULT_WIDTH = 200,
+  DEFAULT_HEIGHT = 100;
+const BASE_FONT_SIZE = 28;
+
 function TextEdit() {
   const { getValues } = useFormContext<CreateNovelForm>();
   const title = getValues("title");
   const { fontTheme, fontStyle } = useCoverImageContext();
+  const [size, setSize] = useState({
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT,
+  });
+  const [showEditMode, setShowEditMode] = useState(true);
+
+  const dynamicFontSize = (size.width / DEFAULT_WIDTH) * BASE_FONT_SIZE;
 
   return (
     <Rnd
       default={{
         x: 0,
         y: 100,
-        width: 200,
-        height: 100,
+        width: DEFAULT_WIDTH,
+        height: DEFAULT_HEIGHT,
       }}
       bounds="parent"
       enableResizing={{
@@ -66,13 +79,42 @@ function TextEdit() {
         left: true,
         topRight: true,
       }}
+      onResize={(_, __, ref) => {
+        setSize({
+          width: ref.offsetWidth,
+          height: ref.offsetHeight,
+        });
+      }}
+      resizeHandleComponent={{
+        bottomRight: (
+          <ResizeHandle
+            className="translate-y-1 translate-x-1"
+            visible={showEditMode}
+          />
+        ),
+        topRight: (
+          <ResizeHandle
+            className="translate-y-1 translate-x-1"
+            visible={showEditMode}
+          />
+        ),
+        bottom: (
+          <ResizeHandle className="-translate-x-1" visible={showEditMode} />
+        ),
+        top: <ResizeHandle className="-translate-x-1" visible={showEditMode} />,
+      }}
       dragHandleClassName="text-box"
-      className="absolute text-black text-2xl font-bold  cursor-pointer z-10 hover:border hover:border-purple-400 p-1"
+      className={`absolute text-black text-2xl font-bold  cursor-pointer z-10  p-1 ${
+        showEditMode ? "border border-primary" : ""
+      }`}
     >
       <div
-        className={`text-box w-full h-full break-words overflow-auto cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden`}
+        onMouseEnter={() => setShowEditMode(true)}
+        onMouseLeave={() => setShowEditMode(false)}
+        className={`text-box w-full h-full break-words overflow-visible cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden relative`}
         style={{
           fontFamily: fontStyles[fontStyle],
+          fontSize: `${dynamicFontSize}px`,
         }}
       >
         {title}
@@ -120,3 +162,16 @@ function FontSelect() {
     </div>
   );
 }
+
+const ResizeHandle = ({
+  className,
+  visible,
+}: HTMLAttributes<HTMLDivElement> & { visible: boolean }) => (
+  <div
+    className={cn(
+      "rounded-xl w-3 h-3 hover:bg-primary bg-input border border-primary cursor-pointer ",
+      visible ? "visible" : "invisible",
+      className
+    )}
+  />
+);
