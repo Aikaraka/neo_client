@@ -1,6 +1,7 @@
 "use client";
 
 import { generateImage } from "@/app/create/_api/image.server";
+import { useCoverImageContext } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
@@ -14,6 +15,7 @@ import { useFormContext } from "react-hook-form";
 
 export default function CoverImageGenerator() {
   const { getValues, setValue } = useFormContext<CreateNovelForm>();
+  const { changeImage } = useCoverImageContext();
   const { toast } = useToast();
   const { data, isPending, mutate } = useMutation({
     mutationFn: generateImage,
@@ -61,7 +63,7 @@ export default function CoverImageGenerator() {
                   className="w-full h-full relative cursor-pointer"
                   key={`ai-Generate-${idx}`}
                   onClick={() => {
-                    setValue("cover_image_url", url);
+                    changeImage(url);
                   }}
                 >
                   <Image
