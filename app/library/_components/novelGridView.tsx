@@ -2,6 +2,7 @@ import { Book } from "@/components/ui/book";
 import { Progress } from "@/components/ui/progress";
 import { LibraryNovel } from "@/types/library";
 import Image from "next/image";
+import Link from "next/link";
 import { Fragment } from "react";
 
 function NovelGridView({
@@ -31,7 +32,8 @@ function NovelGridView({
         {rows.map((row, rowIndex) => (
           <Fragment key={rowIndex}>
             {row.map((novel) => (
-              <div
+              <Link
+                href={`/novel/${novel.novel_id}/chat`}
                 key={novel.novel_id}
                 className="relative p-2 hover:shadow-md transition-shadow cursor-pointer flex flex-col items-center gap-2 w-full"
               >
@@ -60,7 +62,7 @@ function NovelGridView({
                     <span>{novel.progress_rate}%</span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
             {/* 각 행 끝마다 배경 박스 추가 */}
             <div className="col-span-full absolute w-full h-[65px] bg-[#dbdbdb] bottom-16" />
