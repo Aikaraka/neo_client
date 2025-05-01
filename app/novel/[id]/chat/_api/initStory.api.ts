@@ -1,7 +1,7 @@
 "use server";
 
 import { novelAIServer } from "@/app/novel/_api";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
 interface StoryItem {
   content: string;
@@ -22,12 +22,12 @@ export interface InitStoryResponse {
 }
 
 export async function initStory(novelId: string): Promise<InitStoryResponse> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const {
     data: { session },
     error: sessionError,
   } = await supabase.auth.getSession();
-  console.log(sessionError, session);
+
   if (sessionError || !session) throw new Error("세션 오류가 발생했습니다.");
 
   const initialData = await (
