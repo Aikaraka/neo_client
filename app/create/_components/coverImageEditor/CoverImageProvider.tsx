@@ -7,9 +7,9 @@ type CoverImageContext = {
   imageSrc: string;
   changeImage: (src: string) => void;
   fontTheme: FontTheme;
-  changeFontTheme: (font: FontTheme) => void;
+  changeFontTheme: (targetFontTheme: FontTheme) => void;
   fontStyle: FontStyle;
-  changeFontStyle: (font: FontStyle) => void;
+  changeFontStyle: (targetFontStyle: FontStyle) => void;
 };
 
 const CoverImageContext = createContext<CoverImageContext | undefined>(
@@ -28,7 +28,7 @@ const fontThemes = {
   pastel: "stroke-gradient pastel-gradient",
   rainbow: "stroke-gradient rainbow-gradient",
   fire: "stroke-gradient fire-gradient",
-  black: "stroke-black",
+  black: "stroke-gradient black-gradient",
 } as const;
 type FontTheme = keyof typeof fontThemes;
 
@@ -42,13 +42,13 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
     setImageSrc(src);
   };
 
-  const changeFontTheme = (font: FontTheme) => {
-    if (font === font) return;
-    setFont(font);
+  const changeFontTheme = (targetFontTheme: FontTheme) => {
+    if (fontTheme === targetFontTheme) return;
+    setFont(targetFontTheme);
   };
-  const changeFontStyle = (fontStyle: FontStyle) => {
-    if (fontStyle === fontStyle) return;
-    setFontStyle(fontStyle);
+  const changeFontStyle = (targetFontStyle: FontStyle) => {
+    if (fontStyle === targetFontStyle) return;
+    setFontStyle(targetFontStyle);
   };
 
   return (
