@@ -18,6 +18,9 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import * as htmlToImage from "html-to-image";
+import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server";
+import { dataURLToFile } from "@/utils/image";
 
 const PageComponent: Record<number, () => JSX.Element> = {
   0: () => <CharactorAndPlotDesign />,
@@ -58,9 +61,25 @@ export default function CreateNovel() {
   });
 
   const onSubmit = async (data: z.infer<typeof createNovelSchema>) => {
-    const possible = await form.trigger();
-    if (possible) {
-      mutate(data);
+    try {
+      const imageDataUrl = await htmlToImage.toPng(
+        document.getElementById("cover-image-editor") as HTMLDivElement,
+        { width: 210, height: 270 }
+      );
+      const imageFile = dataURLToFile(imageDataUrl, "coverImage.png");
+      const coverImageUrl = await saveImageFileToStorage(imageFile);
+
+      const possible = await form.trigger();
+      if (possible) {
+        mutate({ ...data, cover_image_url: coverImageUrl });
+      }
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: SUBMIT_ERROR_TITLE,
+        description: "소설 생성 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
     }
   };
 
