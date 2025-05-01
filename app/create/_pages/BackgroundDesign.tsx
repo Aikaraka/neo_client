@@ -35,7 +35,7 @@ export default function BackgroundSetting() {
   };
 
   return (
-    <div className="container max-w-md mx-auto p-4">
+    <div className="w-full mx-auto p-4">
       <h1 className="text-2xl font-bold mb-6">배경 설정</h1>
       <section className="space-y-8 mb-8">
         <BackgroundForm />

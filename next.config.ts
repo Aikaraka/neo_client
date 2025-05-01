@@ -10,7 +10,10 @@ const nextConfig: NextConfig = {
         pathname: "/storage/v1/object/public/**",
       },
     ],
-    domains: ["i.imgur.com"],
+    domains: [
+      "i.imgur.com",
+      "illustration-generated.s3.us-west-1.amazonaws.com",
+    ],
   },
   webpack: (config) => {
     config.module.rules.push({
