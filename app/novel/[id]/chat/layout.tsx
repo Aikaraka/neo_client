@@ -1,3 +1,5 @@
+"use client";
+
 import { StoryProvider } from "@/app/novel/[id]/chat/_components/storyProvider";
 import Navbar from "@/components/layout/navbar";
 import { Toaster } from "@/components/ui/toaster";
