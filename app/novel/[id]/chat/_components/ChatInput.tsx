@@ -16,16 +16,37 @@ export function ChatInput() {
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendNovelProcessMessage(false, textareaRef.current?.value);
+      if (textareaRef.current?.value) {
+        const messageToSend = textareaRef.current.value;
+        sendNovelProcessMessage(false, messageToSend);
+
+        // Enter 키로 전송 시에도 입력창 비우기
+        if (textareaRef.current) {
+          textareaRef.current.value = "";
+          // 높이도 초기화 
+          textareaRef.current.style.height = "auto";
+        }
+      }
     }
   };
 
   const handleNovelProcess = (auto: boolean) => {
+    let messageToSend: string | undefined = undefined;
+
     if (auto) {
+      // 자동 진행 메시지 전송 요청
       sendNovelProcessMessage(true);
+    } else if (textareaRef.current?.value) {
+      // 사용자 입력 메시지 전송 요청
+      messageToSend = textareaRef.current.value;
+      sendNovelProcessMessage(false, messageToSend);
     }
-    if (textareaRef.current?.value) {
-      sendNovelProcessMessage(false, textareaRef.current?.value);
+
+    // 메시지 전송 요청 후 입력창 비우기 (자동 진행이 아닐 때만)
+    if (!auto && textareaRef.current) {
+      textareaRef.current.value = "";
+      // 높이도 초기화 
+      textareaRef.current.style.height = "auto";
     }
   };
 
