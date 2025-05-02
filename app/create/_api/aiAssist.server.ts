@@ -1,9 +1,9 @@
 "use server";
 
-import { novelAIServer } from "@/app/novel/_api";
 import { CreateNovelForm } from "../_schema/createNovelSchema";
 import { createClient } from "@/utils/supabase/server";
 import { Character, Relationship } from "@/types/novel";
+import { novelAiServerForServer } from "@/api/serverInstance";
 
 export interface AIAssistRequest {
   formData: CreateNovelForm;
@@ -39,7 +39,7 @@ export async function postAIAssist(
   };
 
   const response = (
-    await novelAIServer.post("/input-pumping", req, {
+    await novelAiServerForServer.post("/input-pumping", req, {
       headers: {
         Authorization: `Bearer ${session.access_token}`,
       },
