@@ -1,6 +1,6 @@
 "use server";
 
-import { novelAIServer } from "@/app/novel/_api";
+import { novelAiServerForServer } from "@/api/serverInstance";
 import { LibraryNovel } from "@/types/library";
 import { createClient, getToken } from "@/utils/supabase/server";
 
@@ -8,7 +8,7 @@ export async function getMyNovelList(): Promise<LibraryNovel[]> {
   const accessToken = await getToken();
 
   const data = await (
-    await novelAIServer.get("/api/library", {
+    await novelAiServerForServer.get("/api/library", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
