@@ -1,5 +1,5 @@
 import { APIBuilder } from "@/api/apiBuilder";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 
 export const novelAIServer = new APIBuilder(
   process.env.NEXT_PUBLIC_API_URL as string
@@ -32,7 +32,7 @@ novelAIServer.use.response = async (response, requestFunction) => {
 };
 
 novelAIServer.use.request = async (options) => {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase.auth.getSession();
   if (error || !data.session) {
     throw new Error("세션이 없습니다.");
@@ -42,6 +42,5 @@ novelAIServer.use.request = async (options) => {
     ...options.headers,
     Authorization: `Bearer ${accessToken}`,
   };
-
   return options;
 };
