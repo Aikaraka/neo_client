@@ -1,5 +1,5 @@
 import { APIBuilder } from "@/api/apiBuilder";
-import { createAdminClient, createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 
 export const novelAiServerForServer = new APIBuilder(
   process.env.NEXT_PUBLIC_API_URL as string
@@ -32,7 +32,7 @@ novelAiServerForServer.use.response = async (response, requestFunction) => {
 };
 
 novelAiServerForServer.use.request = async (options) => {
-  const supabase = await createAdminClient();
+  const supabase = await createClient();
   const { data, error } = await supabase.auth.getSession();
   console.log("novelAIServer.use.request", data, error);
   if (error || !data.session) {
