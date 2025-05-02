@@ -150,8 +150,9 @@ const NavBarDesktop = forwardRef<HTMLDivElement>((props, ref) => {
 });
 NavBarDesktop.displayName = "NavBarDesktop";
 
-const Navbar = () => {
+const Navbar = ({ visible = true }: { visible?: boolean }) => {
   const isMobile = useIsMobile();
+  if (!visible) return null;
   return isMobile ? <NavBarMobile /> : <NavBarDesktop />;
 };
 Navbar.displayName = "Navbar";

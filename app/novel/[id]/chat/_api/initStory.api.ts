@@ -1,7 +1,5 @@
-"use server";
-
 import { novelAIServer } from "@/app/novel/_api";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 
 interface StoryItem {
   content: string;
@@ -22,7 +20,7 @@ export interface InitStoryResponse {
 }
 
 export async function initStory(novelId: string): Promise<InitStoryResponse> {
-  const supabase = await createClient();
+  const supabase = createClient();
   const {
     data: { session },
     error: sessionError,
