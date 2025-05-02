@@ -1,6 +1,6 @@
 "use server";
 
-import { novelAIServer } from "@/app/novel/_api";
+import { novelAiServerForServer } from "@/api/serverInstance";
 import { createClient } from "@/utils/supabase/server";
 
 export async function getPreviousStories(
@@ -14,7 +14,7 @@ export async function getPreviousStories(
     error,
   } = await supabase.auth.getSession();
   if (error) throw new Error("세션 오류가 발생했습니다.");
-  const response = await novelAIServer.get(
+  const response = await novelAiServerForServer.get(
     `/api/novel/${novelId}/previous-stories?before_story_number=${beforeStoryNumber}&limit=${limit}`,
     {
       headers: { Authorization: `Bearer ${session?.access_token}` },
