@@ -1,7 +1,7 @@
 "use server";
 
+import { novelAiServerForServer } from "@/api/serverInstance";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
-import { novelAIServer } from "@/app/novel/_api";
 
 type GenerateImageResponse = {
   success: boolean;
@@ -10,7 +10,7 @@ type GenerateImageResponse = {
 export async function generateImage(
   novelForm: CreateNovelForm
 ): Promise<GenerateImageResponse> {
-  const response = await novelAIServer.post(
+  const response = await novelAiServerForServer.post(
     "/api/novel/generate-covers",
     novelForm
   );
