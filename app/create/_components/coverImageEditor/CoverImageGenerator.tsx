@@ -28,7 +28,7 @@ export default function CoverImageGenerator() {
       setAiImageModal(false);
     },
   });
-  const selectedImageUrl = getValues("cover_image_url");
+  const [selected, setSelectedImage] = useState<number | null>(null);
   const [aiImageModal, setAiImageModal] = useState(false);
 
   async function handleGenerateCoverImage() {
@@ -50,6 +50,7 @@ export default function CoverImageGenerator() {
 
       <Modal
         open={aiImageModal}
+        backgroundClose={false}
         switch={() => setAiImageModal(false)}
         type="none"
       >
@@ -64,6 +65,7 @@ export default function CoverImageGenerator() {
                   key={`ai-Generate-${idx}`}
                   onClick={() => {
                     changeImage(url);
+                    setSelectedImage(idx);
                   }}
                 >
                   <Image
@@ -74,7 +76,7 @@ export default function CoverImageGenerator() {
                   />
                   <div
                     className={`w-5 h-5 rounded-full absolute top-2 right-2 border-purple-600 border-2 ${
-                      selectedImageUrl === url ? "bg-neo" : "bg-white"
+                      selected === idx ? "bg-neo" : "bg-white"
                     }`}
                   ></div>
                 </div>
