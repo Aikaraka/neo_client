@@ -68,7 +68,7 @@ novelAIServer.use.response = async (response, requestFunction) => {
 };
 
 novelAIServer.use.request = async (options) => {
-  const supabase = await createClient();
+  const supabase = createClient();
   const { data, error } = await supabase.auth.getSession();
   if (error || !data.session) {
     throw new Error("세션이 없습니다.");
