@@ -16,7 +16,11 @@ export function ChatInput() {
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      sendNovelProcessMessage(true, textareaRef.current?.value);
+      textareaRef.current!.value = "";
+      sendNovelProcessMessage(
+        !textareaRef.current?.value,
+        textareaRef.current?.value
+      );
     }
   };
 
@@ -27,6 +31,7 @@ export function ChatInput() {
     if (textareaRef.current?.value) {
       sendNovelProcessMessage(false, textareaRef.current?.value);
     }
+    textareaRef.current!.value = "";
   };
 
   return (
