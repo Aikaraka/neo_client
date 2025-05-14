@@ -61,6 +61,15 @@ export default function CreateNovel() {
   });
 
   const onSubmit = async (data: z.infer<typeof createNovelSchema>) => {
+    if (typeof window !== "undefined" && !window.isImageManuallySet) {
+      toast({
+        title: "표지 이미지 필요",
+        description: "표지 이미지를 업로드하거나 AI로 생성해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const imageDataUrl = await htmlToImage.toPng(
         document.getElementById("cover-image-editor") as HTMLDivElement,

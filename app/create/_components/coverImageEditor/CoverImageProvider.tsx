@@ -2,6 +2,18 @@
 
 import React, { createContext, useContext, useRef, useState } from "react";
 
+// 전역 변수 선언을 위한 타입 확장
+declare global {
+  interface Window {
+    isImageManuallySet: boolean;
+  }
+}
+
+// 페이지 로드 시 초기화
+if (typeof window !== "undefined") {
+  window.isImageManuallySet = false;
+}
+
 type CoverImageContext = {
   coverImageRef: React.RefObject<HTMLDivElement>;
   imageSrc: string;
@@ -40,6 +52,10 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
 
   const changeImage = (src: string) => {
     setImageSrc(src);
+    // 이미지가 설정되면 전역 플래그를 true로 설정
+    if (typeof window !== "undefined") {
+      window.isImageManuallySet = true;
+    }
   };
 
   const changeFontTheme = (targetFontTheme: FontTheme) => {
