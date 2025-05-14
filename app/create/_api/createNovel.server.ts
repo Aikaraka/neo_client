@@ -17,7 +17,7 @@ export async function createNovel(novel: z.infer<typeof createNovelSchema>) {
       {
         user_id: user.id,
         title: novel.title,
-        image_url: novel.cover_image_url ?? "",
+        image_url: novel.cover_image_url,
         settings: novel.settings,
         characters:
           novel.characters.length > 0
