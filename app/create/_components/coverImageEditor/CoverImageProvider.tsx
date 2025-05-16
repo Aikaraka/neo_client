@@ -1,20 +1,19 @@
 "use client";
 
-import React, { createContext, useContext, useRef, useState, useEffect } from "react";
+import React, { createContext, useContext, useRef, useState } from "react";
 
-type CoverImageContextType = {
+// "정상 작동 코드"에 명시된 타입명과 구조를 따릅니다.
+type CoverImageContextValue = { 
   coverImageRef: React.RefObject<HTMLDivElement>;
-  imageSrc: string; // For display (Data URL or object URL)
-  imageFile: File | null; // The actual image file
-  changeImage: (src: string, file?: File | null) => void; // Accept optional File object
+  imageSrc: string;
+  changeImage: (src: string) => void;
   fontTheme: FontTheme;
   changeFontTheme: (targetFontTheme: FontTheme) => void;
   fontStyle: FontStyle;
   changeFontStyle: (targetFontStyle: FontStyle) => void;
-  isImageManuallySet: boolean;
 };
 
-const CoverImageContext = createContext<CoverImageContextType | undefined>(
+const CoverImageContext = createContext<CoverImageContextValue | undefined>(
   undefined
 );
 
@@ -37,69 +36,23 @@ type FontTheme = keyof typeof fontThemes;
 function CoverImageProvider({ children }: { children: React.ReactNode }) {
   const coverImageRef = useRef<HTMLDivElement>(null);
   const [imageSrc, setImageSrc] = useState<string>("");
-  const [imageFile, setImageFile] = useState<File | null>(null); // Add state for the image file
-  const [fontTheme, setFontTheme] = useState<FontTheme>("ocean");
-  const [fontStyle, setFontStyle] = useState<FontStyle>("봄바람체");
-  const [isImageManuallySet, setIsImageManuallySet] = useState<boolean>(false);
+  // "정상 작동 코드"의 상태 변수명과 초기값을 따릅니다.
+  const [fontTheme, setFontThemeState] = useState<FontTheme>("ocean"); 
+  const [fontStyle, setFontStyleState] = useState<FontStyle>("봄바람체");
 
-  // 컴포넌트 언마운트 시 blob URL 해제
-  useEffect(() => {
-    return () => {
-      if (imageSrc && imageSrc.startsWith("blob:")) {
-        URL.revokeObjectURL(imageSrc);
-      }
-    };
-  }, [imageSrc]); // imageSrc가 변경될 때마다 이 effect의 cleanup 함수가 이전 URL을 해제하도록 함 (새 URL 생성 직후)
-
-  const changeImage = (src: string, fileObject?: File | null) => {
-    const newSrc = src || ""; // Ensure src is not null/undefined
-    let displaySrc = newSrc;
-
-    // If a file object is provided, prioritize it for the File state
-    // and create an object URL for display if src is not already a data/http URL
-    if (fileObject) {
-      setImageFile(fileObject);
-      // Check if the provided src is already a usable URL (data or http), otherwise create an object URL
-      if (!newSrc.startsWith("data:") && !newSrc.startsWith("http")) {
-         // Revoke previous object URL if it exists and a new file is being set
-        if (imageSrc.startsWith("blob:") && imageFile) {
-          URL.revokeObjectURL(imageSrc);
-        }
-        displaySrc = URL.createObjectURL(fileObject);
-      }
-    } else if (!newSrc) { // If src is empty (image removed)
-      // Revoke previous object URL if it exists
-      if (imageSrc.startsWith("blob:") && imageFile) {
-        URL.revokeObjectURL(imageSrc);
-      }
-      setImageFile(null);
-    }
-    // If only src is provided (e.g., from AI generator, which gives a URL)
-    // and it's different from the current imageFile's object URL
-    else if (newSrc && !fileObject) {
-        if (imageSrc.startsWith("blob:") && imageFile) {
-          URL.revokeObjectURL(imageSrc);
-        }
-        setImageFile(null); // AI generated image, no local file
-    }
-
-
-    setImageSrc(displaySrc);
-
-    if (displaySrc) {
-      setIsImageManuallySet(true);
-    } else {
-      setIsImageManuallySet(false);
-    }
+  const changeImage = (src: string) => {
+    setImageSrc(src);
   };
 
   const changeFontTheme = (targetFontTheme: FontTheme) => {
+    // "정상 작동 코드"의 로직을 따릅니다. (setFont -> setFontThemeState)
     if (fontTheme === targetFontTheme) return;
-    setFontTheme(targetFontTheme);
+    setFontThemeState(targetFontTheme);
   };
   const changeFontStyle = (targetFontStyle: FontStyle) => {
+    // "정상 작동 코드"의 로직을 따릅니다. (setFontStyle -> setFontStyleState)
     if (fontStyle === targetFontStyle) return;
-    setFontStyle(targetFontStyle);
+    setFontStyleState(targetFontStyle);
   };
 
   return (
@@ -108,18 +61,17 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
         coverImageRef,
         changeImage,
         imageSrc,
-        imageFile, // Provide imageFile in context
         changeFontTheme,
         fontTheme,
         fontStyle,
         changeFontStyle,
-        isImageManuallySet,
       }}
     >
       {children}
     </CoverImageContext.Provider>
   );
 }
+
 function useCoverImageContext() {
   const coverImageContext = useContext(CoverImageContext);
   if (!coverImageContext) {
@@ -129,5 +81,7 @@ function useCoverImageContext() {
   }
   return coverImageContext;
 }
+
+// "정상 작동 코드"에서 export 했던 타입을 따릅니다.
 export { CoverImageProvider, useCoverImageContext, fontThemes, fontStyles };
-export type { FontTheme, FontStyle }; // FontStyle도 export
+export type { FontTheme, FontStyle }; // FontStyle도 명시적으로 export (현행 유지)
