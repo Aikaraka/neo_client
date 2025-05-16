@@ -7,12 +7,19 @@ import { Input } from "@/components/ui/input";
 import { usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useFormContext } from "react-hook-form";
+import { useCoverImageContext } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 
 const TOAST_ERROR_TITLE = "양식 오류";
 const TOAST_ERROR_DESCRIPTION = "형식에 맞게 설정해주세요!";
+const TOAST_IMAGE_REQUIRED_TITLE = "표지 이미지 필요";
+const TOAST_IMAGE_REQUIRED_DESCRIPTION = "표지 이미지를 업로드하거나 AI로 생성해주세요.";
+const TOAST_IMAGE_CAPTURE_ERROR_TITLE = "이미지 처리 오류";
+const TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION = "표지 이미지 처리에 실패했습니다. 다시 시도해주세요.";
+
 export default function CharactorAndPlotDesign() {
   const { toast } = useToast();
-  const { nextPage } = usePageContext();
+  const { nextPage, setCapturedImageFile } = usePageContext();
+  const { isImageManuallySet, imageFile } = useCoverImageContext();
   const {
     formState: { errors },
     trigger,
@@ -25,14 +32,23 @@ export default function CharactorAndPlotDesign() {
   const title = watch("title");
 
   const handleNext = async () => {
-    const result = await Promise.all([
-      trigger("characters"),
-      trigger("plot"),
-      trigger("title"),
-    ]);
-    const validity = result.every((v) => v);
+    if (!isImageManuallySet || !imageFile) {
+      toast({
+        title: TOAST_IMAGE_REQUIRED_TITLE,
+        description: TOAST_IMAGE_REQUIRED_DESCRIPTION,
+        variant: "destructive",
+      });
+      return;
+    }
 
-    if (!validity) {
+    const result = await Promise.all([
+      trigger("title"),
+      trigger("plot"),
+      trigger("characters"),
+    ]);
+    const formValidity = result.every((v) => v);
+
+    if (!formValidity) {
       toast({
         title: TOAST_ERROR_TITLE,
         description: TOAST_ERROR_DESCRIPTION,
@@ -40,6 +56,9 @@ export default function CharactorAndPlotDesign() {
       });
       return;
     }
+
+    setCapturedImageFile(imageFile);
+
     nextPage();
   };
 
@@ -87,7 +106,7 @@ export default function CharactorAndPlotDesign() {
         <RelationshipForm />
       </section>
       <button
-        type="submit"
+        type="button"
         onClick={handleNext}
         className={`w-full bg-primary text-white py-3 rounded-lg`}
       >
