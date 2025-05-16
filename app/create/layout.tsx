@@ -16,14 +16,14 @@ const bombaram = localFont({
 
 export default function CreateLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <Toaster>
       <main className="w-full h-full pb-20 md:pb-0 flex flex-col md:bg-input justify-center items-center">
         <MainContent className="relative">
-          <PageProvider maxPage={2} variants={{ variant: "header" }}>
+          <PageProvider maxPage={1} variants={{ variant: "header" }}>
             {children}
           </PageProvider>
         </MainContent>
