@@ -37,14 +37,16 @@ export default function CreateNovel() {
   const form = useForm<z.infer<typeof createNovelSchema>>({
     resolver: zodResolver(createNovelSchema),
     defaultValues: {
+      title: "",
+      plot: "",
+      characters: [],
       background: {
         start: "",
         detailedLocations: [],
       },
-      characters: [],
       ending: "happy",
       mood: [],
-      plot: "",
+      cover_image_url: "",
       settings: {
         hasAdultContent: false,
         hasViolence: false,
