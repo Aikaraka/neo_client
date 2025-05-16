@@ -33,7 +33,7 @@ export function CoverImageUploader() {
     const fileName = `cropped_cover_${Date.now()}.png`;
     const imageFile = dataURLToFile(croppedImageDataUrl, fileName);
     
-    changeImage(croppedImageDataUrl, imageFile);
+    changeImage(croppedImageDataUrl);
     setShowImageCropper(false);
     setOriginalImageSrcForCropping(null);
   };
