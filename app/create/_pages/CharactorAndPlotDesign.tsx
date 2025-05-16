@@ -20,7 +20,7 @@ const TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION = "표지 이미지 처리에 실패
 export default function CharactorAndPlotDesign() {
   const { toast } = useToast();
   const { nextPage, setCapturedImageDataUrl } = usePageContext();
-  const { isImageManuallySet, imageFile, coverImageRef } = useCoverImageContext();
+  const { imageSrc, coverImageRef } = useCoverImageContext();
   const {
     formState: { errors },
     trigger,
@@ -33,7 +33,7 @@ export default function CharactorAndPlotDesign() {
   const title = watch("title");
 
   const handleNext = async () => {
-    if (!isImageManuallySet) {
+    if (!imageSrc) {
       toast({
         title: TOAST_IMAGE_REQUIRED_TITLE,
         description: TOAST_IMAGE_REQUIRED_DESCRIPTION,
