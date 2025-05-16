@@ -1,4 +1,5 @@
 import AiAssistButton from "@/app/create/_components/aiAssist";
+import CoverImageEditor from "@/app/create/_components/coverImageEditor/CoverImageEditor";
 import { CharacterForm } from "@/app/create/_components/CharacterForm";
 import { RelationshipForm } from "@/app/create/_components/RelationshipForm";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
@@ -54,6 +55,9 @@ export default function CharactorAndPlotDesign() {
             {...register("title")}
           />
           <p className="text-destructive">{errors.title?.message}</p>
+        </div>
+        <div className="flex flex-col gap-6">
+          <CoverImageEditor />
         </div>
       </section>
       <section className="mb-8">
