@@ -20,6 +20,11 @@ type PageContextType = {
   nextPage: () => void;
   prevPage: () => void;
   prevButtonVisible: boolean;
+  isLastStep: boolean;
+  attemptedSubmit: boolean;
+  setAttemptedSubmit: (attempted: boolean) => void;
+  capturedImageFile: File | null;
+  setCapturedImageFile: (file: File | null) => void;
 };
 
 const PageContext = createContext<PageContextType | undefined>(undefined);
@@ -40,14 +45,20 @@ export const PageProvider = ({
   variants = { variant: "default" },
 }: PageProviderProps) => {
   const [currPage, setCurrPage] = useState(initialPage ?? 0);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const [capturedImageFile, setCapturedImageFile] = useState<File | null>(null);
   const navigation = useRouter();
 
   const prevButtonVisible = currPage > 0 && currPage <= maxPage && prevButton;
+  const isLastStep = currPage === maxPage;
+
   function nextPage() {
+    setAttemptedSubmit(false);
     setCurrPage((prev) => (prev < maxPage ? prev + 1 : prev));
   }
 
   function prevPage() {
+    setAttemptedSubmit(false);
     if (!currPage) {
       navigation.back();
     } else {
@@ -63,6 +74,11 @@ export const PageProvider = ({
         nextPage,
         prevPage,
         prevButtonVisible,
+        isLastStep,
+        attemptedSubmit,
+        setAttemptedSubmit,
+        capturedImageFile,
+        setCapturedImageFile,
       }}
     >
       {children}
