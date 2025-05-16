@@ -20,7 +20,7 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server";
+import { saveBase64ToStorage } from "@/app/create/_api/imageStorage.server";
 
 // PageComponent는 2단계로 유지됩니다.
 const PageComponent: Record<number, React.FC<any>> = {
@@ -32,7 +32,7 @@ const SUBMIT_ERROR_TITLE = "소설 생성 실패";
 
 // page.tsx 내부의 로직을 담는 컴포넌트 (컨텍스트 사용 위함)
 function CreateNovelPageContent() {
-  const { currPage, prevButtonVisible, prevPage, capturedImageFile } = usePageContext();
+  const { currPage, prevButtonVisible, prevPage, capturedImageDataUrl } = usePageContext();
   const { isImageManuallySet } = useCoverImageContext();
   const router = useRouter();
   const form = useForm<z.infer<typeof createNovelSchema>>({
@@ -66,26 +66,17 @@ function CreateNovelPageContent() {
   const onSubmit = async (data: z.infer<typeof createNovelSchema>) => {
     if (typeof window === "undefined") return;
 
-    if (!isImageManuallySet) {
-      toast({
-        title: "표지 이미지 필요",
-        description: "표지 이미지를 업로드하거나 AI로 생성해주세요.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!capturedImageFile) {
+    if (!capturedImageDataUrl) {
       toast({
         title: SUBMIT_ERROR_TITLE,
-        description: "캡처된 표지 이미지가 없습니다. 이전 단계로 돌아가 다시 시도해주세요.",
+        description: "표지 이미지가 준비되지 않았습니다. 이전 단계에서 표지를 설정해주세요.",
         variant: "destructive",
       });
       return;
     }
 
     try {
-      const coverImageUrl = await saveImageFileToStorage(capturedImageFile);
+      const coverImageUrl = await saveBase64ToStorage(capturedImageDataUrl);
 
       mutate({ ...data, cover_image_url: coverImageUrl });
     } catch (error: any) {

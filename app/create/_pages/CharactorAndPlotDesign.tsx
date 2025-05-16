@@ -8,6 +8,7 @@ import { usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useFormContext } from "react-hook-form";
 import { useCoverImageContext } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
+import * as htmlToImage from "html-to-image";
 
 const TOAST_ERROR_TITLE = "양식 오류";
 const TOAST_ERROR_DESCRIPTION = "형식에 맞게 설정해주세요!";
@@ -18,8 +19,8 @@ const TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION = "표지 이미지 처리에 실패
 
 export default function CharactorAndPlotDesign() {
   const { toast } = useToast();
-  const { nextPage, setCapturedImageFile } = usePageContext();
-  const { isImageManuallySet, imageFile } = useCoverImageContext();
+  const { nextPage, setCapturedImageDataUrl } = usePageContext();
+  const { isImageManuallySet, imageFile, coverImageRef } = useCoverImageContext();
   const {
     formState: { errors },
     trigger,
@@ -32,10 +33,35 @@ export default function CharactorAndPlotDesign() {
   const title = watch("title");
 
   const handleNext = async () => {
-    if (!isImageManuallySet || !imageFile) {
+    if (!isImageManuallySet) {
       toast({
         title: TOAST_IMAGE_REQUIRED_TITLE,
         description: TOAST_IMAGE_REQUIRED_DESCRIPTION,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!coverImageRef.current) {
+      toast({
+        title: TOAST_IMAGE_CAPTURE_ERROR_TITLE,
+        description: "캡처할 표지 이미지 영역이 없습니다.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const imageDataUrl = await htmlToImage.toPng(coverImageRef.current, {
+        width: 210,
+        height: 270,
+      });
+      setCapturedImageDataUrl(imageDataUrl);
+    } catch (error) {
+      console.error("표지 이미지 캡처 중 에러:", error);
+      toast({
+        title: TOAST_IMAGE_CAPTURE_ERROR_TITLE,
+        description: TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION,
         variant: "destructive",
       });
       return;
@@ -57,7 +83,7 @@ export default function CharactorAndPlotDesign() {
       return;
     }
 
-    setCapturedImageFile(imageFile);
+    // setCapturedImageFile(imageFile);
 
     nextPage();
   };
