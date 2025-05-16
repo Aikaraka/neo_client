@@ -20,7 +20,9 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { saveBase64ToStorage } from "@/app/create/_api/imageStorage.server";
+import * as htmlToImage from "html-to-image";
+import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server";
+import { dataURLToFile } from "@/utils/image";
 
 // PageComponent는 2단계로 유지됩니다.
 const PageComponent: Record<number, React.FC<any>> = {
@@ -33,7 +35,6 @@ const SUBMIT_ERROR_TITLE = "소설 생성 실패";
 // page.tsx 내부의 로직을 담는 컴포넌트 (컨텍스트 사용 위함)
 function CreateNovelPageContent() {
   const { currPage, prevButtonVisible, prevPage, capturedImageDataUrl } = usePageContext();
-  const { isImageManuallySet } = useCoverImageContext();
   const router = useRouter();
   const form = useForm<z.infer<typeof createNovelSchema>>({
     resolver: zodResolver(createNovelSchema),
@@ -64,26 +65,58 @@ function CreateNovelPageContent() {
   });
 
   const onSubmit = async (data: z.infer<typeof createNovelSchema>) => {
-    if (typeof window === "undefined") return;
-
-    if (!capturedImageDataUrl) {
-      toast({
-        title: SUBMIT_ERROR_TITLE,
-        description: "표지 이미지가 준비되지 않았습니다. 이전 단계에서 표지를 설정해주세요.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
-      const coverImageUrl = await saveBase64ToStorage(capturedImageDataUrl);
+      // 폰트가 모두 로드될 때까지 기다립니다. (캡처는 CharactorAndPlotDesign에서 이미 수행)
+      // await document.fonts.ready; // 이 부분은 최종 제출 시점이므로 캡처와 직접적 관련 X, 필요시 유지
 
-      mutate({ ...data, cover_image_url: coverImageUrl });
-    } catch (error: any) {
-      console.error("소설 생성 중 에러:", error);
+      if (!capturedImageDataUrl) {
+        toast({
+          title: SUBMIT_ERROR_TITLE,
+          description: "표지 이미지가 준비되지 않았습니다. 이전 단계에서 표지를 설정해주세요.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // CharactorAndPlotDesign에서 이미 캡처된 imageDataUrl 사용
+      // const editorElement = document.getElementById("cover-image-editor"); -- 삭제
+      // if (!editorElement) { -- 삭제
+      //   toast({ -- 삭제
+      //     title: SUBMIT_ERROR_TITLE, -- 삭제
+      //     description: "표지 편집기 요소를 찾을 수 없습니다.", -- 삭제
+      //     variant: "destructive", -- 삭제
+      //   }); -- 삭제
+      //   return; -- 삭제
+      // } -- 삭제
+
+      // const imageDataUrl = await htmlToImage.toPng( -- 삭제
+      //   editorElement, -- 삭제
+      //   { width: 210, height: 270 } -- 삭제
+      // ); -- 삭제
+      
+      const imageFile = dataURLToFile(capturedImageDataUrl, "coverImage.png");
+      const coverImageUrl = await saveImageFileToStorage(imageFile);
+
+      const isValid = await form.trigger();
+      if (isValid) {
+        mutate({ ...data, cover_image_url: coverImageUrl });
+      } else {
+        console.log("Form validation failed:", form.formState.errors);
+        toast({
+          title: "입력 값 오류",
+          description: "입력 내용을 다시 확인해주세요.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("소설 생성 중 오류:", error);
+      let description = "소설 생성 중 오류가 발생했습니다.";
+      if (error instanceof Error) {
+        description = error.message;
+      }
       toast({
         title: SUBMIT_ERROR_TITLE,
-        description: error.message || "소설 생성 중 알 수 없는 오류가 발생했습니다.",
+        description: description,
         variant: "destructive",
       });
     }
