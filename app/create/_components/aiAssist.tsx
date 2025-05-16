@@ -11,13 +11,21 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Sparkles } from "lucide-react";
-import { HtmlHTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import { useFormContext } from "react-hook-form";
+
+interface AiAssistButtonProps extends HTMLAttributes<HTMLButtonElement> {
+  targetField: AIAssistRequest['targetField'];
+  characterIndex?: AIAssistRequest['characterIndex'];
+  relationshipIndex?: AIAssistRequest['relationshipIndex'];
+}
 
 export default function AiAssistButton({
   targetField,
-  ...props
-}: Omit<AIAssistRequest, "formData"> & HtmlHTMLAttributes<HTMLButtonElement>) {
+  characterIndex,
+  relationshipIndex,
+  ...restProps
+}: AiAssistButtonProps) {
   const { setValue, getValues } = useFormContext<CreateNovelForm>();
   const { toast } = useToast();
   const { mutate, isPending } = useMutation({
@@ -26,15 +34,24 @@ export default function AiAssistButton({
       switch (targetField) {
         case "characters":
           const characters = getValues("characters");
-          characters[props.characterIndex ?? 0].description = content as string;
-          setValue("characters", characters);
+          if (characterIndex !== undefined && characters[characterIndex]) {
+            characters[characterIndex].description = content as string;
+            setValue("characters", characters);
+          }
           return;
         case "relationships":
-          const relationships = getValues("characters");
-          relationships[props.characterIndex ?? 0].relationships[
-            props.relationshipIndex ?? 0
-          ].relationship = content as string;
-          setValue("characters", relationships);
+          const currentCharacters = getValues("characters");
+          if (
+            characterIndex !== undefined &&
+            currentCharacters[characterIndex] &&
+            relationshipIndex !== undefined &&
+            currentCharacters[characterIndex].relationships[relationshipIndex]
+          ) {
+            currentCharacters[characterIndex].relationships[
+              relationshipIndex
+            ].relationship = content as string;
+            setValue("characters", currentCharacters);
+          }
           return;
       }
       setValue(
@@ -54,25 +71,18 @@ export default function AiAssistButton({
     const request: AIAssistRequest = {
       formData: getValues(),
       targetField,
+      characterIndex: targetField === "characters" || targetField === "relationships" ? characterIndex : undefined,
+      relationshipIndex: targetField === "relationships" ? relationshipIndex : undefined,
     };
-    switch (targetField) {
-      case "plot":
-        if (request.formData.plot.length < 10) {
-          toast({
-            title: "AI 어시스턴트 오류",
-            description: "줄거리가 너무 짧습니다.",
-            variant: "destructive",
-          });
-          return;
-        }
-      case "characters":
-        request.characterIndex = props.characterIndex;
-        break;
-      case "relationships":
-        request.relationshipIndex = props.relationshipIndex;
-        break;
-      default:
-        break;
+    if (targetField === "plot") {
+      if (request.formData.plot.length < 10) {
+        toast({
+          title: "AI 어시스턴트 오류",
+          description: "줄거리가 너무 짧습니다.",
+          variant: "destructive",
+        });
+        return;
+      }
     }
     mutate(request);
   }
@@ -80,11 +90,10 @@ export default function AiAssistButton({
   return (
     <Button
       type="button"
-      className={cn(props.className, `hover:bg-transparent z-10 bg-white`)}
       variant={"ghost"}
       onClick={assistFieldValue}
       disabled={isPending}
-      {...props}
+      {...restProps}
     >
       <Sparkles />
       {isPending ? "생성중" : "AI 보정"}
