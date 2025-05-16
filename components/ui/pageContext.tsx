@@ -25,6 +25,8 @@ type PageContextType = {
   setAttemptedSubmit: (attempted: boolean) => void;
   capturedImageFile: File | null;
   setCapturedImageFile: (file: File | null) => void;
+  capturedImageDataUrl: string | null;
+  setCapturedImageDataUrl: (dataUrl: string | null) => void;
 };
 
 const PageContext = createContext<PageContextType | undefined>(undefined);
@@ -47,6 +49,7 @@ export const PageProvider = ({
   const [currPage, setCurrPage] = useState(initialPage ?? 0);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [capturedImageFile, setCapturedImageFile] = useState<File | null>(null);
+  const [capturedImageDataUrl, setCapturedImageDataUrl] = useState<string | null>(null);
   const navigation = useRouter();
 
   const prevButtonVisible = currPage > 0 && currPage <= maxPage && prevButton;
@@ -79,6 +82,8 @@ export const PageProvider = ({
         setAttemptedSubmit,
         capturedImageFile,
         setCapturedImageFile,
+        capturedImageDataUrl,
+        setCapturedImageDataUrl,
       }}
     >
       {children}
