@@ -18,7 +18,7 @@ export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
     <BookShelf>
       {novelList?.map((novel) => (
         <Book
-          key={`novel-${novel.id ?? Math.random() * 100}`}
+          key={novel.id}
           href={`/novel/${novel.id}/detail`}
         >
           <Image
@@ -91,8 +91,26 @@ export async function RecommendedNovelList() {
 
 export async function TopNovelList() {
   try {
-    const novelList = await getNovelsByView();
+    const rawNovelList = await getNovelsByView();
     //TODO: type 변환
+    const novelList: Tables<"novels">[] = rawNovelList.map(viewNovel => ({
+      // Map fields from viewNovel to Tables<"novels">
+      id: viewNovel.novel_id,
+      title: viewNovel.title,
+      image_url: viewNovel.image_url, // string is assignable to string | null
+      // Provide default/placeholder values for other required fields
+      background: {}, // Assuming Json can be an empty object
+      characters: {}, // Assuming Json can be an empty object
+      created_at: new Date().toISOString(), // Or a suitable default string
+      ending: "",
+      mood: [],
+      plot: "", // Top list might not show plot here
+      settings: {}, // Assuming Json can be an empty object
+      updated_at: new Date().toISOString(), // Or a suitable default string
+      user_id: null,
+      // Fields like chat_count, rank from viewNovel are not in Tables<"novels">
+      // and are thus omitted in this transformation.
+    }));
     return <NovelList novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
