@@ -9,7 +9,8 @@ corepack enable
 
 # pnpm 스토어 압축 풀기
 if [ ! -d .pnpm-store ]; then
-  echo "Extracting .pnpm-store.tar.gz"
+  echo "Reassembling pnpm store parts"
+  cat .store-split/pnpm-store.part.* > .pnpm-store.tar.gz
   tar -xzf .pnpm-store.tar.gz
 fi
 export PNPM_HOME=$PWD/.pnpm-store
