@@ -34,6 +34,8 @@ export default function CoverImageEditor() {
             className="w-full h-full object-fill"
             draggable={false}
             onDragStart={(e) => e.preventDefault()}
+            unoptimized
+            crossOrigin="anonymous"
           />
         )}
         <TextEdit />

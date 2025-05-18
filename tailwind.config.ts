@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss";
+import type { Config, PluginAPI } from "tailwindcss/types/config";
 import tailwindAnimatePlugin from "tailwindcss-animate";
 
 const config: Config = {
@@ -103,7 +103,7 @@ const config: Config = {
   },
   plugins: [
     tailwindAnimatePlugin,
-    function ({ addUtilities }) {
+    function ({ addUtilities }: PluginAPI) {
       addUtilities({
         ".text-neo": {
           background: "var(--neo)",
