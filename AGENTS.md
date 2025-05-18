@@ -4,21 +4,15 @@
 
 ## Setup
 ```bash
-# pnpm 준비 (빌트-인 버전 사용, 네트워크 X)
-corepack enable
-
-# pnpm 스토어 압축 풀기
-if [ ! -d .pnpm-store ]; then
-  echo "Reassembling pnpm store parts"
-  cat .store-split/pnpm-store.part.* > .pnpm-store.tar.gz
-  tar -xzf .pnpm-store.tar.gz
+# node_modules 아카이브(분할 gzip) 복원 ─ 완전 오프라인
+if [ ! -d node_modules ]; then
+  echo "Reassembling node_modules parts"
+  cat .store-split/nm.part.* > node_modules.tar.gz
+  tar -xzf node_modules.tar.gz
 fi
-export PNPM_HOME=$PWD/.pnpm-store
 
-# 의존성 설치: 오프라인 → 온라인
-pnpm install --offline --frozen-lockfile --strict-peer-dependencies \
-  || pnpm install  --frozen-lockfile --strict-peer-dependencies
-```
+# pnpm/네트워크 불필요 → 바로 test 단계로 이동
++```
 
 ## Test
 ```bash
@@ -40,10 +34,19 @@ Next.js 프로덕션 빌드
 * 브랜칭: `feature/*`, `bugfix/*`, `hotfix/*`
 * CI 배포: `main` 및 `release/*` 브랜치만 프로덕션 배포
 
-## 캐시 갱신 방법
+## 아카이브 갱신 방법
 
-1. 로컬에서 `pnpm fetch --store-dir .pnpm-store`
-2. `tar -I zstd -cf .pnpm-store.tar.zst .pnpm-store`
-3. `git add .pnpm-store.tar.zst && git commit && git push`
+1. **네트워크 가능한 PC**에서  
+   ```bash
+   rm -rf node_modules && pnpm install              # 최신 의존성 반영
+   tar -I 'gzip -9' -cf node_modules.tar.gz node_modules
+   split -b 95m -d node_modules.tar.gz .store-split/nm.part.
+   ```
+2. 커밋 & 푸시  
+   ```bash
+   git add .store-split AGENTS.md
+   git commit -m "chore: refresh offline node_modules archive"
+   git push
+   ```
 
 ── End of AGENTS.md ──
