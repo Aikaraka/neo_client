@@ -4,23 +4,19 @@
 
 ## Setup
 ```bash
-0. Node / pnpm 준비
-    corepack enable
-    corepack prepare pnpm@8 --activate
+# pnpm 준비 (빌트-인 버전 사용, 네트워크 X)
+corepack enable
 
-    # pnpm 스토어 압축 풀기 (.tar.zst → zstd 필요)
-    if [ ! -d .pnpm-store ]; then
-    echo "Extracting .pnpm-store.tar.zst"
-    tar -I zstd -xf .pnpm-store.tar.zst
-    fi
+# pnpm 스토어 압축 풀기
+if [ ! -d .pnpm-store ]; then
+  echo "Extracting .pnpm-store.tar.gz"
+  tar -xzf .pnpm-store.tar.gz
+fi
+export PNPM_HOME=$PWD/.pnpm-store
 
-    # 스토어 경로 지정
-    export PNPM_HOME=$PWD/.pnpm-store
-
-    # 의존성 설치 (오프라인 → 온라인 → npm ci)
-    pnpm install --offline --frozen-lockfile --strict-peer-dependencies \
-    || pnpm install  --frozen-lockfile --strict-peer-dependencies \
-    || npm ci --no-audit --fund=false
+# 의존성 설치: 오프라인 → 온라인
+pnpm install --offline --frozen-lockfile --strict-peer-dependencies \
+  || pnpm install  --frozen-lockfile --strict-peer-dependencies
 ```
 
 ## Test
