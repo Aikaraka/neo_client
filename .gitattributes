@@ -1,5 +1,4 @@
 .pnpm-store.tar.gz filter=lfs diff=lfs merge=lfs -text
-.pnpm-store.tar.zst filter=lfs diff=lfs merge=lfs -text
 *.tar.zst filter=lfs diff=lfs merge=lfs -text
 *.tar.gz filter=lfs diff=lfs merge=lfs -text
 .pnpm-store.tar.gz !text -filter -merge -diff
