@@ -14,9 +14,18 @@ import Image from "next/image";
 import { HTMLAttributes, useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
+import { useEditor, EditorContent } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import TextStyle from "@tiptap/extension-text-style";
+import FontSize from "@tiptap/extension-font-size";
 
 export default function CoverImageEditor() {
   const { coverImageRef, imageSrc } = useCoverImageContext();
+  const [showTitle, setShowTitle] = useState(true);
+  const [fontSize, setFontSize] = useState(BASE_FONT_SIZE);
+
+  const changeFontSize = (delta: number) =>
+    setFontSize((prev) => Math.max(12, prev + delta));
 
   return (
     <>
@@ -38,9 +47,15 @@ export default function CoverImageEditor() {
             crossOrigin="anonymous"
           />
         )}
-        <TextEdit />
+        {showTitle && <TextEdit fontSize={fontSize} />}
       </div>
       <ColorSelect />
+      <TitleControls
+        show={showTitle}
+        toggle={() => setShowTitle((prev) => !prev)}
+        increase={() => changeFontSize(2)}
+        decrease={() => changeFontSize(-2)}
+      />
       <FontSelect />
       <CoverImageUploader />
       <CoverImageGenerator />
@@ -52,9 +67,9 @@ const DEFAULT_WIDTH = 200,
   DEFAULT_HEIGHT = 100;
 const BASE_FONT_SIZE = 28;
 
-function TextEdit() {
-  const { getValues } = useFormContext<CreateNovelForm>();
-  const title = getValues("title");
+function TextEdit({ fontSize }: { fontSize: number }) {
+  const { watch, setValue } = useFormContext<CreateNovelForm>();
+  const title = watch("title");
   const { fontTheme, fontStyle } = useCoverImageContext();
   const [size, setSize] = useState({
     width: DEFAULT_WIDTH,
@@ -62,15 +77,37 @@ function TextEdit() {
   });
   const [showEditMode, setShowEditMode] = useState(true);
 
-  const dynamicFontSize = (size.width / DEFAULT_WIDTH) * BASE_FONT_SIZE;
+  const editor = useEditor({
+    extensions: [StarterKit, TextStyle, FontSize],
+    content: title,
+    editorProps: {
+      attributes: {
+        class:
+          "outline-none w-full h-full bg-transparent text-box break-words overflow-visible cursor-pointer text-transparent leading-[31px] font-bold tracking-wider scrollbar-hidden",
+      },
+    },
+    onUpdate({ editor }) {
+      setValue("title", editor.getText());
+    },
+  });
+
+  useEffect(() => {
+    if (editor && title !== editor.getText()) {
+      editor.commands.setContent(title);
+    }
+  }, [title, editor]);
+
+  const dynamicFontSize = (size.width / DEFAULT_WIDTH) * fontSize;
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     function handleClickTextzone(event: MouseEvent) {
       if (wrapperRef.current) {
-        wrapperRef.current.contains(event.target as Node)
-          ? setShowEditMode(true)
-          : setShowEditMode(false);
+        if (wrapperRef.current.contains(event.target as Node)) {
+          setShowEditMode(true);
+        } else {
+          setShowEditMode(false);
+        }
       }
     }
 
@@ -127,15 +164,14 @@ function TextEdit() {
       }`}
     >
       <div ref={wrapperRef}>
-        <div
-          className={`text-box w-full h-full break-words overflow-visible cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden relative`}
+        <EditorContent
+          editor={editor}
           style={{
             fontFamily: fontStyles[fontStyle],
             fontSize: `${dynamicFontSize}px`,
           }}
-        >
-          {title}
-        </div>
+          className={`${fontThemes[fontTheme]} relative`}
+        />
       </div>
     </Rnd>
   );
@@ -156,6 +192,34 @@ function ColorSelect() {
           onClick={() => changeFontTheme(color as keyof typeof fontThemes)}
         ></Button>
       ))}
+    </div>
+  );
+}
+
+function TitleControls({
+  show,
+  toggle,
+  increase,
+  decrease,
+}: {
+  show: boolean;
+  toggle: () => void;
+  increase: () => void;
+  decrease: () => void;
+}) {
+  return (
+    <div className="flex gap-2 self-center mt-2">
+      <Button type="button" onClick={toggle} size="sm">
+        {show ? "숨기기" : "보이기"}
+      </Button>
+      <div className="flex gap-1">
+        <Button type="button" onClick={decrease} size="sm">
+          -
+        </Button>
+        <Button type="button" onClick={increase} size="sm">
+          +
+        </Button>
+      </div>
     </div>
   );
 }
