@@ -16,11 +16,9 @@ export function ChatInput() {
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
+      const value = textareaRef.current?.value;
+      sendNovelProcessMessage(!value, value);
       textareaRef.current!.value = "";
-      sendNovelProcessMessage(
-        !textareaRef.current?.value,
-        textareaRef.current?.value
-      );
     }
   };
 

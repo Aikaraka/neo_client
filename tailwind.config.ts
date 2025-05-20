@@ -93,6 +93,7 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        'neo-purple': '#9125B1',
       },
       borderRadius: {
         lg: "var(--radius)",
