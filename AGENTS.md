@@ -4,7 +4,7 @@
 
 ## Setup
 ```bash
-# node_modules 아카이브(분할 gzip) 복원 ─ 완전 오프라인
+# node_modules 아카이브(분할 gzip) 복원 ─ pnpm install로 이미 깔려있을 수 있음.
 if [ ! -d node_modules ]; then
   echo "Reassembling node_modules parts"
   cat .store-split/nm.part.* > node_modules.tar.gz
@@ -12,7 +12,7 @@ if [ ! -d node_modules ]; then
 fi
 
 # pnpm/네트워크 불필요 → 바로 test 단계로 이동
-+```
+```
 
 ## Test
 ```bash
