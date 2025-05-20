@@ -109,7 +109,13 @@ export default async function NovelDetail({
               {/* Novel Summary */}
               <div className="mt-[550px] mb-6 p-1 flex flex-col gap-5 md:mt-0 md:w-full">
                 <NovelPlot plot={novel.plot} />
-                <NovelCharacters characters={novel.characters as Character[]} />
+                <NovelCharacters
+                  characters={
+                    Array.isArray(novel.characters)
+                      ? (novel.characters as unknown as Character[])
+                      : []
+                  }
+                />
               </div>
               <section className="mb-6 p-1 flex flex-col gap-4 md:hidden">
                 <div className="flex flex-col gap-2">
