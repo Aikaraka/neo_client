@@ -3,6 +3,7 @@ import CoverImageEditor from "@/app/create/_components/coverImageEditor/CoverIma
 import { CharacterForm } from "@/app/create/_components/CharacterForm";
 import { RelationshipForm } from "@/app/create/_components/RelationshipForm";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
+import { Input } from "@/components/ui/input";
 import { usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { useFormContext } from "react-hook-form";
@@ -91,9 +92,18 @@ export default function CharactorAndPlotDesign() {
     <div className="w-full p-4">
       <section className="mb-8 flex flex-col gap-4">
         <h2 className="text-xl ">소설 제목</h2>
-        <CoverImageEditor />
-        <input type="hidden" value={title} {...register("title")}/>
-        <p className="text-destructive">{errors.title?.message}</p>
+        <div className="relative">
+          <Input
+            type="text"
+            maxLength={20}
+            value={title}
+            {...register("title")}
+          />
+          <p className="text-destructive">{errors.title?.message}</p>
+        </div>
+        <div className="flex flex-col gap-6">
+          <CoverImageEditor />
+        </div>
       </section>
       <section className="mb-8">
         <h2 className="text-xl mb-4">줄거리</h2>

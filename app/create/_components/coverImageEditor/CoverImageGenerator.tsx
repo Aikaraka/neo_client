@@ -12,10 +12,6 @@ import { Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import TextStyle from "@tiptap/extension-text-style";
-import FontSize from "@tiptap/extension-font-size";
 
 export default function CoverImageGenerator() {
   const { getValues, setValue } = useFormContext<CreateNovelForm>();
@@ -34,30 +30,6 @@ export default function CoverImageGenerator() {
   });
   const [selected, setSelectedImage] = useState<number | null>(null);
   const [aiImageModal, setAiImageModal] = useState(false);
-  const [showTitle, setShowTitle] = useState(true);
-  const [fontSize, setFontSize] = useState(28);
-
-  const editor = useEditor({
-    extensions: [
-      StarterKit,
-      TextStyle,
-      FontSize,
-    ],
-    content: "<h1>제목을 입력하세요</h1>",
-    editorProps: {
-      attributes: {
-        class: "outline-none w-full h-full bg-transparent",
-        style: `font-size: ${fontSize}px; text-align: center;`,
-      },
-    },
-  });
-
-  const changeFontSize = (delta: number) => {
-    setFontSize((prev) => Math.max(12, prev + delta));
-    if (editor) {
-      editor.commands.setFontSize(`${Math.max(12, fontSize + delta)}px`);
-    }
-  };
 
   async function handleGenerateCoverImage() {
     setAiImageModal(true);
@@ -120,32 +92,6 @@ export default function CoverImageGenerator() {
           </Button>
         </div>
       </Modal>
-
-      <div className="relative w-full h-full">
-        <Button
-          type="button"
-          onClick={() => setShowTitle((prev) => !prev)}
-          className="absolute top-1 right-1 z-20"
-          size="sm"
-        >
-          {showTitle ? "숨기기" : "보이기"}
-        </Button>
-        <div className="absolute top-1 left-1 z-20 flex gap-1">
-          <Button type="button" onClick={() => changeFontSize(-2)} size="sm">
-            -
-          </Button>
-          <Button type="button" onClick={() => changeFontSize(2)} size="sm">
-            +
-          </Button>
-        </div>
-        {showTitle && (
-          <EditorContent
-            editor={editor}
-            style={{ fontSize: `${fontSize}px`, textAlign: "center" }}
-            className="w-full h-full bg-transparent"
-          />
-        )}
-      </div>
     </>
   );
 }
