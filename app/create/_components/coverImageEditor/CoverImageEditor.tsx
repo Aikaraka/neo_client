@@ -11,12 +11,16 @@ import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { HTMLAttributes, useEffect, useRef, useState } from "react";
+import { Dispatch, HTMLAttributes, SetStateAction, useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 export default function CoverImageEditor() {
   const { coverImageRef, imageSrc } = useCoverImageContext();
+  const [titleFontSize, setTitleFontSize] = useState(BASE_FONT_SIZE);
+  const [isTitleVisible, setIsTitleVisible] = useState(true);
 
   return (
     <>
@@ -38,10 +42,16 @@ export default function CoverImageEditor() {
             crossOrigin="anonymous"
           />
         )}
-        <TextEdit />
-      </div>
+        <TextEdit titleFontSize={titleFontSize} isTitleVisible={isTitleVisible} />
+        </div>
       <ColorSelect />
       <FontSelect />
+      <TitleControlButtons
+        isTitleVisible={isTitleVisible}
+        onToggleVisibility={() => setIsTitleVisible((v) => !v)}
+        onIncreaseFontSize={() => setTitleFontSize((s) => s + 2)}
+        onDecreaseFontSize={() => setTitleFontSize((s) => Math.max(10, s - 2))}
+      />
       <CoverImageUploader />
       <CoverImageGenerator />
     </>
@@ -52,9 +62,13 @@ const DEFAULT_WIDTH = 200,
   DEFAULT_HEIGHT = 100;
 const BASE_FONT_SIZE = 28;
 
-function TextEdit() {
-  const { getValues } = useFormContext<CreateNovelForm>();
-  const title = getValues("title");
+interface TextEditProps {
+  titleFontSize: number;
+  isTitleVisible: boolean;
+}
+
+function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
+  const { getValues, setValue, watch } = useFormContext<CreateNovelForm>();
   const { fontTheme, fontStyle } = useCoverImageContext();
   const [size, setSize] = useState({
     width: DEFAULT_WIDTH,
@@ -62,15 +76,37 @@ function TextEdit() {
   });
   const [showEditMode, setShowEditMode] = useState(true);
 
-  const dynamicFontSize = (size.width / DEFAULT_WIDTH) * BASE_FONT_SIZE;
+ 
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: getValues("title") || "",
+    onUpdate: ({ editor }) => {
+      setValue("title", editor.getHTML(), { shouldValidate: true });
+    },
+    editorProps: {
+      attributes: {
+        class: cn("stroke-gradient", fontThemes[fontTheme]),
+      },
+    },
+  }, [fontTheme]);
+
+  const watchedTitle = watch("title");
+  useEffect(() => {
+    if (editor && editor.getHTML() !== watchedTitle) {
+      editor.commands.setContent(watchedTitle || "", false);
+    }
+  }, [watchedTitle, editor]);
 
   useEffect(() => {
     function handleClickTextzone(event: MouseEvent) {
       if (wrapperRef.current) {
-        wrapperRef.current.contains(event.target as Node)
-          ? setShowEditMode(true)
-          : setShowEditMode(false);
+        const isClickInside = wrapperRef.current.contains(event.target as Node);
+        setShowEditMode(isClickInside);
+        if (isClickInside && editor && !editor.isFocused) {
+          editor.commands.focus();
+        }
       }
     }
 
@@ -78,7 +114,11 @@ function TextEdit() {
     return () => {
       document.removeEventListener("click", handleClickTextzone);
     };
-  }, []);
+   }, [editor]);
+
+  if (!isTitleVisible) {
+    return null;
+  }
 
   return (
     <Rnd
@@ -121,23 +161,57 @@ function TextEdit() {
         ),
         top: <ResizeHandle className="-translate-x-1" visible={showEditMode} />,
       }}
-      dragHandleClassName="text-box"
-      className={`absolute text-black text-2xl font-bold  cursor-pointer z-10  p-1 ${
-        showEditMode ? "border border-primary" : ""
-      }`}
+      dragHandleClassName="cover-title-drag-handle" // Specific class for dragging
+
+      className={cn(
+        "absolute text-black text-2xl font-bold cursor-pointer z-10 p-1 cover-title-drag-handle", // Added drag handle class here
+        showEditMode ? "border border-primary" : "",
+      )}
     >
-      <div ref={wrapperRef}>
-        <div
-          className={`text-box w-full h-full break-words overflow-visible cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden relative`}
+       <div
+        ref={wrapperRef}
+        className="w-full h-full"
+      >
+        <EditorContent
+          editor={editor}
+          className={cn(
+            `text-box w-full h-full break-words overflow-auto cursor-text leading-[1.2] font-bold tracking-wider`, // Removed text-[${BASE_FONT_SIZE}px]
+            "scrollbar-hidden relative focus:outline-none",
+          )}
           style={{
             fontFamily: fontStyles[fontStyle],
-            fontSize: `${dynamicFontSize}px`,
+            fontSize: `${titleFontSize}px`,
           }}
-        >
-          {title}
-        </div>
+        />
       </div>
     </Rnd>
+  );
+}
+interface TitleControlButtonsProps {
+  isTitleVisible: boolean;
+  onToggleVisibility: () => void;
+  onIncreaseFontSize: () => void;
+  onDecreaseFontSize: () => void;
+}
+
+function TitleControlButtons({
+  isTitleVisible,
+  onToggleVisibility,
+  onIncreaseFontSize,
+  onDecreaseFontSize,
+}: TitleControlButtonsProps) {
+  return (
+    <div className="flex gap-2 self-center my-2">
+      <Button type="button" variant="outline" onClick={onToggleVisibility}>
+        {isTitleVisible ? "숨기기" : "보이기"}
+      </Button>
+      <Button type="button" variant="outline" onClick={onIncreaseFontSize}>
+        크게
+      </Button>
+      <Button type="button" variant="outline" onClick={onDecreaseFontSize}>
+        작게
+      </Button>
+    </div>
   );
 }
 
