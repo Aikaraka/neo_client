@@ -20,6 +20,7 @@ export function CoverImageUploader() {
     const reader = new FileReader();
     reader.onloadend = () => {
       const imageDataUrl = reader.result as string;
+      changeImage(imageDataUrl);
       setOriginalImageSrcForCropping(imageDataUrl);
       setShowImageCropper(true);
       if (inputRef.current) {
