@@ -55,5 +55,11 @@ export async function saveImageFileToStorage(file: File) {
     data: { publicUrl },
   } = supabase.storage.from("novel-covers").getPublicUrl(filePath);
 
+  if (!publicUrl) {
+    throw new Error(
+      "업로드된 이미지의 공개 URL을 가져오지 못했습니다. 스토리지 설정을 확인해주세요.",
+    );
+  }
+  
   return publicUrl;
 }
