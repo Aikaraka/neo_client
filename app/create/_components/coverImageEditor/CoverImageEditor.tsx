@@ -14,15 +14,9 @@ import Image from "next/image";
 import { HTMLAttributes, useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
-import TextStyle from "@tiptap/extension-text-style";
-import FontSize from "@tiptap/extension-font-size";
 
 export default function CoverImageEditor() {
-  const { coverImageRef, imageSrc, fontTheme, changeFontTheme, fontStyle, changeFontStyle } = useCoverImageContext();
-  const [showTitle, setShowTitle] = useState(true);
-  const [fontSize, setFontSize] = useState(BASE_FONT_SIZE);
+  const { coverImageRef, imageSrc } = useCoverImageContext();
 
   return (
     <>
@@ -44,17 +38,10 @@ export default function CoverImageEditor() {
             crossOrigin="anonymous"
           />
         )}
-        <CoverTitleEditor showTitle={showTitle} fontSize={fontSize} fontTheme={fontTheme} fontStyle={fontStyle} />
+        <TextEdit />
       </div>
-      <ColorSelect changeFontTheme={changeFontTheme} fontTheme={fontTheme} />
+      <ColorSelect />
       <FontSelect />
-      <div className="flex gap-2 justify-center my-2">
-        <Button onClick={() => setFontSize(f => Math.max(12, f - 2))}>-</Button>
-        <Button onClick={() => setFontSize(f => f + 2)}>+</Button>
-        <Button onClick={() => setShowTitle(v => !v)}>
-          {showTitle ? "숨기기" : "보이기"}
-        </Button>
-      </div>
       <CoverImageUploader />
       <CoverImageGenerator />
     </>
@@ -65,67 +52,109 @@ const DEFAULT_WIDTH = 200,
   DEFAULT_HEIGHT = 100;
 const BASE_FONT_SIZE = 28;
 
-function CoverTitleEditor({ showTitle, fontSize, fontTheme, fontStyle }: { showTitle: boolean; fontSize: number; fontTheme: string; fontStyle: string }) {
-  const { setValue, getValues } = useFormContext();
-  const [size, setSize] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
-
-  const editor = useEditor({
-    extensions: [StarterKit, TextStyle, FontSize],
-    content: `<h1>${getValues("title") || "제목을 입력하세요"}</h1>`,
-    onUpdate: ({ editor }) => {
-      setValue("title", editor.getText());
-    },
-    editorProps: {
-      attributes: {
-        class: `outline-none w-full h-full bg-transparent ${fontTheme} bg-clip-text text-transparent`,
-        style: `font-size: ${fontSize}px; text-align: center; font-family: ${fontStyle};`,
-      },
-    },
+function TextEdit() {
+  const { getValues } = useFormContext<CreateNovelForm>();
+  const title = getValues("title");
+  const { fontTheme, fontStyle } = useCoverImageContext();
+  const [size, setSize] = useState({
+    width: DEFAULT_WIDTH,
+    height: DEFAULT_HEIGHT,
   });
+  const [showEditMode, setShowEditMode] = useState(true);
+
+  const dynamicFontSize = (size.width / DEFAULT_WIDTH) * BASE_FONT_SIZE;
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (editor && getValues("title") !== editor.getText()) {
-      editor.commands.setContent(`<h1>${getValues("title")}</h1>`);
+    function handleClickTextzone(event: MouseEvent) {
+      if (wrapperRef.current) {
+        wrapperRef.current.contains(event.target as Node)
+          ? setShowEditMode(true)
+          : setShowEditMode(false);
+      }
     }
-  }, [getValues("title")]);
 
-  useEffect(() => {
-    if (editor) {
-      editor.chain().focus().setFontSize(`${fontSize}px`).run();
-    }
-  }, [fontSize]);
-
-  if (!showTitle) return null;
+    document.addEventListener("click", handleClickTextzone);
+    return () => {
+      document.removeEventListener("click", handleClickTextzone);
+    };
+  }, []);
 
   return (
     <Rnd
-      default={{ x: 0, y: 100, width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT }}
+      default={{
+        x: 0,
+        y: 100,
+        width: DEFAULT_WIDTH,
+        height: DEFAULT_HEIGHT,
+      }}
       bounds="parent"
-      onResize={(_, __, ref) => setSize({ width: ref.offsetWidth, height: ref.offsetHeight })}
-      enableResizing={{ bottomRight: true, right: true, bottom: true, top: true, left: true, topRight: true }}
-      className="absolute z-10 border border-primary bg-white/80 min-w-[100px] min-h-[40px] rounded-md"
+      enableResizing={{
+        bottomRight: true,
+        right: true,
+        bottom: true,
+        top: true,
+        left: true,
+        topRight: true,
+      }}
+      onResize={(_, __, ref) => {
+        setSize({
+          width: ref.offsetWidth,
+          height: ref.offsetHeight,
+        });
+      }}
+      resizeHandleComponent={{
+        bottomRight: (
+          <ResizeHandle
+            className="translate-y-1 translate-x-1"
+            visible={showEditMode}
+          />
+        ),
+        topRight: (
+          <ResizeHandle
+            className="translate-y-1 translate-x-1"
+            visible={showEditMode}
+          />
+        ),
+        bottom: (
+          <ResizeHandle className="-translate-x-1" visible={showEditMode} />
+        ),
+        top: <ResizeHandle className="-translate-x-1" visible={showEditMode} />,
+      }}
+      dragHandleClassName="text-box"
+      className={`absolute text-black text-2xl font-bold  cursor-pointer z-10  p-1 ${
+        showEditMode ? "border border-primary" : ""
+      }`}
     >
-      <div className="relative w-full h-full flex items-center justify-center">
-        <EditorContent
-          editor={editor}
-          style={{ fontSize: `${fontSize}px`, textAlign: "center" }}
-          className={`w-full h-full bg-transparent ${fontTheme} bg-clip-text text-transparent`}
-        />
+      <div ref={wrapperRef}>
+        <div
+          className={`text-box w-full h-full break-words overflow-visible cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden relative`}
+          style={{
+            fontFamily: fontStyles[fontStyle],
+            fontSize: `${dynamicFontSize}px`,
+          }}
+        >
+          {title}
+        </div>
       </div>
     </Rnd>
   );
 }
 
-function ColorSelect({ changeFontTheme, fontTheme }: { changeFontTheme: (theme: any) => void, fontTheme: string }) {
+function ColorSelect() {
+  const { changeFontTheme } = useCoverImageContext();
   return (
     <div className="flex gap-2 self-center">
       {Object.keys(fontThemes).map((color) => (
-        <button
+        <Button
           key={`color-${color}`}
           type="button"
-          className={`rounded-full w-8 h-8 border-2 ${fontThemes[color as keyof typeof fontThemes]} bg-clip-padding overflow-hidden ${fontTheme === color ? 'border-primary' : 'border-gray-300'}`}
+          variant="outline"
+          className={`bg-${
+            fontThemes[color as keyof typeof fontThemes]
+          } rounded-full w-5 h-5`}
           onClick={() => changeFontTheme(color as keyof typeof fontThemes)}
-        />
+        ></Button>
       ))}
     </div>
   );
