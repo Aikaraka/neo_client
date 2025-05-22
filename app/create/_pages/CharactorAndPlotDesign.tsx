@@ -76,7 +76,7 @@ export default function CharactorAndPlotDesign() {
     // await new Promise(resolve => setTimeout(resolve, 100)); 
 
     try {
-      
+      await document.fonts.ready;
       const imageDataUrl = await htmlToImage.toPng(coverImageRef.current, {
         width: 210,
         height: 270,
