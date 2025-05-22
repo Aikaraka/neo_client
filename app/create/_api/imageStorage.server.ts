@@ -35,6 +35,7 @@ export async function saveBase64ToStorage(base64Data: string) {
 }
 
 export async function saveImageFileToStorage(file: File) {
+  console.log("[saveImageFileToStorage] 업로드할 파일:", file);
   const supabase = await createClient();
   const {
     data: { user },
@@ -60,6 +61,6 @@ export async function saveImageFileToStorage(file: File) {
       "업로드된 이미지의 공개 URL을 가져오지 못했습니다. 스토리지 설정을 확인해주세요.",
     );
   }
-  
+  console.log("[saveImageFileToStorage] publicUrl:", publicUrl);
   return publicUrl;
 }

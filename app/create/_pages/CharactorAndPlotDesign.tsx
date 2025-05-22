@@ -62,7 +62,6 @@ export default function CharactorAndPlotDesign() {
       return;
     }
 
-    console.log("CharactorAndPlotDesign: handleNext - About to check isCoverBgImageLoaded. Current value:", isCoverBgImageLoaded);
     if (!isCoverBgImageLoaded) {
       toast({
         title: TOAST_IMAGE_LOADING_TITLE,
@@ -77,45 +76,28 @@ export default function CharactorAndPlotDesign() {
     // await new Promise(resolve => setTimeout(resolve, 100)); 
 
     try {
-      console.log("CharactorAndPlotDesign - handleNext: imageSrc (first 50 chars):", imageSrc ? imageSrc.substring(0, 50) : "null");
-      console.log("CharactorAndPlotDesign - handleNext: coverImageRef.current:", coverImageRef.current);
-      const imgElement = coverImageRef.current.querySelector('img');
-      if (imgElement) {
-        console.log("CharactorAndPlotDesign - handleNext: Found img element. src (first 50 chars):", imgElement.src ? imgElement.src.substring(0, 50) : "null");
-        console.log("CharactorAndPlotDesign - handleNext: Found img element. crossOrigin attribute:", imgElement.crossOrigin);
-      } else {
-        console.log("CharactorAndPlotDesign - handleNext: No img element found in coverImageRef.");
-      }
-
+      
       const imageDataUrl = await htmlToImage.toPng(coverImageRef.current, {
         width: 210,
         height: 270,
       });
-      
-      console.log("CharactorAndPlotDesign: htmlToImage.toPng SUCCEEDED. Setting debug image.");
-      setDebugCapturedImage(imageDataUrl); // Display the captured image for debugging
-
-      // --- TEMPORARILY COMMENT OUT FURTHER ACTIONS TO SEE THE DEBUG IMAGE ---
-      // setCapturedImageDataUrl(imageDataUrl); 
-      // const result = await Promise.all([
-      //   trigger("title"),
-      //   trigger("plot"),
-      //   trigger("characters"),
-      // ]);
-      // const formValidity = result.every((v) => v);
-      // if (!formValidity) {
-      //   toast({
-      //     title: TOAST_ERROR_TITLE,
-      //     description: TOAST_ERROR_DESCRIPTION,
-      //     variant: "destructive",
-      //   });
-      //   setIsCapturing(false);
-      //   return;
-      // }
-      // setIsCapturing(false);
-      // nextPage();
-      // --- END OF TEMPORARY COMMENT ---
-
+      setCapturedImageDataUrl(imageDataUrl);
+      const result = await Promise.all([
+        trigger("title"),
+        trigger("plot"),
+        trigger("characters"),
+      ]);
+      const formValidity = result.every((v) => v);
+      setIsCapturing(false);
+      if (!formValidity) {
+        toast({
+          title: TOAST_ERROR_TITLE,
+          description: TOAST_ERROR_DESCRIPTION,
+          variant: "destructive",
+        });
+        return;
+      }
+      nextPage();
       setIsCapturing(false); // Reset here for now for debug purposes
       return; // IMPORTANT: Return here to prevent moving to next page, so user can see the debug image
 
@@ -181,10 +163,10 @@ export default function CharactorAndPlotDesign() {
       <button
         type="button"
         onClick={handleNext}
-        disabled={isCapturing}
+        disabled={isCapturing || !isCoverBgImageLoaded}
         className={`w-full bg-primary text-white py-3 rounded-lg ${isCapturing ? 'opacity-50 cursor-not-allowed' : ''}`}
       >
-        다음 단계로
+        {isCoverBgImageLoaded ? "다음 단계로" : "표지 이미지 로딩 중..."}
       </button>
 
       {/* Debug Image Display Section */}
