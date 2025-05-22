@@ -13,3 +13,4 @@ function dataURLToFile(dataUrl: string, filename: string): File {
 }
 
 export { dataURLToFile };
+
