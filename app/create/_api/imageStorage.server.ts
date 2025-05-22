@@ -49,8 +49,10 @@ export async function saveImageFileToStorage(file: File) {
   const { error: uploadError } = await supabase.storage
     .from("novel-covers")
     .upload(filePath, file);
-
-  if (uploadError) throw new Error("이미지 업로드 중 오류가 발생했습니다.");
+  if (uploadError) {
+    console.error("[saveImageFileToStorage] upload error:", uploadError);
+    throw new Error("이미지 업로드 중 오류가 발생했습니다.");
+  }
 
   const {
     data: { publicUrl },
