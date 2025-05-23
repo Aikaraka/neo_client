@@ -21,6 +21,8 @@ export default function CoverImageEditor() {
   const { coverImageRef, imageSrc, setCoverBgImageLoaded } = useCoverImageContext();
   const [titleFontSize, setTitleFontSize] = useState(BASE_FONT_SIZE);
   const [isTitleVisible, setIsTitleVisible] = useState(true);
+  const [imageRetryCount, setImageRetryCount] = useState(0);
+  const MAX_RETRY_COUNT = 3;
 
   return (
     <>
@@ -40,14 +42,29 @@ export default function CoverImageEditor() {
             onDragStart={(e) => e.preventDefault()}
             unoptimized
             crossOrigin="anonymous"
+            priority
             onLoad={() => {
               console.log('CoverImageEditor: Image onLoad event triggered for:', imageSrc);
               setCoverBgImageLoaded(true);
+              setImageRetryCount(0);
             }}
             onError={(e) => {
               console.error('CoverImageEditor: Image onError event triggered for:', imageSrc, e.nativeEvent);
-              // 이미지 로드 실패 시에도 일단 로드 상태는 true로 설정하여 무한 로딩 방지 (캡처는 실패할 수 있음)
+              if (imageRetryCount < MAX_RETRY_COUNT) {
+                setImageRetryCount(prev => prev + 1);
+                const newSrc = imageSrc.includes('?') ? 
+                  `${imageSrc}&retry=${Date.now()}` : 
+                  `${imageSrc}?retry=${Date.now()}`;
+                setTimeout(() => {
+                  const img = new window.Image();
+                  img.src = newSrc;
+                  img.onload = () => {
+                    setCoverBgImageLoaded(true);
+                  };
+                }, 500 * imageRetryCount);
+              } else {
               setCoverBgImageLoaded(true); 
+              }
             }}
           />
         )}
@@ -89,11 +106,17 @@ function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
  
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
+  // HTML 태그 제거 함수
+  const stripHtml = (html: string): string => {
+    return html.replace(/<[^>]*>/g, '').trim();
+  };
+
   const editor = useEditor({
     extensions: [StarterKit],
-    content: getValues("title") || "",
+    content: stripHtml(getValues("title") || ""), // HTML 태그 제거된 텍스트로 초기화
     onUpdate: ({ editor }) => {
-      setValue("title", editor.getHTML(), { shouldValidate: true });
+      // HTML 대신 순수 텍스트만 저장
+      setValue("title", editor.getText(), { shouldValidate: true });
     },
     editorProps: {
       attributes: {
@@ -104,8 +127,8 @@ function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
 
   const watchedTitle = watch("title");
   useEffect(() => {
-    if (editor && editor.getHTML() !== watchedTitle) {
-      editor.commands.setContent(watchedTitle || "", false);
+    if (editor && editor.getText() !== stripHtml(watchedTitle)) {
+      editor.commands.setContent(stripHtml(watchedTitle || ""), false);
     }
   }, [watchedTitle, editor]);
 
@@ -171,10 +194,10 @@ function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
         ),
         top: <ResizeHandle className="-translate-x-1" visible={showEditMode} />,
       }}
-      dragHandleClassName="cover-title-drag-handle" // Specific class for dragging
+      dragHandleClassName="cover-title-drag-handle"
 
       className={cn(
-        "absolute text-black text-2xl font-bold cursor-pointer z-10 p-1 cover-title-drag-handle", // Added drag handle class here
+        "absolute text-black text-2xl font-bold cursor-pointer z-10 p-1 cover-title-drag-handle",
         showEditMode ? "border border-primary" : "",
       )}
     >
@@ -185,7 +208,7 @@ function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
         <EditorContent
           editor={editor}
           className={cn(
-            `text-box w-full h-full break-words overflow-auto cursor-text leading-[1.2] font-bold tracking-wider`, // Removed text-[${BASE_FONT_SIZE}px]
+            `text-box w-full h-full break-words overflow-auto cursor-text leading-[1.2] font-bold tracking-wider`,
             "scrollbar-hidden relative focus:outline-none",
           )}
           style={{
