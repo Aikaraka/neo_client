@@ -20,6 +20,8 @@ const TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION = "표지 이미지 처리에 실패
 const TOAST_IMAGE_LOADING_TITLE = "이미지 로딩 중";
 const TOAST_IMAGE_LOADING_DESCRIPTION = "표지 배경 이미지가 아직 로딩 중입니다. 잠시 후 다시 시도해주세요.";
 
+const MAX_IMAGE_LOAD_ATTEMPTS = 30; // 최대 30번 시도 (30 * 100ms = 3초)
+const IMAGE_LOAD_POLL_INTERVAL = 100; // 100ms 간격으로 확인
 
 export default function CharactorAndPlotDesign() {
   const { toast } = useToast();
@@ -39,10 +41,29 @@ export default function CharactorAndPlotDesign() {
   const plot = watch("plot");
   const title = watch("title");
 
+  const waitForImageToLoad = (imgElement: HTMLImageElement): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      let attempts = 0;
+      const checkImage = () => {
+        if (imgElement.complete && imgElement.naturalWidth > 0 && imgElement.naturalHeight > 0) {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => resolve()); // 2 프레임 대기
+          });
+        } else if (attempts < MAX_IMAGE_LOAD_ATTEMPTS) {
+          attempts++;
+          setTimeout(checkImage, IMAGE_LOAD_POLL_INTERVAL);
+        } else {
+          reject(new Error("캡처 전 이미지 로드 타임아웃. 이미지가 너무 크거나 네트워크 상태를 확인해주세요."));
+        }
+      };
+      checkImage();
+    });
+  };
+
   const handleNext = async () => {
     if (isCapturing) return;
 
-    setDebugCapturedImage(null); // Clear previous debug image
+    setDebugCapturedImage(null); 
 
     if (!imageSrc) {
       toast({
@@ -53,66 +74,98 @@ export default function CharactorAndPlotDesign() {
       return;
     }
 
-    if (!coverImageRef.current) {
-      toast({
-        title: TOAST_IMAGE_CAPTURE_ERROR_TITLE,
-        description: "캡처할 표지 이미지 영역이 없습니다.",
-        variant: "destructive",
-      });
+    const editorElement = coverImageRef.current;
+    if (!editorElement) {
+      toast({ title: TOAST_IMAGE_CAPTURE_ERROR_TITLE, description: "캡처할 표지 이미지 영역(editorElement)이 없습니다.", variant: "destructive" });
       return;
     }
 
-    if (!isCoverBgImageLoaded) {
-      toast({
-        title: TOAST_IMAGE_LOADING_TITLE,
-        description: TOAST_IMAGE_LOADING_DESCRIPTION,
-        variant: "default",
-      });
+    const imgElement = editorElement.querySelector('img');
+    if (!imgElement) {
+      // 이 시점에 imgElement가 없을 경우, isCoverBgImageLoaded를 다시 체크하거나,
+      // CoverImageEditor 내부 렌더링 로직 문제일 수 있음.
+      // 또는 imageSrc는 있지만 아직 img 태그가 DOM에 반영되지 않은 극단적 타이밍 문제.
+      // isCoverBgImageLoaded가 true여도 imgElement가 없을 수 있음을 인지.
+      if (!isCoverBgImageLoaded) { // isCoverBgImageLoaded가 false면 아직 로드 시도 전/중이므로 대기 유도
+         toast({
+            title: TOAST_IMAGE_LOADING_TITLE,
+            description: TOAST_IMAGE_LOADING_DESCRIPTION,
+            variant: "default",
+         });
+      } else { // isCoverBgImageLoaded가 true인데도 img 태그가 없다면 다른 문제
+         toast({ title: TOAST_IMAGE_CAPTURE_ERROR_TITLE, description: "캡처할 표지 이미지 DOM(imgElement)을 찾을 수 없습니다. 이미지 로드 상태를 확인해주세요.", variant: "destructive" });
+      }
       return;
     }
+    
+    // isCoverBgImageLoaded 상태는 참고용으로 두고, 실제 imgElement의 상태를 우선시
+    // if (!isCoverBgImageLoaded) { // 이 조건은 waitForImageToLoad 로직으로 대체 가능
+    //   toast({
+    //     title: TOAST_IMAGE_LOADING_TITLE,
+    //     description: TOAST_IMAGE_LOADING_DESCRIPTION,
+    //     variant: "default",
+    //   });
+    //   return;
+    // }
 
     setIsCapturing(true);
-    // No artificial delay for now, let's see the direct output first
-    // await new Promise(resolve => setTimeout(resolve, 100)); 
-
+    
     try {
-      await document.fonts.ready;
-      const imageDataUrl = await htmlToImage.toPng(coverImageRef.current, {
+      await document.fonts.ready; 
+      
+      console.log('캡처 대상 DOM:', editorElement);
+      console.log('캡처 대상 이미지 소스 (img.src):', imgElement.src);
+      console.log('이미지 로드 상태 (img.complete):', imgElement.complete, ' (naturalWidth):', imgElement.naturalWidth);
+
+      await waitForImageToLoad(imgElement);
+      console.log('이미지 최종 로드 및 렌더링 확인됨');
+
+      const imageDataUrl = await htmlToImage.toPng(editorElement, {
         width: 210,
         height: 270,
+        cacheBust: true, 
       });
+
+      console.log('캡처된 imageDataUrl 길이:', imageDataUrl.length);
+      if (!imageDataUrl || imageDataUrl.length < 200 || !imageDataUrl.startsWith('data:image/png;base64,')) { // 길이 임계값 조정
+          console.error("캡처된 이미지 데이터가 유효하지 않음:", imageDataUrl.substring(0,100));
+          throw new Error("캡처된 표지 이미지가 유효하지 않습니다. 다시 시도해주세요.");
+      }
+      
       setCapturedImageDataUrl(imageDataUrl);
+      // setDebugCapturedImage(imageDataUrl); // 디버깅 시 캡처된 이미지 표시
+
       const result = await Promise.all([
         trigger("title"),
         trigger("plot"),
         trigger("characters"),
       ]);
       const formValidity = result.every((v) => v);
-      setIsCapturing(false);
+      
       if (!formValidity) {
         toast({
           title: TOAST_ERROR_TITLE,
           description: TOAST_ERROR_DESCRIPTION,
           variant: "destructive",
         });
+        // setIsCapturing(false); // finally에서 처리
         return;
       }
       nextPage();
-      setIsCapturing(false); // Reset here for now for debug purposes
-      return; // IMPORTANT: Return here to prevent moving to next page, so user can see the debug image
+      // setIsCapturing(false); // finally에서 처리, 성공 후에도 false로.
+      // return; // 더 이상 디버그용 return 불필요
 
     } catch (error: any) {
-      console.error("CharactorAndPlotDesign - htmlToImage.toPng full error object:", error);
-      if (error.message?.includes('tainted') || error.message?.includes('SecurityError') || error.name?.includes('SecurityError')) {
-        console.error('Tainted canvas or SecurityError detected during htmlToImage capture:', error);
-      }
+      console.error("CharactorAndPlotDesign - htmlToImage 처리 중 오류:", error);
       toast({
         title: TOAST_IMAGE_CAPTURE_ERROR_TITLE,
-        description: TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION,
+        description: error.message || TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION,
         variant: "destructive",
       });
+      // setIsCapturing(false); // finally에서 처리
+      return; // 오류 발생 시 nextPage() 호출 방지
+    } finally {
       setIsCapturing(false);
-      return;
     }
   };
 
