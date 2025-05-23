@@ -20,7 +20,6 @@ export function CoverImageUploader() {
     const reader = new FileReader();
     reader.onloadend = () => {
       const imageDataUrl = reader.result as string;
-      changeImage(imageDataUrl);
       setOriginalImageSrcForCropping(imageDataUrl);
       setShowImageCropper(true);
       if (inputRef.current) {
@@ -31,9 +30,6 @@ export function CoverImageUploader() {
   };
 
   const handleCropComplete = (croppedImageDataUrl: string) => {
-    const fileName = `cropped_cover_${Date.now()}.png`;
-    const imageFile = dataURLToFile(croppedImageDataUrl, fileName);
-    
     changeImage(croppedImageDataUrl);
     setShowImageCropper(false);
     setOriginalImageSrcForCropping(null);

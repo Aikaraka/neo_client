@@ -98,10 +98,9 @@
   }
 
   .stroke-gradient {
-    color: transparent;
+    color: white;
     -webkit-text-fill-color: white;
-    -webkit-text-stroke-width: 4px;
-    -webkit-text-stroke-color: transparent;
+    -webkit-text-stroke-width: 0;
     background-clip: text;
     -webkit-background-clip: text;
     background-repeat: no-repeat;
@@ -116,6 +115,23 @@
       #feb47b 80%,
       #ff7e5f 100%
     );
+    text-shadow: 
+      -2px -2px 0 #ff7e5f,
+      -1px -2px 0 #ff7e5f,
+      0px -2px 0 #feb47b,
+      1px -2px 0 #feb47b,
+      2px -2px 0 #ff7e5f,
+      2px -1px 0 #ff7e5f,
+      2px 0px 0 #feb47b,
+      2px 1px 0 #feb47b,
+      2px 2px 0 #ff7e5f,
+      1px 2px 0 #ff7e5f,
+      0px 2px 0 #feb47b,
+      -1px 2px 0 #feb47b,
+      -2px 2px 0 #ff7e5f,
+      -2px 1px 0 #ff7e5f,
+      -2px 0px 0 #feb47b,
+      -2px -1px 0 #feb47b;
   }
 
   .ocean-gradient {
@@ -125,6 +141,23 @@
       #00c6ff 80%,
       #00c6ff 100%
     );
+    text-shadow: 
+      -2px -2px 0 #0072ff,
+      -1px -2px 0 #0072ff,
+      0px -2px 0 #00c6ff,
+      1px -2px 0 #00c6ff,
+      2px -2px 0 #0072ff,
+      2px -1px 0 #0072ff,
+      2px 0px 0 #00c6ff,
+      2px 1px 0 #00c6ff,
+      2px 2px 0 #0072ff,
+      1px 2px 0 #0072ff,
+      0px 2px 0 #00c6ff,
+      -1px 2px 0 #00c6ff,
+      -2px 2px 0 #0072ff,
+      -2px 1px 0 #0072ff,
+      -2px 0px 0 #00c6ff,
+      -2px -1px 0 #00c6ff;
   }
 
   .pastel-gradient {
@@ -134,6 +167,23 @@
       #a6c1ee 80%,
       #fbc2eb 100%
     );
+    text-shadow: 
+      -2px -2px 0 #fbc2eb,
+      -1px -2px 0 #fbc2eb,
+      0px -2px 0 #a6c1ee,
+      1px -2px 0 #a6c1ee,
+      2px -2px 0 #fbc2eb,
+      2px -1px 0 #fbc2eb,
+      2px 0px 0 #a6c1ee,
+      2px 1px 0 #a6c1ee,
+      2px 2px 0 #fbc2eb,
+      1px 2px 0 #fbc2eb,
+      0px 2px 0 #a6c1ee,
+      -1px 2px 0 #a6c1ee,
+      -2px 2px 0 #fbc2eb,
+      -2px 1px 0 #fbc2eb,
+      -2px 0px 0 #a6c1ee,
+      -2px -1px 0 #a6c1ee;
   }
 
   .rainbow-gradient {
@@ -145,6 +195,23 @@
       #fdd819 90%,
       #ff6ec4 100%
     );
+    text-shadow: 
+      -2px -2px 0 #ff6ec4,
+      -1px -2px 0 #7873f5,
+      0px -2px 0 #42e695,
+      1px -2px 0 #fdd819,
+      2px -2px 0 #ff6ec4,
+      2px -1px 0 #7873f5,
+      2px 0px 0 #42e695,
+      2px 1px 0 #fdd819,
+      2px 2px 0 #ff6ec4,
+      1px 2px 0 #7873f5,
+      0px 2px 0 #42e695,
+      -1px 2px 0 #fdd819,
+      -2px 2px 0 #ff6ec4,
+      -2px 1px 0 #7873f5,
+      -2px 0px 0 #42e695,
+      -2px -1px 0 #fdd819;
   }
 
   .fire-gradient {
@@ -154,6 +221,23 @@
       #f5af19 80%,
       #f12711 100%
     );
+    text-shadow: 
+      -2px -2px 0 #f12711,
+      -1px -2px 0 #f12711,
+      0px -2px 0 #f5af19,
+      1px -2px 0 #f5af19,
+      2px -2px 0 #f12711,
+      2px -1px 0 #f12711,
+      2px 0px 0 #f5af19,
+      2px 1px 0 #f5af19,
+      2px 2px 0 #f12711,
+      1px 2px 0 #f12711,
+      0px 2px 0 #f5af19,
+      -1px 2px 0 #f5af19,
+      -2px 2px 0 #f12711,
+      -2px 1px 0 #f12711,
+      -2px 0px 0 #f5af19,
+      -2px -1px 0 #f5af19;
   }
   .black-gradient {
     background-image: radial-gradient(
@@ -162,6 +246,23 @@
       #434343 80%,
       #000000 100%
     );
+    text-shadow: 
+      -2px -2px 0 #000000,
+      -1px -2px 0 #000000,
+      0px -2px 0 #434343,
+      1px -2px 0 #434343,
+      2px -2px 0 #000000,
+      2px -1px 0 #000000,
+      2px 0px 0 #434343,
+      2px 1px 0 #434343,
+      2px 2px 0 #000000,
+      1px 2px 0 #000000,
+      0px 2px 0 #434343,
+      -1px 2px 0 #434343,
+      -2px 2px 0 #000000,
+      -2px 1px 0 #000000,
+      -2px 0px 0 #434343,
+      -2px -1px 0 #434343;
   }
 }
 

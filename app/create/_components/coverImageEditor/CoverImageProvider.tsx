@@ -48,9 +48,39 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const changeImage = (src: string) => {
+    // 이미지 유효성 검증
+    if (!src) {
+      console.warn("CoverImageProvider: changeImage called with empty source");
+      return;
+    }
+
+    // 이미지 프리로드
+    const preloadImage = new window.Image();
+    preloadImage.crossOrigin = "anonymous";
+    
+    preloadImage.onload = () => {
+      console.log("CoverImageProvider: Image preloaded successfully:", src.substring(0, 50));
+      setImageSrc(src);
+    };
+    
+    preloadImage.onerror = (error) => {
+      console.error("CoverImageProvider: Image preload failed:", error);
+      // Data URL인 경우 바로 설정 (프리로드 실패해도 사용 가능)
+      if (src.startsWith('data:')) {
+        setImageSrc(src);
+      }
+    };
+
+    // Data URL인 경우 바로 src 설정, 그렇지 않은 경우 프리로드 시작
+    if (src.startsWith('data:')) {
     setImageSrc(src);
+      preloadImage.src = src; // 프리로드도 동시에 시작
+    } else {
+      preloadImage.src = src;
+    }
+    
     setIsCoverBgImageLoaded(false); // Reset on new image
-    console.log("CoverImageProvider: changeImage - isCoverBgImageLoaded reset to false"); // Added log
+    console.log("CoverImageProvider: changeImage - isCoverBgImageLoaded reset to false");
   };
 
   const changeFontTheme = (targetFontTheme: FontTheme) => {

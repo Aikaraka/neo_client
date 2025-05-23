@@ -37,6 +37,30 @@ export default function CoverImageGenerator() {
     mutate(formData);
   }
 
+  // URL을 Data URL로 변환하는 함수
+  const convertToDataURL = async (url: string): Promise<string> => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error("이미지 변환 실패:", error);
+      return url; // 실패 시 원본 URL 반환
+    }
+  };
+
+  const handleImageSelect = async (url: string, idx: number) => {
+    // 외부 URL을 Data URL로 변환
+    const dataUrl = await convertToDataURL(url);
+    changeImage(dataUrl);
+    setSelectedImage(idx);
+  };
+
   return (
     <>
       <Button
@@ -63,10 +87,7 @@ export default function CoverImageGenerator() {
                 <div
                   className="w-full h-full relative cursor-pointer"
                   key={`ai-Generate-${idx}`}
-                  onClick={() => {
-                    changeImage(url);
-                    setSelectedImage(idx);
-                  }}
+                  onClick={() => handleImageSelect(url, idx)}
                 >
                   <Image
                     src={url}
