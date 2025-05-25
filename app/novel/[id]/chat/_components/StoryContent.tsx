@@ -13,7 +13,7 @@ const NanumMyeongjo = localFont({
   style: "normal",
 });
 
-export function StoryContent() {
+export function StoryContent({ isDark, fontSize, lineHeight, paragraphSpacing, paragraphWidth }: { isDark: boolean, fontSize: number, lineHeight: number, paragraphSpacing: number, paragraphWidth: number }) {
   const messageBoxRef = useRef<HTMLDivElement>(null);
   const { background, messages, fetchMoreStories, hasMoreStories, scrollType } =
     useStoryContext();
@@ -61,7 +61,8 @@ export function StoryContent() {
       className="flex-1 overflow-auto px-4 py-2 space-y-4"
     >
       <div
-        className={`bg-primary p-4 text-white rounded-xl ${NanumMyeongjo.className}`}
+        className={`${NanumMyeongjo.className}`}
+        style={{ background: '#A259D9', color: '#fff', borderRadius: 12, padding: 16 }}
       >
         {background?.start ?? "여러분들의 소설을 시작해보세요."}
       </div>
@@ -70,15 +71,17 @@ export function StoryContent() {
       {messages.map((msg, i) => {
         if (msg.type === "user") {
           const paragraphs = splitChatParagraphs(msg.content);
+          const userColor = isDark ? "#BE7AD3" : "#A259D9";
           return (
-            <div key={i}>
+            <div key={i} style={{ maxWidth: paragraphWidth, width: '100%', margin: '0 auto' }}>
               {paragraphs.map((p, j) => (
                 <p
                   key={j}
                   className={cn(
-                    "text-[15px] leading-[1.6] whitespace-pre-line tracking-wide my-6 text-neo-purple",
+                    "text-[15px] leading-[1.6] whitespace-pre-line tracking-wide my-6",
                     NanumMyeongjo.className
                   )}
+                  style={{ color: userColor, fontSize, lineHeight, marginBottom: paragraphSpacing * 1.5 }}
                 >
                   {p}
                 </p>
@@ -87,15 +90,17 @@ export function StoryContent() {
           );
         } else if (msg.type === "ai") {
           const paragraphs = splitChatParagraphs(msg.content);
+          const aiColor = isDark ? "#fff" : "#232325";
           return (
-            <div key={i}>
+            <div key={i} style={{ maxWidth: paragraphWidth, width: '100%', margin: '0 auto' }}>
               {paragraphs.map((p, j) => (
                 <p
                   key={j}
                   className={cn(
-                    "text-[15px] leading-[1.6] text-gray-800 whitespace-pre-line tracking-wide my-3",
+                    "text-[15px] leading-[1.6] whitespace-pre-line tracking-wide my-3",
                     NanumMyeongjo.className
                   )}
+                  style={{ color: aiColor, fontSize, lineHeight, marginBottom: paragraphSpacing }}
                 >
                   {p}
                 </p>
