@@ -3,6 +3,7 @@ import { createClient } from "@/utils/supabase/client";
 
 interface StoryItem {
   content: string;
+  user_input?: string;
   story_number: number;
 }
 

@@ -5,6 +5,7 @@ import { useInfiniteScroll } from "@/hooks/use-infiniteScroll";
 import { cn } from "@/lib/utils";
 import localFont from "next/font/local";
 import { useEffect, useRef } from "react";
+import { splitChatParagraphs } from "@/utils/splitChatParagraphs";
 
 const NanumMyeongjo = localFont({
   src: "../../../../fonts/NanumMyeongjo.ttf",
@@ -67,18 +68,39 @@ export function StoryContent() {
       <div className="h-11" ref={interSectionRef}></div>
 
       {messages.map((msg, i) => {
-        if (typeof msg === "string") {
-          // 일반 스토리 메시지
+        if (msg.type === "user") {
+          const paragraphs = splitChatParagraphs(msg.content);
           return (
-            <p
-              key={i}
-              className={cn(
-                "text-[15px] leading-[1.6] text-gray-800 whitespace-pre-line",
-                NanumMyeongjo.className
-              )}
-            >
-              {msg}
-            </p>
+            <div key={i}>
+              {paragraphs.map((p, j) => (
+                <p
+                  key={j}
+                  className={cn(
+                    "text-[15px] leading-[1.6] whitespace-pre-line tracking-wide my-6 text-neo-purple",
+                    NanumMyeongjo.className
+                  )}
+                >
+                  {p}
+                </p>
+              ))}
+            </div>
+          );
+        } else if (msg.type === "ai") {
+          const paragraphs = splitChatParagraphs(msg.content);
+          return (
+            <div key={i}>
+              {paragraphs.map((p, j) => (
+                <p
+                  key={j}
+                  className={cn(
+                    "text-[15px] leading-[1.6] text-gray-800 whitespace-pre-line tracking-wide my-3",
+                    NanumMyeongjo.className
+                  )}
+                >
+                  {p}
+                </p>
+              ))}
+            </div>
           );
         }
       })}
