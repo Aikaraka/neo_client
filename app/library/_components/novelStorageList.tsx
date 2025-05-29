@@ -6,6 +6,8 @@ import NovelGridView from "@/app/library/_components/novelGridView";
 import NovelListView from "@/app/library/_components/novelListView";
 import { useQuery } from "@tanstack/react-query";
 
+type FilterType = "all" | "created" | "read";
+
 export function NovelStorageListSkeleton() {
   return (
     <div className="flex flex-col flex-1 gap-4 overflow-auto">
@@ -28,9 +30,11 @@ export function NovelStorageListSkeleton() {
 export function NovelLibrary({
   searchQuery,
   layout,
+  filter,
 }: {
   searchQuery: string;
   layout: "list" | "grid" | "smallGrid";
+  filter: FilterType;
 }) {
   const { data: novelData, isPending } = useQuery({
     queryKey: ["library"],
@@ -38,9 +42,19 @@ export function NovelLibrary({
     throwOnError: true,
   });
 
-  const filteredNovel = searchQuery
+  // 검색어 필터링
+  const searchFilteredNovels = searchQuery
     ? novelData?.filter((data) => data.title.includes(searchQuery))
     : novelData;
+
+  // 타입별 필터링
+  const filteredNovel = searchFilteredNovels?.filter((novel) => {
+    if (filter === "all") return true;
+    if (filter === "created") return novel.is_created_by_me;
+    if (filter === "read") return !novel.is_created_by_me;
+    return true;
+  });
+
   if (isPending) return <NovelStorageListSkeleton />;
   if (!novelData) return <NotFound />;
 

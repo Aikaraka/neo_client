@@ -17,6 +17,7 @@ import { usePathname } from "next/navigation";
 import { motion } from "motion/react";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { PencilLine, Plus } from "lucide-react";
 
 const navItems = {
   "/": {
@@ -29,6 +30,12 @@ const navItems = {
     label: "보관함",
     icon: BoxLine,
     activeIcon: BoxFilled,
+    disabled: false,
+  },
+  "/create": {
+    label: "소설 제작",
+    icon: PencilLine,
+    activeIcon: Plus,
     disabled: false,
   },
   "/mypage": {
