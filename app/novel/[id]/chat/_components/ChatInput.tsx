@@ -5,7 +5,7 @@ import { FormEventHandler, KeyboardEvent, useRef, useState } from "react";
 import { UndoIcon } from "lucide-react";
 import { ViewSettingsPanel } from "./ViewSettingsPanel";
 
-export function ChatInput({ onColorChange, isDark, selectedColor, fontSize, lineHeight, paragraphSpacing, paragraphWidth, onFontSizeChange, onLineHeightChange, onParagraphSpacingChange, onParagraphWidthChange }: {
+export function ChatInput({ onColorChange, isDark, selectedColor, fontSize, lineHeight, paragraphSpacing, paragraphWidth, onFontSizeChange, onLineHeightChange, onParagraphSpacingChange, onParagraphWidthChange, brightness, onBrightnessChange, align, onAlignChange }: {
   onColorChange?: (color: string) => void,
   isDark: boolean,
   selectedColor: string,
@@ -17,6 +17,10 @@ export function ChatInput({ onColorChange, isDark, selectedColor, fontSize, line
   onLineHeightChange: (lh: number) => void,
   onParagraphSpacingChange: (ps: number) => void,
   onParagraphWidthChange: (width: number) => void,
+  brightness: number,
+  onBrightnessChange: (b: number) => void,
+  align: "left" | "center",
+  onAlignChange: (a: "left" | "center") => void,
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const { sendNovelProcessMessage, isMessageSending, undoStory } = useStoryContext();
@@ -131,6 +135,10 @@ export function ChatInput({ onColorChange, isDark, selectedColor, fontSize, line
           onParagraphSpacingChange={onParagraphSpacingChange}
           paragraphWidth={paragraphWidth}
           onParagraphWidthChange={onParagraphWidthChange}
+          brightness={brightness}
+          onBrightnessChange={onBrightnessChange}
+          align={align}
+          onAlignChange={onAlignChange}
         />
       )}
     </div>

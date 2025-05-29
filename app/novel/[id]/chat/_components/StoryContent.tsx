@@ -13,7 +13,7 @@ const NanumMyeongjo = localFont({
   style: "normal",
 });
 
-export function StoryContent({ isDark, fontSize, lineHeight, paragraphSpacing, paragraphWidth }: { isDark: boolean, fontSize: number, lineHeight: number, paragraphSpacing: number, paragraphWidth: number }) {
+export function StoryContent({ isDark, fontSize, lineHeight, paragraphSpacing, paragraphWidth, align }: { isDark: boolean, fontSize: number, lineHeight: number, paragraphSpacing: number, paragraphWidth: number, align: "left" | "center" }) {
   const messageBoxRef = useRef<HTMLDivElement>(null);
   const { background, messages, fetchMoreStories, hasMoreStories, scrollType } =
     useStoryContext();
@@ -73,7 +73,7 @@ export function StoryContent({ isDark, fontSize, lineHeight, paragraphSpacing, p
           const paragraphs = splitChatParagraphs(msg.content);
           const userColor = isDark ? "#BE7AD3" : "#A259D9";
           return (
-            <div key={i} style={{ maxWidth: paragraphWidth, width: '100%', margin: '0 auto' }}>
+            <div key={i} style={{ maxWidth: paragraphWidth, width: '100%', margin: '0 auto', textAlign: align }}>
               {paragraphs.map((p, j) => (
                 <p
                   key={j}
@@ -92,7 +92,7 @@ export function StoryContent({ isDark, fontSize, lineHeight, paragraphSpacing, p
           const paragraphs = splitChatParagraphs(msg.content);
           const aiColor = isDark ? "#fff" : "#232325";
           return (
-            <div key={i} style={{ maxWidth: paragraphWidth, width: '100%', margin: '0 auto' }}>
+            <div key={i} style={{ maxWidth: paragraphWidth, width: '100%', margin: '0 auto', textAlign: align }}>
               {paragraphs.map((p, j) => (
                 <p
                   key={j}
