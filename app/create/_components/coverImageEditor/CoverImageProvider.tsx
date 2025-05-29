@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useRef, useState } from "react";
 
-type CoverImageContext = {
+type CoverImageContextValue = {
   coverImageRef: React.RefObject<HTMLDivElement>;
   imageSrc: string;
   changeImage: (src: string) => void;
@@ -10,9 +10,11 @@ type CoverImageContext = {
   changeFontTheme: (targetFontTheme: FontTheme) => void;
   fontStyle: FontStyle;
   changeFontStyle: (targetFontStyle: FontStyle) => void;
+  isCoverBgImageLoaded: boolean; // Added
+  setCoverBgImageLoaded: (isLoaded: boolean) => void; // Added
 };
 
-const CoverImageContext = createContext<CoverImageContext | undefined>(
+const CoverImageContext = createContext<CoverImageContextValue | undefined>(
   undefined
 );
 
@@ -35,20 +37,60 @@ type FontTheme = keyof typeof fontThemes;
 function CoverImageProvider({ children }: { children: React.ReactNode }) {
   const coverImageRef = useRef<HTMLDivElement>(null);
   const [imageSrc, setImageSrc] = useState<string>("");
-  const [fontTheme, setFont] = useState<FontTheme>("ocean");
-  const [fontStyle, setFontStyle] = useState<FontStyle>("봄바람체");
+  const [fontTheme, setFontThemeState] = useState<FontTheme>("ocean");
+  const [fontStyle, setFontStyleState] = useState<FontStyle>("봄바람체");
+  const [isCoverBgImageLoaded, setIsCoverBgImageLoaded] = useState(false); // Added
+
+  // Wrapped setter for logging
+  const newSetIsCoverBgImageLoaded = (isLoaded: boolean) => {
+    console.log("CoverImageProvider: setCoverBgImageLoaded called with:", isLoaded);
+    setIsCoverBgImageLoaded(isLoaded);
+  };
 
   const changeImage = (src: string) => {
+    // 이미지 유효성 검증
+    if (!src) {
+      console.warn("CoverImageProvider: changeImage called with empty source");
+      return;
+    }
+
+    // 이미지 프리로드
+    const preloadImage = new window.Image();
+    preloadImage.crossOrigin = "anonymous";
+    
+    preloadImage.onload = () => {
+      console.log("CoverImageProvider: Image preloaded successfully:", src.substring(0, 50));
+      setImageSrc(src);
+    };
+    
+    preloadImage.onerror = (error) => {
+      console.error("CoverImageProvider: Image preload failed:", error);
+      // Data URL인 경우 바로 설정 (프리로드 실패해도 사용 가능)
+      if (src.startsWith('data:')) {
+        setImageSrc(src);
+      }
+    };
+
+    // Data URL인 경우 바로 src 설정, 그렇지 않은 경우 프리로드 시작
+    if (src.startsWith('data:')) {
     setImageSrc(src);
+      preloadImage.src = src; // 프리로드도 동시에 시작
+    } else {
+      preloadImage.src = src;
+    }
+    
+    setIsCoverBgImageLoaded(false); // Reset on new image
+    console.log("CoverImageProvider: changeImage - isCoverBgImageLoaded reset to false");
   };
 
   const changeFontTheme = (targetFontTheme: FontTheme) => {
     if (fontTheme === targetFontTheme) return;
-    setFont(targetFontTheme);
+    setFontThemeState(targetFontTheme);
   };
+
   const changeFontStyle = (targetFontStyle: FontStyle) => {
     if (fontStyle === targetFontStyle) return;
-    setFontStyle(targetFontStyle);
+    setFontStyleState(targetFontStyle);
   };
 
   return (
@@ -61,12 +103,15 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
         fontTheme,
         fontStyle,
         changeFontStyle,
+        isCoverBgImageLoaded, // Added
+        setCoverBgImageLoaded: newSetIsCoverBgImageLoaded, // Changed to wrapped setter
       }}
     >
       {children}
     </CoverImageContext.Provider>
   );
 }
+
 function useCoverImageContext() {
   const coverImageContext = useContext(CoverImageContext);
   if (!coverImageContext) {
@@ -76,5 +121,6 @@ function useCoverImageContext() {
   }
   return coverImageContext;
 }
+
 export { CoverImageProvider, useCoverImageContext, fontThemes, fontStyles };
-export type { FontTheme };
+export type { FontTheme, FontStyle };

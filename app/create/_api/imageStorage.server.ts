@@ -35,6 +35,7 @@ export async function saveBase64ToStorage(base64Data: string) {
 }
 
 export async function saveImageFileToStorage(file: File) {
+  console.log("[saveImageFileToStorage] 업로드할 파일:", file);
   const supabase = await createClient();
   const {
     data: { user },
@@ -48,12 +49,20 @@ export async function saveImageFileToStorage(file: File) {
   const { error: uploadError } = await supabase.storage
     .from("novel-covers")
     .upload(filePath, file);
-
-  if (uploadError) throw new Error("이미지 업로드 중 오류가 발생했습니다.");
+  if (uploadError) {
+    console.error("[saveImageFileToStorage] upload error:", uploadError);
+    throw new Error("이미지 업로드 중 오류가 발생했습니다.");
+  }
 
   const {
     data: { publicUrl },
   } = supabase.storage.from("novel-covers").getPublicUrl(filePath);
 
+  if (!publicUrl) {
+    throw new Error(
+      "업로드된 이미지의 공개 URL을 가져오지 못했습니다. 스토리지 설정을 확인해주세요.",
+    );
+  }
+  console.log("[saveImageFileToStorage] publicUrl:", publicUrl);
   return publicUrl;
 }

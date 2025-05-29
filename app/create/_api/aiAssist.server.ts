@@ -31,12 +31,14 @@ export async function postAIAssist(
     throw new Error("인증 정보를 찾을 수 없습니다.");
   }
   const req = {
-    targetField:
-      request.targetField === "background.start"
-        ? "background"
-        : request.targetField,
+    targetField: request.targetField,
     formData: request.formData,
+    backgroundType: request.backgroundType || (request.targetField === 'background.start' ? 'start' : 'location'),
+    characterIndex: request.characterIndex,
+    relationshipIndex: request.relationshipIndex,
   };
+
+  console.log('Request Data:', req);
 
   const response = (
     await novelAiServerForServer.post("/input-pumping", req, {

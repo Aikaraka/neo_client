@@ -1,4 +1,4 @@
-import type { Config } from "tailwindcss";
+import type { Config, PluginAPI } from "tailwindcss/types/config";
 import tailwindAnimatePlugin from "tailwindcss-animate";
 
 const config: Config = {
@@ -93,6 +93,7 @@ const config: Config = {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        'neo-purple': '#9125B1',
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -103,7 +104,7 @@ const config: Config = {
   },
   plugins: [
     tailwindAnimatePlugin,
-    function ({ addUtilities }) {
+    function ({ addUtilities }: PluginAPI) {
       addUtilities({
         ".text-neo": {
           background: "var(--neo)",

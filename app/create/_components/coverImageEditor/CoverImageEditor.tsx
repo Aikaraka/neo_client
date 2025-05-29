@@ -11,12 +11,18 @@ import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { HTMLAttributes, useEffect, useRef, useState } from "react";
+import { Dispatch, HTMLAttributes, SetStateAction, useEffect, useRef, useState } from "react";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 
 export default function CoverImageEditor() {
-  const { coverImageRef, imageSrc } = useCoverImageContext();
+  const { coverImageRef, imageSrc, setCoverBgImageLoaded } = useCoverImageContext();
+  const [titleFontSize, setTitleFontSize] = useState(BASE_FONT_SIZE);
+  const [isTitleVisible, setIsTitleVisible] = useState(true);
+  const [imageRetryCount, setImageRetryCount] = useState(0);
+  const MAX_RETRY_COUNT = 3;
 
   return (
     <>
@@ -34,12 +40,45 @@ export default function CoverImageEditor() {
             className="w-full h-full object-fill"
             draggable={false}
             onDragStart={(e) => e.preventDefault()}
+            unoptimized
+            crossOrigin="anonymous"
+            priority
+            onLoad={() => {
+              console.log('CoverImageEditor: Image onLoad event triggered for:', imageSrc);
+              setCoverBgImageLoaded(true);
+              setImageRetryCount(0);
+            }}
+            onError={(e) => {
+              console.error('CoverImageEditor: Image onError event triggered for:', imageSrc, e.nativeEvent);
+              if (imageRetryCount < MAX_RETRY_COUNT) {
+                setImageRetryCount(prev => prev + 1);
+                const newSrc = imageSrc.includes('?') ? 
+                  `${imageSrc}&retry=${Date.now()}` : 
+                  `${imageSrc}?retry=${Date.now()}`;
+                setTimeout(() => {
+                  const img = new window.Image();
+                  img.src = newSrc;
+                  img.onload = () => {
+                    setCoverBgImageLoaded(true);
+                  };
+                }, 500 * imageRetryCount);
+              } else {
+              setCoverBgImageLoaded(true); 
+              }
+            }}
           />
         )}
-        <TextEdit />
-      </div>
+        {!imageSrc && <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">표지 이미지 없음</div>}
+        <TextEdit titleFontSize={titleFontSize} isTitleVisible={isTitleVisible} />
+        </div>
       <ColorSelect />
       <FontSelect />
+      <TitleControlButtons
+        isTitleVisible={isTitleVisible}
+        onToggleVisibility={() => setIsTitleVisible((v) => !v)}
+        onIncreaseFontSize={() => setTitleFontSize((s) => s + 2)}
+        onDecreaseFontSize={() => setTitleFontSize((s) => Math.max(10, s - 2))}
+      />
       <CoverImageUploader />
       <CoverImageGenerator />
     </>
@@ -50,9 +89,13 @@ const DEFAULT_WIDTH = 200,
   DEFAULT_HEIGHT = 100;
 const BASE_FONT_SIZE = 28;
 
-function TextEdit() {
-  const { getValues } = useFormContext<CreateNovelForm>();
-  const title = getValues("title");
+interface TextEditProps {
+  titleFontSize: number;
+  isTitleVisible: boolean;
+}
+
+function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
+  const { getValues, setValue, watch } = useFormContext<CreateNovelForm>();
   const { fontTheme, fontStyle } = useCoverImageContext();
   const [size, setSize] = useState({
     width: DEFAULT_WIDTH,
@@ -60,15 +103,43 @@ function TextEdit() {
   });
   const [showEditMode, setShowEditMode] = useState(true);
 
-  const dynamicFontSize = (size.width / DEFAULT_WIDTH) * BASE_FONT_SIZE;
+ 
   const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+  // HTML 태그 제거 함수
+  const stripHtml = (html: string): string => {
+    return html.replace(/<[^>]*>/g, '').trim();
+  };
+
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: stripHtml(getValues("title") || ""), // HTML 태그 제거된 텍스트로 초기화
+    onUpdate: ({ editor }) => {
+      // HTML 대신 순수 텍스트만 저장
+      setValue("title", editor.getText(), { shouldValidate: true });
+    },
+    editorProps: {
+      attributes: {
+        class: cn("stroke-gradient", fontThemes[fontTheme]),
+      },
+    },
+  }, [fontTheme]);
+
+  const watchedTitle = watch("title");
+  useEffect(() => {
+    if (editor && editor.getText() !== stripHtml(watchedTitle)) {
+      editor.commands.setContent(stripHtml(watchedTitle || ""), false);
+    }
+  }, [watchedTitle, editor]);
 
   useEffect(() => {
     function handleClickTextzone(event: MouseEvent) {
       if (wrapperRef.current) {
-        wrapperRef.current.contains(event.target as Node)
-          ? setShowEditMode(true)
-          : setShowEditMode(false);
+        const isClickInside = wrapperRef.current.contains(event.target as Node);
+        setShowEditMode(isClickInside);
+        if (isClickInside && editor && !editor.isFocused) {
+          editor.commands.focus();
+        }
       }
     }
 
@@ -76,7 +147,11 @@ function TextEdit() {
     return () => {
       document.removeEventListener("click", handleClickTextzone);
     };
-  }, []);
+   }, [editor]);
+
+  if (!isTitleVisible) {
+    return null;
+  }
 
   return (
     <Rnd
@@ -119,23 +194,57 @@ function TextEdit() {
         ),
         top: <ResizeHandle className="-translate-x-1" visible={showEditMode} />,
       }}
-      dragHandleClassName="text-box"
-      className={`absolute text-black text-2xl font-bold  cursor-pointer z-10  p-1 ${
-        showEditMode ? "border border-primary" : ""
-      }`}
+      dragHandleClassName="cover-title-drag-handle"
+
+      className={cn(
+        "absolute text-black text-2xl font-bold cursor-pointer z-10 p-1 cover-title-drag-handle",
+        showEditMode ? "border border-primary" : "",
+      )}
     >
-      <div ref={wrapperRef}>
-        <div
-          className={`text-box w-full h-full break-words overflow-visible cursor-pointer text-transparent text-[28px] leading-[31px]  font-bold tracking-wider ${fontThemes[fontTheme]} scrollbar-hidden relative`}
+       <div
+        ref={wrapperRef}
+        className="w-full h-full"
+      >
+        <EditorContent
+          editor={editor}
+          className={cn(
+            `text-box w-full h-full break-words overflow-auto cursor-text leading-[1.2] font-bold tracking-wider`,
+            "scrollbar-hidden relative focus:outline-none",
+          )}
           style={{
             fontFamily: fontStyles[fontStyle],
-            fontSize: `${dynamicFontSize}px`,
+            fontSize: `${titleFontSize}px`,
           }}
-        >
-          {title}
-        </div>
+        />
       </div>
     </Rnd>
+  );
+}
+interface TitleControlButtonsProps {
+  isTitleVisible: boolean;
+  onToggleVisibility: () => void;
+  onIncreaseFontSize: () => void;
+  onDecreaseFontSize: () => void;
+}
+
+function TitleControlButtons({
+  isTitleVisible,
+  onToggleVisibility,
+  onIncreaseFontSize,
+  onDecreaseFontSize,
+}: TitleControlButtonsProps) {
+  return (
+    <div className="flex gap-2 self-center my-2">
+      <Button type="button" variant="outline" onClick={onToggleVisibility}>
+        {isTitleVisible ? "숨기기" : "보이기"}
+      </Button>
+      <Button type="button" variant="outline" onClick={onIncreaseFontSize}>
+        크게
+      </Button>
+      <Button type="button" variant="outline" onClick={onDecreaseFontSize}>
+        작게
+      </Button>
+    </div>
   );
 }
 
@@ -178,7 +287,6 @@ function FontSelect() {
     </div>
   );
 }
-
 const ResizeHandle = ({
   className,
   visible,
@@ -191,3 +299,4 @@ const ResizeHandle = ({
     )}
   />
 );
+

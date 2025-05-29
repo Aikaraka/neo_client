@@ -13,8 +13,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
 import { createContext, useContext, useState } from "react";
 
+export type Message = { type: 'user' | 'ai', content: string };
+
 type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
-  messages: string[];
+  messages: Message[];
   isMessageError: boolean;
   progressRate: number;
   undoStory: () => void;
@@ -28,7 +30,6 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   scrollType: ScrollBehavior | "none";
 };
 
-type Message = string;
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
 
 export function useStoryContext() {
@@ -68,7 +69,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     queryKey: ["initStory", novelId],
     queryFn: async () => {
       const initSetting = await initStory(novelId);
-      setMessages(initSetting.initial_stories.map((s) => s.content));
+      setMessages(initSetting.initial_stories.map((s) => ({ type: 'ai' as const, content: s.content })));
       setProgressRate(initSetting.progress_rate);
       setCurrPage(initSetting.oldest_story_number);
       setHasMoreStories(initSetting.has_more_stories);
@@ -88,7 +89,19 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const text = auto ? "계속 진행해주세요." : input;
       if (!text) return;
 
-      setMessages((prev) => [...prev, ""]);
+      if (!auto) {
+        setMessages((prev) => [
+          ...prev,
+          { type: 'user' as const, content: text },
+          { type: 'ai' as const, content: "" }
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          { type: 'ai' as const, content: text },
+          { type: 'ai' as const, content: "" }
+        ]);
+      }
 
       const stream = await processNovel(session, novelId, text);
 
@@ -123,11 +136,13 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
             const data = JSON.parse(dataStr);
 
             if (data.type === "story") {
-              // 스토리 청크
               accumulatedText += data.content;
               setMessages((prev) => {
                 const newMsgs = [...prev];
-                newMsgs[messages.length] = accumulatedText;
+                const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
+                if (lastAiIdx !== -1) {
+                  newMsgs[lastAiIdx] = { type: 'ai' as const, content: accumulatedText };
+                }
                 return newMsgs;
               });
             } else if (data.type === "progress") {
@@ -160,7 +175,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const res = await undoLastStory(novelId, session?.user.id);
       const data = await res.json();
       if (data.success) {
-        // 마지막 메시지를 삭제
         setMessages((prev) => prev.slice(0, -1));
         if (data.progress_rate) {
           setProgressRate(data.progress_rate);
@@ -195,7 +209,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const sortedStories = stories.sort(
         (a, b) => a.story_number - b.story_number
       );
-      const prevMessages = sortedStories.map((s) => s.content);
+      const prevMessages = sortedStories.map((s) => ({ type: 'ai' as const, content: s.content }));
       setMessages((prev) => [...prevMessages, ...prev]);
       setHasMoreStories(has_more);
       setCurrPage(sortedStories[0]?.story_number ?? 0);

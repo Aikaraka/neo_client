@@ -1,15 +1,17 @@
 "use client";
 
 import { createNovel } from "@/app/create/_api/createNovel.server";
-import { CoverImageProvider } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
+import {
+  CoverImageProvider,
+  useCoverImageContext,
+} from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 import BackgroundSetting from "@/app/create/_pages/BackgroundDesign";
 import CharactorAndPlotDesign from "@/app/create/_pages/CharactorAndPlotDesign";
-import CoverDesign from "@/app/create/_pages/CoverDesign";
 import { createNovelSchema } from "@/app/create/_schema/createNovelSchema";
 import { Form } from "@/components/ui/form";
 import Header from "@/components/ui/header";
 import { LoadingModal } from "@/components/ui/modal";
-import { usePageContext } from "@/components/ui/pageContext";
+import { PageProvider, usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -22,29 +24,31 @@ import * as htmlToImage from "html-to-image";
 import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server";
 import { dataURLToFile } from "@/utils/image";
 
-const PageComponent: Record<number, () => JSX.Element> = {
-  0: () => <CharactorAndPlotDesign />,
-  1: () => <BackgroundSetting />,
-  2: () => <CoverDesign />,
+// PageComponent는 2단계로 유지됩니다.
+const PageComponent: Record<number, React.FC<any>> = {
+  0: CharactorAndPlotDesign,
+  1: BackgroundSetting,
 };
 
 const SUBMIT_ERROR_TITLE = "소설 생성 실패";
 
-export default function CreateNovel() {
-  const { currPage } = usePageContext();
+// page.tsx 내부의 로직을 담는 컴포넌트 (컨텍스트 사용 위함)
+function CreateNovelPageContent() {
+  const { currPage, prevButtonVisible, prevPage, capturedImageDataUrl } = usePageContext();
   const router = useRouter();
-  const { prevButtonVisible, prevPage } = usePageContext();
   const form = useForm<z.infer<typeof createNovelSchema>>({
     resolver: zodResolver(createNovelSchema),
     defaultValues: {
+      title: "",
+      plot: "",
+      characters: [],
       background: {
         start: "",
         detailedLocations: [],
       },
-      characters: [],
       ending: "happy",
       mood: [],
-      plot: "",
+      cover_image_url: "",
       settings: {
         hasAdultContent: false,
         hasViolence: false,
@@ -62,50 +66,96 @@ export default function CreateNovel() {
 
   const onSubmit = async (data: z.infer<typeof createNovelSchema>) => {
     try {
-      const imageDataUrl = await htmlToImage.toPng(
-        document.getElementById("cover-image-editor") as HTMLDivElement,
-        { width: 210, height: 270 }
-      );
-      const imageFile = dataURLToFile(imageDataUrl, "coverImage.png");
+      // 폰트가 모두 로드될 때까지 기다립니다. (캡처는 CharactorAndPlotDesign에서 이미 수행)
+      // await document.fonts.ready; // 이 부분은 최종 제출 시점이므로 캡처와 직접적 관련 X, 필요시 유지
+
+      if (!capturedImageDataUrl) {
+        toast({
+          title: SUBMIT_ERROR_TITLE,
+          description: "표지 이미지가 준비되지 않았습니다. 이전 단계에서 표지를 설정해주세요.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // CharactorAndPlotDesign에서 이미 캡처된 imageDataUrl 사용
+      // const editorElement = document.getElementById("cover-image-editor"); -- 삭제
+      // if (!editorElement) { -- 삭제
+      //   toast({ -- 삭제
+      //     title: SUBMIT_ERROR_TITLE, -- 삭제
+      //     description: "표지 편집기 요소를 찾을 수 없습니다.", -- 삭제
+      //     variant: "destructive", -- 삭제
+      //   }); -- 삭제
+      //   return; -- 삭제
+      // } -- 삭제
+
+      // const imageDataUrl = await htmlToImage.toPng( -- 삭제
+      //   editorElement, -- 삭제
+      //   { width: 210, height: 270 } -- 삭제
+      // ); -- 삭제
+      
+      const imageFile = dataURLToFile(capturedImageDataUrl, "coverImage.png");
       const coverImageUrl = await saveImageFileToStorage(imageFile);
 
-      const possible = await form.trigger();
-      if (possible) {
+      const isValid = await form.trigger();
+      if (isValid) {
         mutate({ ...data, cover_image_url: coverImageUrl });
+      } else {
+        console.log("Form validation failed:", form.formState.errors);
+        toast({
+          title: "입력 값 오류",
+          description: "입력 내용을 다시 확인해주세요.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.log(error);
+      console.error("소설 생성 중 오류:", error);
+      let description = "소설 생성 중 오류가 발생했습니다.";
+      if (error instanceof Error) {
+        description = error.message;
+      }
       toast({
         title: SUBMIT_ERROR_TITLE,
-        description: "소설 생성 중 오류가 발생했습니다.",
+        description: description,
         variant: "destructive",
       });
     }
   };
 
+  const CurrentPageComponent = PageComponent[currPage];
+
   return (
     <React.Fragment>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <CoverImageProvider>
-            <Header
-              prevPageButton={false}
-              title="나만의 소설 만들기"
-              icon={<PencilLine />}
-            >
-              {prevButtonVisible && (
-                <ChevronLeft
-                  className="absolute left-5 top-5"
-                  size={32}
-                  onClick={prevPage}
-                />
-              )}
-            </Header>
-            {PageComponent[currPage]()}
-          </CoverImageProvider>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
+          <Header
+            prevPageButton={false}
+            title="나만의 소설 만들기"
+            icon={<PencilLine />}
+          >
+            {prevButtonVisible && (
+              <ChevronLeft
+                className="absolute left-5 top-1/2 -translate-y-1/2 cursor-pointer"
+                size={32}
+                onClick={prevPage}
+              />
+            )}
+          </Header>
+          <div className="flex-grow overflow-y-auto">
+            {CurrentPageComponent && <CurrentPageComponent />}
+          </div>
         </form>
       </Form>
       <LoadingModal visible={isPending} />
     </React.Fragment>
+  );
+}
+
+// 최상위 export default 함수에서 CoverImageProvider를 렌더링
+export default function CreateNovel() {
+  return (
+    <CoverImageProvider>
+      <CreateNovelPageContent />
+    </CoverImageProvider>
   );
 }

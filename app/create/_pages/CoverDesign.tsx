@@ -10,7 +10,6 @@ export default function CoverDesign() {
   const hasViolence = watch("settings.hasViolence");
   const hasAdultContent = watch("settings.hasAdultContent");
   const isPublic = watch("settings.isPublic");
-  const selectedImage = watch("cover_image_url");
 
   return (
     <div className="w-full p-4">

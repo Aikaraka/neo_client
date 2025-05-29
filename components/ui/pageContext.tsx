@@ -3,7 +3,12 @@
 import { cva, VariantProps } from "class-variance-authority";
 import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { createContext, useContext, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+} from "react";
 
 const prevButtonVariants = cva("absolute cursor-pointer z-50", {
   variants: {
@@ -20,6 +25,13 @@ type PageContextType = {
   nextPage: () => void;
   prevPage: () => void;
   prevButtonVisible: boolean;
+  isLastStep: boolean;
+  attemptedSubmit: boolean;
+  setAttemptedSubmit: (attempted: boolean) => void;
+  capturedImageFile: File | null;
+  setCapturedImageFile: (file: File | null) => void;
+  capturedImageDataUrl: string | null;
+  setCapturedImageDataUrl: (dataUrl: string | null) => void;
 };
 
 const PageContext = createContext<PageContextType | undefined>(undefined);
@@ -40,14 +52,32 @@ export const PageProvider = ({
   variants = { variant: "default" },
 }: PageProviderProps) => {
   const [currPage, setCurrPage] = useState(initialPage ?? 0);
+  const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+  const [capturedImageFile, setCapturedImageFile] = useState<File | null>(null);
+  const [capturedImageDataUrl, setCapturedImageDataUrl] = useState<string | null>(
+    () => (typeof window !== "undefined" ? sessionStorage.getItem("capturedImageDataUrl") : null)
+  );
   const navigation = useRouter();
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (capturedImageDataUrl) {
+      sessionStorage.setItem("capturedImageDataUrl", capturedImageDataUrl);
+    } else {
+      sessionStorage.removeItem("capturedImageDataUrl");
+    }
+  }, [capturedImageDataUrl]);
+
   const prevButtonVisible = currPage > 0 && currPage <= maxPage && prevButton;
+  const isLastStep = currPage === maxPage;
+
   function nextPage() {
+    setAttemptedSubmit(false);
     setCurrPage((prev) => (prev < maxPage ? prev + 1 : prev));
   }
 
   function prevPage() {
+    setAttemptedSubmit(false);
     if (!currPage) {
       navigation.back();
     } else {
@@ -63,6 +93,13 @@ export const PageProvider = ({
         nextPage,
         prevPage,
         prevButtonVisible,
+        isLastStep,
+        attemptedSubmit,
+        setAttemptedSubmit,
+        capturedImageFile,
+        setCapturedImageFile,
+        capturedImageDataUrl,
+        setCapturedImageDataUrl,
       }}
     >
       {children}
