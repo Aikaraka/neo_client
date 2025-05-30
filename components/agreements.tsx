@@ -3,9 +3,9 @@ export const TermsOfServiceAgreement = () => {
     <div className="flex flex-col gap-5">
       <h1>서비스 이용약관</h1>
       <p>
-        본 약관은 <strong>개인사업자 임대한</strong>(이하 "회사")이 운영하는{" "}
-        <strong>소설 AI 채팅 플랫폼 "NEO"</strong>(이하 "서비스")에서 제공하는
-        서비스의 이용과 관련하여, "회사"와 "이용자" 간의 권리·의무 및 책임, 기타
+        본 약관은 <strong>개인사업자 임대한</strong>(이하 &ldquo;회사&rdquo;)이 운영하는{" "}
+        <strong>소설 AI 채팅 플랫폼 &ldquo;NEO&rdquo;</strong>(이하 &ldquo;서비스&rdquo;)에서 제공하는
+        서비스의 이용과 관련하여, &ldquo;회사&rdquo;와 &ldquo;이용자&rdquo; 간의 권리·의무 및 책임, 기타
         필요한 사항을 규정함을 목적으로 합니다. 회원가입 시 본 이용약관에
         동의하는 것으로 간주합니다.
       </p>
@@ -13,23 +13,23 @@ export const TermsOfServiceAgreement = () => {
       <h2>제1조 (용어의 정의)</h2>
       <ul>
         <li>
-          <strong>“회사”</strong>: 개인사업자 임대한이 운영하는 "NEO" 서비스를
+          <strong>&ldquo;회사&rdquo;</strong>: 개인사업자 임대한이 운영하는 &ldquo;NEO&rdquo; 서비스를
           의미합니다.
         </li>
         <li>
-          <strong>“이용자”</strong>: 본 약관에 따라 회원가입 후 서비스를
+          <strong>&ldquo;이용자&rdquo;</strong>: 본 약관에 따라 회원가입 후 서비스를
           이용하는 자를 말합니다.
         </li>
         <li>
-          <strong>“회원”</strong>: 회사가 정한 가입 절차를 통해 회원등록을 한
+          <strong>&ldquo;회원&rdquo;</strong>: 회사가 정한 가입 절차를 통해 회원등록을 한
           자로서, 서비스를 지속적으로 이용할 수 있는 자를 의미합니다.
         </li>
         <li>
-          <strong>“콘텐츠”</strong>: 회사가 제공하는 소설 AI 대화, 생성된
+          <strong>&ldquo;콘텐츠&rdquo;</strong>: 회사가 제공하는 소설 AI 대화, 생성된
           텍스트, 이미지, 기타 일체의 디지털 자료 등을 포함합니다.
         </li>
         <li>
-          <strong>“포인트”</strong>: 서비스 내 유·무료로 제공되는 가상의
+          <strong>&ldquo;포인트&rdquo;</strong>: 서비스 내 유·무료로 제공되는 가상의
           결제수단을 의미하며, 서비스에서 AI 대화 생성 등에 사용됩니다.
         </li>
       </ul>
@@ -99,7 +99,7 @@ export const TermsOfServiceAgreement = () => {
       <ul>
         <li>
           회사는 AI 대화, 소설 생성 등의 콘텐츠를 제공하며, 일부 기능은
-          “포인트”를 통해 사용이 가능합니다.
+          &ldquo;포인트&rdquo;를 통해 사용이 가능합니다.
         </li>
         <li>
           <strong>무료 포인트</strong>: 회사는 일정량의 무료 포인트를 지급할 수
@@ -144,7 +144,7 @@ export const CopyrightTerm = () => {
     <div className="flex flex-col gap-5">
       <h1>AI 콘텐츠 정책 (청소년 필터 및 NSFW 관련)</h1>
       <p>
-        본 AI 콘텐츠 정책은 <strong>“NEO”</strong> 서비스에서 AI 캐릭터(프로필,
+        본 AI 콘텐츠 정책은 <strong>&ldquo;NEO&rdquo;</strong> 서비스에서 AI 캐릭터(프로필,
         대화 주제 등)를 생성·등록하는 모든 이용자에게 적용되며,{" "}
         <strong>청소년 보호</strong> 및 <strong>건전한 서비스 환경</strong>{" "}
         조성을 목적으로 합니다.
@@ -184,8 +184,8 @@ export const CopyrightTerm = () => {
               금지
             </li>
             <li>
-              (2) 노골적인 성기 노출, 성행위 표현 등 “청소년유해매체물”에
-              해당하는 콘텐츠는 “청소년 이용불가 캐릭터”로만 제한적으로 등록이
+              (2) 노골적인 성기 노출, 성행위 표현 등 &ldquo;청소년유해매체물&rdquo;에
+              해당하는 콘텐츠는 &ldquo;청소년 이용불가 캐릭터&rdquo;로만 제한적으로 등록이
               가능하며, 이 경우 이용 제한 조치가 따를 수 있음
             </li>
           </ul>
@@ -306,7 +306,7 @@ export const PrivacyPolicyAgreement = () => {
       <h1>개인정보처리방침</h1>
 
       <p>
-        <em>개인사업자 임대한(이하 “회사”)</em>는 “NEO” 서비스를 운영함에 있어
+        <em>개인사업자 임대한(이하 &ldquo;회사&rdquo;)</em>는 &ldquo;NEO&rdquo; 서비스를 운영함에 있어
         이용자의 개인정보를 매우 중요하게 취급하며,{" "}
         <strong>개인정보 보호법</strong>,
         <strong>정보통신망 이용촉진 및 정보보호 등에 관한 법률</strong> 등 관련
@@ -403,7 +403,7 @@ export const PrivacyPolicyAgreement = () => {
           등을 요청할 수 있습니다.
         </li>
         <li>
-          이용자는 서비스 내 ‘회원 정보관리’ 페이지에서 직접 열람·수정할 수
+          이용자는 서비스 내 &lsquo;회원 정보관리&rsquo; 페이지에서 직접 열람·수정할 수
           있으며, 회사 고객센터를 통해 요청할 수도 있습니다.
         </li>
       </ul>

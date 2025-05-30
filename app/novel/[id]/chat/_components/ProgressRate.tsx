@@ -6,8 +6,8 @@ import { MoreHorizontal } from "lucide-react";
 import { PointPopup } from "./PointPopup";
 import React, { useRef, useState } from "react";
 
-export function ProgressRate() {
-  const { progressRate, title, undoStory } = useStoryContext();
+export default function ProgressRate() {
+  const { progressRate, title } = useStoryContext();
   const [popupOpen, setPopupOpen] = useState(false);
   const moreBtnRef = useRef<HTMLButtonElement>(null);
   return (

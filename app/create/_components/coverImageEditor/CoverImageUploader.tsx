@@ -4,7 +4,6 @@ import { useRef, ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCoverImageContext } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 import ImageCropper from "@/app/create/_components/ImageCropper";
-import { dataURLToFile } from "@/utils/image";
 
 export function CoverImageUploader() {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -30,9 +29,6 @@ export function CoverImageUploader() {
   };
 
   const handleCropComplete = (croppedImageDataUrl: string) => {
-    const fileName = `cropped_cover_${Date.now()}.png`;
-    const imageFile = dataURLToFile(croppedImageDataUrl, fileName);
-    
     changeImage(croppedImageDataUrl);
     setShowImageCropper(false);
     setOriginalImageSrcForCropping(null);

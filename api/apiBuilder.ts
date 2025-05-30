@@ -1,7 +1,7 @@
 import { callServerAction } from "@/api/server";
 
 type HttpMethod = "POST" | "GET" | "PUT" | "DELETE";
-type RequestBody = Record<string, any>;
+type RequestBody = Record<string, unknown>;
 type RequestFunction = () => Promise<Response>;
 type ResponseMiddleware<T> = (
   data: T,

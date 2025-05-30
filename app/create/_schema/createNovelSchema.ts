@@ -38,7 +38,9 @@ export const createNovelSchema = z.object({
     detailedLocations: z.array(z.string()).optional(),
   }),
   ending: z.enum(["happy", "sad", "open"]),
-  mood: z.array(z.string()).min(1, "최소 한 개의 분위기를 선택해 주세요."),
+  mood: z.array(z.string())
+    .min(1, "최소 한 개의 분위기를 선택해 주세요.")
+    .max(5, "최대 5개까지만 선택할 수 있습니다."),
   settings: z.object({
     hasViolence: z.boolean(),
     hasAdultContent: z.boolean(),

@@ -51,11 +51,11 @@ export default async function Page() {
           </div>
         </section>
         <section className="py-5 text-center">
-          <p className="text-muted-foreground mb-2">
-            소설 제작은 하단 네비게이션의 "소설 제작" 버튼을,
+          <p className="text-gray-600">
+            당신이 창작한 소설들을 편리하게 관리하고, &ldquo;스토리&rdquo;의
           </p>
-          <p className="text-muted-foreground">
-            소설 확인은 "보관함" 버튼을 이용해 주세요.
+          <p className="text-gray-600">
+            새로운 &ldquo;인생&rdquo;을 감상해보세요.
           </p>
         </section>
       </div>

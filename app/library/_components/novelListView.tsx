@@ -1,4 +1,3 @@
-import { Book } from "@/components/ui/book";
 import { Progress } from "@/components/ui/progress";
 import { LibraryNovel } from "@/types/library";
 import { ChevronRight } from "lucide-react";

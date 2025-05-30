@@ -14,7 +14,7 @@ import useModal from "@/hooks/use-modal";
 import { changePassword } from "@/app/(auth)/_api/auth.server";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Lock, Mail, User } from "lucide-react";
+import { Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

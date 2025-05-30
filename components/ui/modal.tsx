@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import React, { useEffect } from "react";
+import React from "react";
 
 type ModalProps = {
   children: React.ReactNode;

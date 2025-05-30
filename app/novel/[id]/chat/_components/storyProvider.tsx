@@ -1,4 +1,9 @@
 "use client";
+import React, {
+  createContext,
+  useContext,
+  useState,
+} from "react";
 import {
   initStory,
   InitStoryResponse,
@@ -10,8 +15,7 @@ import { LoadingModal } from "@/components/ui/modal";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import { createContext, useContext, useState } from "react";
+import { useParams } from "next/navigation";
 
 export type Message = { type: 'user' | 'ai', content: string };
 

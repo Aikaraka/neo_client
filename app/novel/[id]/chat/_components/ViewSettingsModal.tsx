@@ -1,3 +1,4 @@
+import React from "react";
 import PaintIcon from "@/public/novel/chat/paint.svg";
 import LightIcon from "@/public/novel/chat/light.svg";
 import TextIcon from "@/public/novel/chat/text.svg";
@@ -7,7 +8,7 @@ import ParagraphSpacingIcon from "@/public/novel/chat/paragraph-spacing.svg";
 import ParagraphWidthIcon from "@/public/novel/chat/paragraph-width.svg";
 import ParagraphAlignmentIcon from "@/public/novel/chat/paragraph-alignment.svg";
 
-export function ViewSettingsModal({ onClose }: { onClose: () => void }) {
+export function ViewSettingsModal() {
   return (
     <div
       style={{

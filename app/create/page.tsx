@@ -2,8 +2,7 @@
 
 import { createNovel } from "@/app/create/_api/createNovel.server";
 import {
-  CoverImageProvider,
-  useCoverImageContext,
+  CoverImageProvider
 } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 import BackgroundSetting from "@/app/create/_pages/BackgroundDesign";
 import CharactorAndPlotDesign from "@/app/create/_pages/CharactorAndPlotDesign";
@@ -11,7 +10,7 @@ import { createNovelSchema } from "@/app/create/_schema/createNovelSchema";
 import { Form } from "@/components/ui/form";
 import Header from "@/components/ui/header";
 import { LoadingModal } from "@/components/ui/modal";
-import { PageProvider, usePageContext } from "@/components/ui/pageContext";
+import { usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
@@ -20,12 +19,11 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import * as htmlToImage from "html-to-image";
 import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server";
 import { dataURLToFile } from "@/utils/image";
 
 // PageComponent는 2단계로 유지됩니다.
-const PageComponent: Record<number, React.FC<any>> = {
+const PageComponent: Record<number, React.FC> = {
   0: CharactorAndPlotDesign,
   1: BackgroundSetting,
 };

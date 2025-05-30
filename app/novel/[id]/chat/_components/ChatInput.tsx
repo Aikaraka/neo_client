@@ -5,9 +5,8 @@ import { FormEventHandler, KeyboardEvent, useRef, useState } from "react";
 import { UndoIcon } from "lucide-react";
 import { ViewSettingsPanel } from "./ViewSettingsPanel";
 
-export function ChatInput({ onColorChange, isDark, selectedColor, fontSize, lineHeight, paragraphSpacing, paragraphWidth, onFontSizeChange, onLineHeightChange, onParagraphSpacingChange, onParagraphWidthChange, brightness, onBrightnessChange, align, onAlignChange }: {
+export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, paragraphSpacing, paragraphWidth, onFontSizeChange, onLineHeightChange, onParagraphSpacingChange, onParagraphWidthChange, brightness, onBrightnessChange, align, onAlignChange }: {
   onColorChange?: (color: string) => void,
-  isDark: boolean,
   selectedColor: string,
   fontSize: number,
   lineHeight: number,
@@ -58,6 +57,7 @@ export function ChatInput({ onColorChange, isDark, selectedColor, fontSize, line
       <div style={{ height: 1, background: "#DEDEDE", margin: "0 0 8px 0" }} />
       {/* 첫 줄: astroid 아이콘 */}
       <div className="flex items-center" style={{ height: 32, paddingLeft: 16, paddingTop: 0 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/novel/chat/astroid.svg" alt="astroid" width={24} height={24} />
       </div>
       {/* 두 번째 줄: 입력창 + ai/전송/undo 버튼 */}
@@ -106,6 +106,7 @@ export function ChatInput({ onColorChange, isDark, selectedColor, fontSize, line
       <div className="flex items-center justify-between mt-2 px-6">
         {/* 책갈피 버튼 (왼쪽) */}
         <button className="flex flex-col items-center justify-center" style={{ color: "#868D96" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/novel/chat/bookmark.svg" alt="bookmark" width={24} height={24} />
           <span className="text-xs mt-1" style={{ fontFamily: 'NanumSquare Neo OTF' }}>책갈피</span>
         </button>
@@ -115,6 +116,7 @@ export function ChatInput({ onColorChange, isDark, selectedColor, fontSize, line
           style={{ color: "#868D96" }}
           onClick={() => setIsViewSettings(true)}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/novel/chat/text-edit.svg" alt="text-edit" width={24} height={24} />
           <span className="text-xs mt-1" style={{ fontFamily: 'NanumSquare Neo OTF' }}>보기 설정</span>
         </button>

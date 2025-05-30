@@ -45,7 +45,12 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.redirect(new URL("/", requestUrl));
-  } catch (error) {
-    return NextResponse.redirect(new URL("/error", requestUrl));
+  } catch {
+    return NextResponse.redirect(
+      `${requestUrl.origin}/auth/login?message=로그인에 실패했습니다.`,
+      {
+        status: 301,
+      },
+    );
   }
 }

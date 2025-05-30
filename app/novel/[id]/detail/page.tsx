@@ -26,7 +26,6 @@ const STRATEGY_NOVELS = [
   { title: "나니아 연대기", image: "/example/temp5.png" },
   { title: "스타듀밸리", image: "/example/temp6.png" },
 ];
-const NOVEL_MAX_LENGTH = 400;
 
 export default async function NovelDetail({
   params,
@@ -109,7 +108,7 @@ export default async function NovelDetail({
               {/* Novel Summary */}
               <div className="mt-[550px] mb-6 p-1 flex flex-col gap-5 md:mt-0 md:w-full">
                 <NovelPlot plot={novel.plot} />
-                <NovelCharacters characters={novel.characters as Character[]} />
+                <NovelCharacters characters={novel.characters as unknown as Character[]} />
               </div>
               <section className="mb-6 p-1 flex flex-col gap-4 md:hidden">
                 <div className="flex flex-col gap-2">

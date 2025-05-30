@@ -17,7 +17,7 @@ export function UndoButton() {
       } else {
         alert("더 이상 취소할 수 없습니다.");
       }
-    } catch (error) {
+    } catch {
       alert("작업 취소 중 오류가 발생했습니다.");
     }
   };

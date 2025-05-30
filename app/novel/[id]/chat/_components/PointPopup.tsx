@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
 
 interface PointPopupProps {

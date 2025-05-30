@@ -63,6 +63,10 @@ export async function updateTopNovelViews() {
       }
     }
 
+    // 하루 전 날짜 계산
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
     return {
       success: true,
       message: "채팅 통계가 성공적으로 초기화되었습니다.",
@@ -77,7 +81,7 @@ export async function updateTopNovelViews() {
 }
 
 // 인기 소설 계산 및 저장 함수
-export async function calculateAndSaveRankings(formData: FormData) {
+export async function calculateAndSaveRankings() {
   const supabase = await createClient();
 
   // 소설 랭킹 타입 정의
@@ -96,7 +100,6 @@ export async function calculateAndSaveRankings(formData: FormData) {
   const year = koreaTime.getFullYear();
   const month = koreaTime.getMonth() + 1; // 0-based
   const date = koreaTime.getDate();
-  const day = koreaTime.getDay(); // 0: 일요일, 1: 월요일, ...
 
   // 주차 계산 (해당 월의 첫째 주부터 1주차로 계산)
   const weekOfMonth = Math.ceil(date / 7);

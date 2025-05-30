@@ -42,12 +42,6 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  // dirty 상태: 각 항목별로 관리
-  const [dirty, setDirty] = useState({
-    lineHeight: false,
-    paragraphSpacing: false,
-    paragraphWidth: false,
-  });
   const [fontOpen, setFontOpen] = useState(false);
   const fontOptions = ["원본", "나눔고딕", "산돌고딕"];
   const [font, setFont] = useState("원본");
@@ -65,7 +59,6 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
-      setDirty({ lineHeight: false, paragraphSpacing: false, paragraphWidth: false });
     };
   }, [onClose]);
 
@@ -94,14 +87,6 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
     width: "100%",
     margin: 0,
     height: 0,
-  };
-  const paintScrollStyle = {
-    overflowX: "auto" as const,
-    display: "flex",
-    gap: 14,
-    padding: "0 16px",
-    scrollbarWidth: "none" as const,
-    msOverflowStyle: "none" as const,
   };
 
   return (
@@ -141,7 +126,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
           className="hide-scrollbar"
         >
           <div style={{ display: "flex", gap: 20 }}>
-            {colorList.map((color, i) => (
+            {colorList.map((color) => (
               <div
                 key={color}
                 onClick={() => {
