@@ -14,12 +14,16 @@ export function NovelStorageListSkeleton() {
       {Array.from({ length: 5 }).map((_, index) => (
         <div
           key={index}
-          className="p-2 border-b hover:shadow-md transition-shadow cursor-pointer flex gap-2 last:border-none animate-pulse"
+          className="p-4 bg-white rounded-lg shadow-sm border animate-pulse"
         >
-          <div className="bg-gray-200 rounded-lg w-[60px] h-[60px]" />
-          <div className="flex flex-col flex-1 justify-center">
-            <div className="bg-gray-200 h-6 w-3/4 mb-2 rounded" />
-            <div className="bg-gray-200 h-4 w-1/2 rounded" />
+          <div className="flex gap-3 items-center">
+            <div className="bg-gray-200 rounded-md w-[60px] h-[80px]" />
+            <div className="flex-1">
+              <div className="bg-gray-200 h-4 w-3/4 mb-2 rounded" />
+              <div className="bg-gray-200 h-2 w-full mb-1 rounded" />
+              <div className="bg-gray-200 h-3 w-1/4 rounded" />
+            </div>
+            <div className="bg-gray-200 h-8 w-20 rounded-full" />
           </div>
         </div>
       ))}
