@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Category, Tables } from "@/utils/supabase/types/database.types";
 import { useState } from "react";
 
-const genre: Category[] = ["판타지", "로맨틱", "미스터리"];
+const genre: Category[] = ["로맨스", "이세계", "회귀", "헌터", "무협"];
 
 export function NovelListByGenreSelector({
   novelList,
@@ -20,7 +20,7 @@ export function NovelListByGenreSelector({
 
   return (
     <div>
-      <div className="flex gap-2 mb-5">
+      <div className="flex gap-2 mb-5 flex-wrap">
         {genre.map((g) => (
           <Button
             key={`genre-${g}`}

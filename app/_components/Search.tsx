@@ -11,7 +11,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { X } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+
+// 인기 키워드 목록
+const POPULAR_KEYWORDS = [
+  "로맨스", "이세계", "회귀", "헌터", "무협",
+  "로맨스판타지", "학원물", "현대물", "빙의", "환생"
+];
 
 export default function Search() {
   const [openSearchContent, setOpenSearchContent] = useState<boolean>(false);
@@ -117,6 +124,8 @@ export function SearchContent({
               </Button>
             )}
           </section>
+          
+          {/* 최근 검색어 섹션 */}
           <section className="p-4">
             <div className="mb-2 flex gap-3 items-center">
               <p>최근 검색어</p>
@@ -130,6 +139,25 @@ export function SearchContent({
             </div>
             <div className="flex gap-2 overflow-x-auto scrollbar-hidden h-10">
               <RecentSearchTerms />
+            </div>
+          </section>
+
+          {/* 인기 키워드 섹션 */}
+          <section className="px-4 pb-4">
+            <div className="mb-3">
+              <p>인기 키워드</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {POPULAR_KEYWORDS.map((keyword) => (
+                <Link
+                  key={keyword}
+                  href={`/search/${encodeURIComponent(keyword)}`}
+                  onClick={() => setOpenSearchContent(false)}
+                  className="px-3 py-2 bg-gray-100 hover:bg-primary hover:text-primary-foreground rounded-full text-sm font-medium transition-colors"
+                >
+                  #{keyword}
+                </Link>
+              ))}
             </div>
           </section>
         </div>

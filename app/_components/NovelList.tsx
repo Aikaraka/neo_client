@@ -117,7 +117,7 @@ export async function TopNovelList() {
   }
 }
 
-const genre: Category[] = ["판타지", "로맨틱", "미스터리"];
+const genre: Category[] = ["로맨스", "이세계", "회귀", "헌터", "무협"];
 export async function NovelListByGenre() {
   try {
     const allNovels = Promise.all(genre.map((g) => getNovelsByCategory(g)));
