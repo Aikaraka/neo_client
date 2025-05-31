@@ -1,9 +1,10 @@
+// 따옴표("…")로 감싸진 부분을 별도 문단으로 분리하고, 그 외는 2~3문장씩 분리
 export function splitChatParagraphs(text: string): string[] {
   if (!text) return [];
 
   // 1. 따옴표로 감싸진 부분을 우선 분리
   // "..." 또는 ‘...’ 등 다양한 따옴표 지원
-  const quoteRegex = /(["'“”‘’][^"'“”‘’]+["'“”‘’])/g;
+  const quoteRegex = /(["'""''][^"'""'']+["'""''"])/g;
   const parts: string[] = [];
   let lastIndex = 0;
 

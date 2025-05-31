@@ -117,7 +117,6 @@ export default function ImageCropper({
             keepSelection // 영역 이동시에도 선택 유지
             className="max-w-full max-h-full"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               ref={imgRef}
               alt="이미지 크롭"

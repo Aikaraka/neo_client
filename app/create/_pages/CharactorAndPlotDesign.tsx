@@ -16,6 +16,11 @@ const TOAST_IMAGE_REQUIRED_TITLE = "표지 이미지 필요";
 const TOAST_IMAGE_REQUIRED_DESCRIPTION = "표지 이미지를 업로드하거나 AI로 생성해주세요.";
 const TOAST_IMAGE_CAPTURE_ERROR_TITLE = "이미지 처리 오류";
 const TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION = "표지 이미지 처리에 실패했습니다. 다시 시도해주세요.";
+const TOAST_IMAGE_LOADING_TITLE = "이미지 로딩 중";
+const TOAST_IMAGE_LOADING_DESCRIPTION = "표지 배경 이미지가 아직 로딩 중입니다. 잠시 후 다시 시도해주세요.";
+
+const MAX_IMAGE_LOAD_ATTEMPTS = 50; // 최대 50번 시도 (50 * 100ms = 5초)로 증가
+const IMAGE_LOAD_POLL_INTERVAL = 100; // 100ms 간격으로 확인
 
 export default function CharactorAndPlotDesign() {
   const { toast } = useToast();
@@ -30,6 +35,7 @@ export default function CharactorAndPlotDesign() {
   } = useFormContext<CreateNovelForm>();
 
   const [isCapturing, setIsCapturing] = useState(false);
+  const [debugCapturedImage, setDebugCapturedImage] = useState<string | null>(null); // For displaying the captured image
 
   const plot = watch("plot");
   const title = watch("title");
@@ -207,6 +213,8 @@ export default function CharactorAndPlotDesign() {
   const handleNext = async () => {
     if (isCapturing) return;
 
+    setDebugCapturedImage(null); 
+
     if (!imageSrc) {
       toast({
         title: TOAST_IMAGE_REQUIRED_TITLE,
@@ -232,6 +240,7 @@ export default function CharactorAndPlotDesign() {
       }
       
       setCapturedImageDataUrl(imageDataUrl);
+      setDebugCapturedImage(imageDataUrl); // 디버깅 시 캡처된 이미지 표시
 
       const result = await Promise.all([
         trigger("title"),
@@ -250,11 +259,11 @@ export default function CharactorAndPlotDesign() {
       }
       nextPage();
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("CharactorAndPlotDesign - 이미지 처리 중 오류:", error);
       toast({
         title: TOAST_IMAGE_CAPTURE_ERROR_TITLE,
-        description: error instanceof Error ? error.message : TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION,
+        description: error.message || TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION,
         variant: "destructive",
       });
       return;
@@ -316,6 +325,14 @@ export default function CharactorAndPlotDesign() {
         {isCoverBgImageLoaded ? "다음 단계로" : "표지 이미지 로딩 중..."}
       </button>
 
+      {/* Debug Image Display Section */}
+      {debugCapturedImage && (
+        <div className="mt-4 p-4 border border-dashed border-red-500">
+          <h3 className="text-lg font-semibold text-red-500">디버그: 캡처된 이미지 미리보기</h3>
+          <img src={debugCapturedImage} alt="Debug - Captured Cover Snapshot" style={{ border: '2px solid red', width: '210px', height: '270px', objectFit: 'contain' }} />
+          <p className="text-sm text-gray-600 mt-2">이 이미지가 실제 캡처된 결과입니다. 배경 이미지가 누락되었는지 확인해주세요.</p>
+        </div>
+      )}
     </div>
   );
 }
