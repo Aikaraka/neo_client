@@ -16,12 +16,12 @@ export function useInfiniteScroll<IntersectionObserverType>({
   options?: IntersectionObserverInit;
 }) {
   const onScroll: IntersectionObserverCallback = useCallback(
-    (entries, observer) => {
+    (entries) => {
       if (entries[0].isIntersecting && hasMore) {
         fetchMore();
       }
     },
-    [fetchMore]
+    [fetchMore, hasMore]
   );
 
   useEffect(() => {

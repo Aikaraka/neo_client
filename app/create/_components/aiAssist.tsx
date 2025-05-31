@@ -8,7 +8,6 @@ import {
 } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
 import { useMutation } from "@tanstack/react-query";
 import { Sparkles } from "lucide-react";
 import { HTMLAttributes } from "react";

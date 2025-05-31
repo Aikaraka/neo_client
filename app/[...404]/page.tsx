@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Frown } from "lucide-react";
+import Link from "next/link";
 
 export default function NotFound() {
   return (
@@ -9,9 +10,9 @@ export default function NotFound() {
         <h1 className="text-5xl text-center">OOPS!</h1>
         <h2>문제가 발생했어요</h2>
       </div>
-      <a href="/" className="w-full">
+      <Link href="/" className="w-full">
         <Button className="w-full">홈으로</Button>
-      </a>
+      </Link>
     </div>
   );
 }

@@ -1,10 +1,8 @@
 import SideBar from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { getCurrentUser } from "@/app/mypage/_api/currentUser.server";
-import { Plus, User } from "lucide-react";
+import { User } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { MainContent } from "@/components/ui/content";
 
 export default async function Page() {
@@ -52,39 +50,13 @@ export default async function Page() {
             </Button>
           </div>
         </section>
-        <section className="py-5">
-          <Link href={"/create"}>
-            <Button className="w-full p-6 [&_svg]:size-5" variant={"outline"}>
-              <Plus className="text-primary" /> 소설 제작
-            </Button>
-          </Link>
-        </section>
-        <section>
-          <p className="mb-5">내 소설</p>
-          <div className="w-full grid grid-cols-3 place-items-center pb-5 gap-x-2 gap-y-4">
-            {userData.novels.map((novel, index) => (
-              <Link href={`/novel/${novel.id}/detail`}>
-                <Card key={index} className="w-[100px] shrink-0">
-                  <CardContent className="p-0">
-                    <Image
-                      src={
-                        novel.image_url
-                          ? novel.image_url
-                          : "/src/public/neo_emblem.svg"
-                      }
-                      alt={novel.title}
-                      width={150}
-                      height={150}
-                      className="rounded-t-lg object-cover w-[100px] h-[100px]"
-                    />
-                    <div className="p-2">
-                      <p className="text-sm truncate">{novel.title}</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+        <section className="py-5 text-center">
+          <p className="text-gray-600">
+            당신이 창작한 소설들을 편리하게 관리하고, &ldquo;스토리&rdquo;의
+          </p>
+          <p className="text-gray-600">
+            새로운 &ldquo;인생&rdquo;을 감상해보세요.
+          </p>
         </section>
       </div>
     </MainContent>

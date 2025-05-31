@@ -14,7 +14,7 @@ interface NovelRanking {
   chat_count: number;
   rank: number;
   period_label: string;
-  calculated_at: string;
+  calculated_at: string | null;
 }
 
 // 기간 라벨 타입
@@ -63,8 +63,9 @@ export default function AdminViewRankings() {
           setSelectedPeriod("");
           setRankings([]);
         }
-      } catch (err: any) {
-        setError(err.message || "기간 목록을 가져오는 중 오류가 발생했습니다.");
+      } catch (err) {
+        const error = err as Error;
+        setError(error.message || "기간 목록을 가져오는 중 오류가 발생했습니다.");
       } finally {
         setIsLoading(false);
       }
@@ -97,8 +98,9 @@ export default function AdminViewRankings() {
         }
 
         setRankings(data || []);
-      } catch (err: any) {
-        setError(err.message || "랭킹을 가져오는 중 오류가 발생했습니다.");
+      } catch (err) {
+        const error = err as Error;
+        setError(error.message || "랭킹을 가져오는 중 오류가 발생했습니다.");
         setRankings([]);
       } finally {
         setIsLoading(false);

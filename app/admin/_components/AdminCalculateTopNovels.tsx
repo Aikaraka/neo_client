@@ -20,10 +20,9 @@ export default function AdminCalculateTopNovels() {
   const handleCalculate = async () => {
     setIsLoading(true);
     try {
-      const formData = new FormData();
-      const response = await calculateAndSaveRankings(formData);
+      const response = await calculateAndSaveRankings();
       setResult(response);
-    } catch (error) {
+    } catch {
       setResult({
         success: false,
         message: "오류가 발생했습니다.",

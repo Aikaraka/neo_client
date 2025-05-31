@@ -27,7 +27,12 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.redirect(new URL("/auth/update-password", requestUrl));
-  } catch (error) {
-    return NextResponse.redirect(new URL("/error", requestUrl));
+  } catch {
+    return NextResponse.redirect(
+      `${requestUrl.origin}/auth/update-password?message=패스워드 업데이트에 실패했습니다.`,
+      {
+        status: 301,
+      },
+    );
   }
 }

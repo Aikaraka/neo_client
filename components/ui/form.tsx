@@ -85,7 +85,7 @@ const InputFormField = <
           <FormControl>
             <div
               className={cn(
-                inputVariants({ type: variantType as any }),
+                inputVariants({ type: variantType as "text" | "email" | "checkbox" | "default" }),
                 className
               )}
             >

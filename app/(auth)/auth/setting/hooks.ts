@@ -34,7 +34,7 @@ export function useSettingForm() {
         nickname,
         birth,
         gender,
-        marketingAgreement
+        marketingAgreement ?? false
       );
       router.replace("/");
     } catch (error) {

@@ -15,8 +15,11 @@ export default function AdminChatStats() {
     try {
       const response = await updateTopNovelViews();
       setResult(response);
-    } catch (error) {
-      setResult({ success: false, message: "오류가 발생했습니다." });
+    } catch {
+      setResult({
+        success: false,
+        message: "오류가 발생했습니다.",
+      });
     } finally {
       setIsLoading(false);
     }

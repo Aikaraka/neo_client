@@ -28,6 +28,7 @@ export async function getPreviousStories(
  */
 export interface StoryItem {
   content: string;
+  user_input?: string;
   story_number: number;
 }
 

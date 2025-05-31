@@ -1,12 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { FallbackProps } from "react-error-boundary";
 
-export default function ErrorFallback({
-  error,
-  resetErrorBoundary,
-}: FallbackProps) {
+interface ErrorFallbackProps {
+  resetErrorBoundary: () => void;
+}
+
+export default function ErrorFallback({ resetErrorBoundary }: ErrorFallbackProps) {
   return (
     <div className="w-full h-full flex justify-center items-center flex-col gap-20">
       <div className="flex flex-col gap-3 justify-center itmes-center">

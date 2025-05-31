@@ -14,7 +14,7 @@ import { useState } from "react";
 import { useFormContext } from "react-hook-form";
 
 export default function CoverImageGenerator() {
-  const { getValues, setValue } = useFormContext<CreateNovelForm>();
+  const { getValues } = useFormContext<CreateNovelForm>();
   const { changeImage } = useCoverImageContext();
   const { toast } = useToast();
   const { data, isPending, mutate } = useMutation({
