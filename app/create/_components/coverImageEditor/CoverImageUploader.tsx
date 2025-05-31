@@ -4,7 +4,6 @@ import { useRef, ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useCoverImageContext } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 import ImageCropper from "@/app/create/_components/ImageCropper";
-import { dataURLToFile } from "@/utils/image";
 
 export function CoverImageUploader() {
   const inputRef = useRef<HTMLInputElement | null>(null);

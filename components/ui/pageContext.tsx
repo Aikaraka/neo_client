@@ -1,23 +1,7 @@
 "use client";
 
-import { cva, VariantProps } from "class-variance-authority";
-import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-} from "react";
-
-const prevButtonVariants = cva("absolute cursor-pointer z-50", {
-  variants: {
-    variant: {
-      default: "top-10 left-7",
-      header: "top-4 left-4",
-    },
-  },
-});
+import React, { createContext, useContext, useState } from "react";
 
 type PageContextType = {
   currPage: number;
@@ -41,7 +25,6 @@ type PageProviderProps = {
   maxPage: number;
   initialPage?: number;
   prevButton?: boolean;
-  variants?: VariantProps<typeof prevButtonVariants>;
 };
 
 export const PageProvider = ({
@@ -49,24 +32,12 @@ export const PageProvider = ({
   maxPage,
   initialPage,
   prevButton = true,
-  variants = { variant: "default" },
 }: PageProviderProps) => {
   const [currPage, setCurrPage] = useState(initialPage ?? 0);
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
   const [capturedImageFile, setCapturedImageFile] = useState<File | null>(null);
-  const [capturedImageDataUrl, setCapturedImageDataUrl] = useState<string | null>(
-    () => (typeof window !== "undefined" ? sessionStorage.getItem("capturedImageDataUrl") : null)
-  );
+  const [capturedImageDataUrl, setCapturedImageDataUrl] = useState<string | null>(null);
   const navigation = useRouter();
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (capturedImageDataUrl) {
-      sessionStorage.setItem("capturedImageDataUrl", capturedImageDataUrl);
-    } else {
-      sessionStorage.removeItem("capturedImageDataUrl");
-    }
-  }, [capturedImageDataUrl]);
 
   const prevButtonVisible = currPage > 0 && currPage <= maxPage && prevButton;
   const isLastStep = currPage === maxPage;

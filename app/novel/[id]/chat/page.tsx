@@ -38,7 +38,7 @@ export default function ChatPage() {
       }}
     >
       <ProgressRate />
-      <StoryContent isDark={isDark} fontSize={fontSize} lineHeight={lineHeight} paragraphSpacing={paragraphSpacing} paragraphWidth={paragraphWidth} align={align} />
+      <StoryContent />
       <ChatInput
         onColorChange={setBgColor}
         selectedColor={bgColor}

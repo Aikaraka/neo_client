@@ -1,4 +1,9 @@
 "use client";
+import React, {
+  createContext,
+  useContext,
+  useState,
+} from "react";
 import {
   initStory,
   InitStoryResponse,
@@ -10,8 +15,7 @@ import { LoadingModal } from "@/components/ui/modal";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
-import { createContext, useContext, useState } from "react";
+import { useParams } from "next/navigation";
 
 export type Message = { type: 'user' | 'ai', content: string };
 
@@ -69,7 +73,14 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     queryKey: ["initStory", novelId],
     queryFn: async () => {
       const initSetting = await initStory(novelId);
-      setMessages(initSetting.initial_stories.map((s) => ({ type: 'ai' as const, content: s.content })));
+      const restoredMessages: Message[] = [];
+      for (const s of initSetting.initial_stories) {
+        if (s.user_input) {
+          restoredMessages.push({ type: 'user', content: s.user_input });
+        }
+        restoredMessages.push({ type: 'ai', content: s.content });
+      }
+      setMessages(restoredMessages);
       setProgressRate(initSetting.progress_rate);
       setCurrPage(initSetting.oldest_story_number);
       setHasMoreStories(initSetting.has_more_stories);
@@ -141,7 +152,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
                 const newMsgs = [...prev];
                 const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
                 if (lastAiIdx !== -1) {
-                  newMsgs[lastAiIdx] = { type: 'ai' as const, content: accumulatedText };
+                  newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText };
                 }
                 return newMsgs;
               });
@@ -175,7 +186,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const res = await undoLastStory(novelId, session?.user.id);
       const data = await res.json();
       if (data.success) {
-        setMessages((prev) => prev.slice(0, -1));
+        setMessages((prev) => prev.slice(0, -2)); // 유저 메시지 포함해서 2개 삭제
         if (data.progress_rate) {
           setProgressRate(data.progress_rate);
         }
@@ -209,7 +220,13 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const sortedStories = stories.sort(
         (a, b) => a.story_number - b.story_number
       );
-      const prevMessages = sortedStories.map((s) => ({ type: 'ai' as const, content: s.content }));
+      const prevMessages: Message[] = [];
+      for (const s of sortedStories) {
+        if (s.user_input) {
+          prevMessages.push({ type: 'user', content: s.user_input });
+        }
+        prevMessages.push({ type: 'ai', content: s.content });
+      }
       setMessages((prev) => [...prevMessages, ...prev]);
       setHasMoreStories(has_more);
       setCurrPage(sortedStories[0]?.story_number ?? 0);

@@ -11,7 +11,7 @@ import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { Dispatch, HTMLAttributes, SetStateAction, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, HTMLAttributes } from "react";
 import { useFormContext } from "react-hook-form";
 import { Rnd } from "react-rnd";
 import { EditorContent, useEditor } from "@tiptap/react";
@@ -97,7 +97,7 @@ interface TextEditProps {
 function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
   const { getValues, setValue, watch } = useFormContext<CreateNovelForm>();
   const { fontTheme, fontStyle } = useCoverImageContext();
-  const [size, setSize] = useState({
+  const [, setSize] = useState({
     width: DEFAULT_WIDTH,
     height: DEFAULT_HEIGHT,
   });
