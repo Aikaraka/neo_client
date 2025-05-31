@@ -1,7 +1,7 @@
 "use client";
 
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
-import { ProgressRate } from "@/app/novel/[id]/chat/_components/ProgressRate";
+import ProgressRate from "@/app/novel/[id]/chat/_components/ProgressRate";
 import { StoryContent } from "@/app/novel/[id]/chat/_components/StoryContent";
 import { ChatInput } from "@/app/novel/[id]/chat/_components/ChatInput";
 import NotFound from "@/app/[...404]/page";
@@ -41,7 +41,6 @@ export default function ChatPage() {
       <StoryContent isDark={isDark} fontSize={fontSize} lineHeight={lineHeight} paragraphSpacing={paragraphSpacing} paragraphWidth={paragraphWidth} align={align} />
       <ChatInput
         onColorChange={setBgColor}
-        isDark={isDark}
         selectedColor={bgColor}
         fontSize={fontSize}
         lineHeight={lineHeight}

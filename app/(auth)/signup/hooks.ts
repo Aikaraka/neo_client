@@ -59,7 +59,7 @@ export function useSignupForm() {
 
   return {
     form,
-    mutate,
+    submit: mutate,
     isPending,
   };
 }
