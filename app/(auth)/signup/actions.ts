@@ -26,11 +26,15 @@ export const signup = async ({
     .single();
   if (duplicateData) throw new Error("이미 존재하는 이메일입니다.");
 
+  // 동적으로 현재 도메인 사용 (localhost 또는 vercel 배포 도메인)
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
   const { data: authData, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `http://localhost:3000/auth/callback`,
+      emailRedirectTo: `${baseUrl}/auth/callback`,
     },
   });
   if (error) {

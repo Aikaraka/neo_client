@@ -26,9 +26,12 @@ export const resetPassword = async ({
 
   if (name !== userName) throw new Error("정보가 일치하지 않습니다.");
 
-  // TODO: 환경변수로 변경
+  // 동적으로 현재 도메인 사용 (localhost 또는 vercel 배포 도메인)
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+    
   return supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: "http://localhost:3000/auth/callback/update-password",
+    redirectTo: `${baseUrl}/auth/callback/update-password`,
   });
 };
 
