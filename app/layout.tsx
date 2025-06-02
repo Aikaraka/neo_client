@@ -8,8 +8,20 @@ import ResponsiveWrapper from "@/components/common/responsiveWrapper";
 import SuspenseBoundary from "@/components/common/suspenseBoundary";
 
 const NanumSquareNeo = localFont({
-  src: "./fonts/NanumSquareNeo-Variable.woff2",
+  src: [
+    {
+      path: "./fonts/NanumSquareNeo-Variable.woff2",
+      style: "normal",
+    },
+    {
+      path: "./fonts/NanumSquareNeo-Variable.woff",
+      style: "normal",
+    }
+  ],
   display: "swap",
+  fallback: ["'Malgun Gothic'", "'Apple SD Gothic Neo'", "sans-serif"],
+  preload: true,
+  variable: "--font-nanum",
 });
 
 export const metadata: Metadata = {
@@ -23,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ko" className={cn(NanumSquareNeo.className, "bg-foreground/5")}>
+    <html lang="ko" className={cn(NanumSquareNeo.variable, "bg-foreground/5")}>
       <ResponsiveWrapper>
         <AuthProvider>
           <QueryProvider>
