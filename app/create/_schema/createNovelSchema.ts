@@ -25,7 +25,7 @@ export const createNovelSchema = z.object({
         characters.filter((c) => c.role === "protagonist").length === 1,
       "1명의 주인공을 만들어주세요."
     ),
-  title: z.string().min(5, "제목은 5자 이상을 입력해주세요."),
+  title: z.string().min(3, "제목은 3자 이상을 입력해주세요.").max(25, "제목은 25자 이하로 입력해주세요."),
   plot: z.string().min(1, "스토리를 입력해야 합니다."),
   cover_image_url: z.string().optional(),
   background: z.object({

@@ -11,5 +11,23 @@ Sentry.init({
   tracesSampleRate: 1,
 
   // Setting this option to true will print useful information to the console while you're setting up Sentry.
-  debug: false,
+  debug: process.env.NODE_ENV === "development",
+
+  // 프로덕션에서도 더 많은 컨텍스트 정보 수집
+  beforeSend(event, hint) {
+    if (event.exception) {
+      const error = hint.originalException;
+      console.error("Sentry error captured:", {
+        message: event.message,
+        error: error,
+        user: event.user,
+        tags: event.tags,
+        extra: event.extra,
+      });
+    }
+    return event;
+  },
+
+  // 환경별 릴리스 정보
+  environment: process.env.NODE_ENV,
 });

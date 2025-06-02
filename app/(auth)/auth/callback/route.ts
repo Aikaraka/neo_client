@@ -5,6 +5,7 @@ import {
 } from "@/app/(auth)/auth/callback/callback.api";
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -19,6 +20,9 @@ export async function GET(request: Request) {
       code
     );
     if (exchangeError) {
+      Sentry.captureException(exchangeError, {
+        tags: { error_type: "exchange_code_error", context: "auth_callback" },
+      });
       return NextResponse.redirect(new URL("/login", requestUrl));
     }
 
@@ -27,15 +31,30 @@ export async function GET(request: Request) {
       error: sessionError,
     } = await getSession(supabase);
     if (sessionError || !session?.user) {
+      Sentry.captureException(sessionError || new Error("No session after exchange"), {
+        tags: { error_type: "session_error", context: "auth_callback" },
+      });
       return NextResponse.redirect(new URL("/login", requestUrl));
     }
 
-    const { data: existingUser } = await getuser(session, supabase);
+    const { data: existingUser, error: getUserError } = await getuser(session, supabase);
+
+    if (getUserError && getUserError.code !== 'PGRST116') {
+      Sentry.captureException(getUserError, {
+        tags: { error_type: "get_user_error", context: "auth_callback" },
+      });
+      return NextResponse.redirect(new URL("/login", requestUrl));
+    }
 
     if (!existingUser) {
       const { error: insertError } = await insertNewUser(session, supabase);
       if (insertError) {
-        return NextResponse.redirect(new URL("/auth/setting", requestUrl));
+        Sentry.captureException(insertError, {
+          tags: { error_type: "insert_user_error", context: "auth_callback" },
+          extra: { userId: session.user.id, email: session.user.email },
+        });
+        console.error("사용자 생성 실패:", insertError);
+        // 사용자 생성 실패해도 설정 페이지로 이동하여 재시도 가능하도록 함
       }
       return NextResponse.redirect(new URL("/auth/setting", requestUrl));
     }
@@ -45,7 +64,12 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.redirect(new URL("/", requestUrl));
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error, {
+      tags: { error_type: "auth_callback_general_error", context: "auth_callback" },
+      extra: { url: request.url, code },
+    });
+    console.error("Auth callback error:", error);
     return NextResponse.redirect(
       `${requestUrl.origin}/auth/login?message=로그인에 실패했습니다.`,
       {
