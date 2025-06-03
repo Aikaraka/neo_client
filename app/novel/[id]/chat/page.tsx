@@ -30,12 +30,14 @@ export default function ChatPage() {
   if (initError) return <NotFound />;
   return (
     <div
-      className="flex flex-col w-full h-full"
+      className="flex flex-col w-full h-full overflow-hidden"
       style={{
         background: bgColor,
         color: isDark ? "#fff" : "#232325",
         transition: "background 0.2s, color 0.2s",
-        filter: `brightness(${brightness})`
+        filter: `brightness(${brightness})`,
+        position: "relative",
+        maxWidth: "100vw"
       }}
     >
       <ProgressRate />
