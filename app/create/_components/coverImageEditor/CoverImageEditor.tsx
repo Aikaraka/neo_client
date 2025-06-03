@@ -269,17 +269,21 @@ function ColorSelect() {
 
 function FontSelect() {
   const { changeFontStyle, fontStyle } = useCoverImageContext();
+  
+  const handleFontChange = (targetFont: keyof typeof fontStyles) => {
+    console.log('FontSelect: 폰트 변경 시도:', targetFont, '현재 폰트:', fontStyle);
+    changeFontStyle(targetFont);
+  };
+  
   return (
     <div className="flex gap-2 self-center">
       {Object.keys(fontStyles).map((font) => (
         <Button
           key={`font-${font}`}
           type="button"
-          style={{ fontFamily: fontStyles[fontStyle] }}
+          style={{ fontFamily: fontStyles[font as keyof typeof fontStyles] }}
           variant={fontStyle === font ? "default" : "outline"}
-          onClick={() => {
-            changeFontStyle(font as keyof typeof fontStyles);
-          }}
+          onClick={() => handleFontChange(font as keyof typeof fontStyles)}
         >
           {font}
         </Button>

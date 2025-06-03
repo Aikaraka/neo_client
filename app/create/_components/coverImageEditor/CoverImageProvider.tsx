@@ -89,7 +89,18 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const changeFontStyle = (targetFontStyle: FontStyle) => {
-    if (fontStyle === targetFontStyle) return;
+    console.log('CoverImageProvider: changeFontStyle 호출됨', {
+      현재폰트: fontStyle,
+      목표폰트: targetFontStyle,
+      같은폰트여부: fontStyle === targetFontStyle
+    });
+    
+    if (fontStyle === targetFontStyle) {
+      console.log('CoverImageProvider: 같은 폰트라서 변경하지 않음');
+      return;
+    }
+    
+    console.log('CoverImageProvider: 폰트 변경 실행:', targetFontStyle);
     setFontStyleState(targetFontStyle);
   };
 

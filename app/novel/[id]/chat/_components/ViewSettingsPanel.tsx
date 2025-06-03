@@ -5,13 +5,10 @@ import TextSizeIcon from "@/public/novel/chat/text-size.svg";
 import LineHeightIcon from "@/public/novel/chat/line-height.svg";
 import ParagraphSpacingIcon from "@/public/novel/chat/paragraph-spacing.svg";
 import ParagraphWidthIcon from "@/public/novel/chat/paragraph-width.svg";
-import ParagraphAlignmentIcon from "@/public/novel/chat/paragraph-alignment.svg";
 import RefreshIcon from "@/public/novel/chat/refresh.svg";
 import PlusIcon from "@/public/novel/chat/plus.svg";
 import MinusIcon from "@/public/novel/chat/minus.svg";
 import CaretDownIcon from "@/public/novel/chat/caret-down.svg";
-import LeftAlignedIcon from "@/public/novel/chat/left-aligned.svg";
-import CenterAlignedIcon from "@/public/novel/chat/center-aligned.svg";
 import { useEffect, useRef, useState } from "react";
 
 const colorList = [
@@ -23,7 +20,7 @@ const DEFAULT_LINE_HEIGHT = 1.6;
 const DEFAULT_PARAGRAPH_SPACING = 16;
 const DEFAULT_PARAGRAPH_WIDTH = 400;
 
-export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontSize, onFontSizeChange, lineHeight, onLineHeightChange, paragraphSpacing, onParagraphSpacingChange, paragraphWidth, onParagraphWidthChange, brightness, onBrightnessChange, align, onAlignChange }: {
+export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontSize, onFontSizeChange, lineHeight, onLineHeightChange, paragraphSpacing, onParagraphSpacingChange, paragraphWidth, onParagraphWidthChange, brightness, onBrightnessChange, font, onFontChange }: {
   onClose: () => void,
   onColorChange?: (color: string) => void,
   selectedColor: string,
@@ -37,18 +34,26 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
   onParagraphWidthChange: (width: number) => void,
   brightness: number,
   onBrightnessChange: (b: number) => void,
-  align: "left" | "center",
-  onAlignChange: (a: "left" | "center") => void,
+  font: string,
+  onFontChange: (font: string) => void,
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [fontOpen, setFontOpen] = useState(false);
-  const fontOptions = ["원본", "나눔고딕", "산돌고딕"];
-  const [font, setFont] = useState("원본");
+  const fontOptions = ["나눔명조", "나눔고딕", "KoPubWorld 돋움체", "KoPubWorld 바탕체"];
   const fontRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState(selectedColor);
+  const [isMobile, setIsMobile] = useState(true);
+  
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
-  // 모달 닫힐 때 dirty 초기화
   useEffect(() => {
     setTimeout(() => setVisible(true), 10);
     function handleClickOutside(event: MouseEvent) {
@@ -94,10 +99,10 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       ref={panelRef}
       style={{
         position: "fixed",
-        left: 0,
+        left: isMobile ? 0 : 89,
         right: 0,
         bottom: 0,
-        width: "100%",
+        width: isMobile ? "100%" : "calc(100% - 89px)",
         background: "#F5F5F5",
         borderRadius: "16px 16px 0 0",
         boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
@@ -224,7 +229,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
               position: "absolute", top: "100%", left: 0, background: "#fff", border: "1px solid #E2E1DC", borderRadius: 8, zIndex: 10, minWidth: 80
             }}>
               {fontOptions.map(opt => (
-                <div key={opt} style={{ padding: 8, cursor: "pointer", color: opt === font ? "#A259D9" : "#232325" }} onClick={() => { setFont(opt); setFontOpen(false); }}>{opt}</div>
+                <div key={opt} style={{ padding: 8, cursor: "pointer", color: opt === font ? "#A259D9" : "#232325" }} onClick={() => { onFontChange(opt); setFontOpen(false); }}>{opt}</div>
               ))}
             </div>
           )}
@@ -350,71 +355,50 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "0 24px 0 24px", minHeight: 48, position: "relative" }}>
         <ParagraphWidthIcon />
         <span style={{ fontSize: 17, color: "#868D96" }}>문단 너비</span>
-        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: 15, marginLeft: 8, marginRight: "auto" }}>{paragraphWidth}</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-          {paragraphWidth !== DEFAULT_PARAGRAPH_WIDTH && (
-            <button
-              onClick={() => onParagraphWidthChange(DEFAULT_PARAGRAPH_WIDTH)}
-              style={{ background: "none", border: "none", padding: 0, marginRight: 4, cursor: "pointer", display: "flex", alignItems: "center" }}
-              title="기본값으로 되돌리기"
-            >
-              <RefreshIcon style={{ width: 20, height: 20, color: "#858585" }} />
-            </button>
-          )}
+        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: 15, marginLeft: 8 }}>{Math.round((paragraphWidth / 800) * 100)}%</span>
+        <div style={{ position: "relative", flex: 1, marginLeft: 16, marginRight: 24, height: 32 }}>
+          <input
+            type="range"
+            min={300}
+            max={800}
+            step={10}
+            value={paragraphWidth}
+            onChange={e => onParagraphWidthChange(Number(e.target.value))}
+            style={{
+              position: "absolute",
+              left: 0, top: 0, width: "100%", height: 32,
+              opacity: 0, zIndex: 2, cursor: "pointer",
+              margin: 0, padding: 0,
+            }}
+          />
+          {/* 보라색 트랙 */}
           <div style={{
-            width: 104, height: 28, border: "1px solid #A259D9", borderRadius: 9999,
-            display: "flex", alignItems: "center", position: "relative", overflow: "hidden"
+            height: 8,
+            background: "#E2E1DC",
+            borderRadius: 4,
+            position: "absolute",
+            left: 0, right: 0, top: 12, zIndex: 1
           }}>
-            <button style={{
-              flex: 1, height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-              background: "none", border: "none", cursor: "pointer", padding: 0
-            }} onClick={() => onParagraphWidthChange(Math.max(300, paragraphWidth - 20))}>
-              <MinusIcon />
-            </button>
             <div style={{
-              width: 1, height: "100%", background: "#A259D9"
+              width: `${((paragraphWidth - 300) / 500) * 100}%`,
+              height: 8,
+              background: "#A259D9",
+              borderRadius: 4,
+              position: "absolute", left: 0, top: 0
             }} />
-            <button style={{
-              flex: 1, height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-              background: "none", border: "none", cursor: "pointer", padding: 0
-            }} onClick={() => onParagraphWidthChange(Math.min(800, paragraphWidth + 20))}>
-              <PlusIcon />
-            </button>
+            {/* 썸(thumb) */}
+            <div style={{
+              position: "absolute",
+              left: `calc(${((paragraphWidth - 300) / 500) * 100}% - 8px)`,
+              top: -4,
+              width: 16, height: 16,
+              background: "#A259D9",
+              borderRadius: "50%",
+              border: "none",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+              zIndex: 3
+            }} />
           </div>
-        </div>
-      </div>
-      <hr style={dividerStyle} />
-      {/* 문단정렬 */}
-      <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "0 24px 0 24px", minHeight: 48, position: "relative" }}>
-        <ParagraphAlignmentIcon />
-        <span style={{ flex: 1, fontSize: 17, color: "#868D96" }}>문단 정렬</span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => onAlignChange("left")}
-            style={{
-              background: "transparent",
-              border: "none",
-              borderRadius: 8,
-              padding: 2,
-              outline: "none",
-              cursor: "pointer"
-            }}
-          >
-            <LeftAlignedIcon style={{ color: align === "left" ? "#9125B1" : "#848C95" }} />
-          </button>
-          <button
-            onClick={() => onAlignChange("center")}
-            style={{
-              background: "transparent",
-              border: "none",
-              borderRadius: 8,
-              padding: 2,
-              outline: "none",
-              cursor: "pointer"
-            }}
-          >
-            <CenterAlignedIcon style={{ color: align === "center" ? "#9125B1" : "#848C95" }} />
-          </button>
         </div>
       </div>
     </div>

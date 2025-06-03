@@ -2,6 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+/* 커스텀 폰트 정의 */
+@font-face {
+  font-family: 'bombaram';
+  src: url('./fonts/bombaram.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'heiroOfLight';
+  src: url('./fonts/HeirofLightRegular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 나눔고딕 폰트 */
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('/fonts/NanumGothic.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('/fonts/NanumGothicBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NanumGothic';
+  src: url('/fonts/NanumGothicLight.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+/* 나눔명조 폰트 */
+@font-face {
+  font-family: 'NanumMyeongjo';
+  src: url('/fonts/NanumMyeongjo.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NanumMyeongjo';
+  src: url('/fonts/NanumMyeongjoBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+/* KoPubWorld 돋움체 */
+@font-face {
+  font-family: 'KoPubWorldDotum';
+  src: url('/fonts/KoPubWorldDotumMedium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* KoPubWorld 바탕체 */
+@font-face {
+  font-family: 'KoPubWorldBatang';
+  src: url('/fonts/KoPubWorldBatangMedium.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

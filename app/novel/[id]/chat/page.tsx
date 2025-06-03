@@ -15,7 +15,8 @@ export default function ChatPage() {
   const [paragraphSpacing, setParagraphSpacing] = useState(16);
   const [paragraphWidth, setParagraphWidth] = useState(600);
   const [brightness, setBrightness] = useState(1);
-  const [align, setAlign] = useState<"left" | "center">("left");
+  const [font, setFont] = useState("나눔명조");
+  
   useEffect(() => {
     const stored = localStorage.getItem("novel_brightness");
     if (stored) setBrightness(Number(stored));
@@ -38,7 +39,13 @@ export default function ChatPage() {
       }}
     >
       <ProgressRate />
-      <StoryContent />
+      <StoryContent 
+        fontSize={fontSize}
+        lineHeight={lineHeight}
+        paragraphSpacing={paragraphSpacing}
+        paragraphWidth={paragraphWidth}
+        font={font}
+      />
       <ChatInput
         onColorChange={setBgColor}
         selectedColor={bgColor}
@@ -52,8 +59,8 @@ export default function ChatPage() {
         onParagraphWidthChange={setParagraphWidth}
         brightness={brightness}
         onBrightnessChange={setBrightness}
-        align={align}
-        onAlignChange={setAlign}
+        font={font}
+        onFontChange={setFont}
       />
     </div>
   );

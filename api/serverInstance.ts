@@ -1,9 +1,12 @@
 import { APIBuilder } from "@/api/apiBuilder";
 import { createClient } from "@/utils/supabase/server";
 
-export const novelAiServerForServer = new APIBuilder(
-  process.env.NEXT_PUBLIC_API_URL as string
-)
+// 임시로 localhost 사용 (연결 문제 해결을 위해)
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+console.log("🔧 API URL 설정:", API_URL);
+
+export const novelAiServerForServer = new APIBuilder(API_URL)
   .withCredentials(true)
   .headers({
     "Content-type": "application/json",
