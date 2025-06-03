@@ -2,15 +2,8 @@
 
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
 import { useInfiniteScroll } from "@/hooks/use-infiniteScroll";
-import localFont from "next/font/local";
 import { useEffect, useRef } from "react";
 import { splitChatParagraphs } from "@/utils/splitChatParagraphs";
-
-const NanumMyeongjo = localFont({
-  src: "../../../../fonts/NanumMyeongjo.ttf",
-  weight: "400",
-  style: "normal",
-});
 
 interface StoryContentProps {
   fontSize: number;

@@ -18,7 +18,6 @@ const colorList = [
 const DEFAULT_FONT_SIZE = 15;
 const DEFAULT_LINE_HEIGHT = 1.6;
 const DEFAULT_PARAGRAPH_SPACING = 16;
-const DEFAULT_PARAGRAPH_WIDTH = 400;
 
 export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontSize, onFontSizeChange, lineHeight, onLineHeightChange, paragraphSpacing, onParagraphSpacingChange, paragraphWidth, onParagraphWidthChange, brightness, onBrightnessChange, font, onFontChange }: {
   onClose: () => void,

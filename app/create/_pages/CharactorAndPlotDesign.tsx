@@ -254,11 +254,12 @@ export default function CharactorAndPlotDesign() {
       }
       nextPage();
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("CharactorAndPlotDesign - 이미지 처리 중 오류:", error);
+      const errorMessage = error instanceof Error ? error.message : TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION;
       toast({
         title: TOAST_IMAGE_CAPTURE_ERROR_TITLE,
-        description: error.message || TOAST_IMAGE_CAPTURE_ERROR_DESCRIPTION,
+        description: errorMessage,
         variant: "destructive",
       });
       return;
