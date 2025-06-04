@@ -8,6 +8,7 @@ import ResponsiveWrapper from "@/components/common/responsiveWrapper";
 import SuspenseBoundary from "@/components/common/suspenseBoundary";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicator";
+import Footer from '@/components/layout/Footer';
 
 const NanumSquareNeo = localFont({
   src: [
@@ -39,16 +40,21 @@ export default function RootLayout({
   return (
     <html lang="ko" className={cn(NanumSquareNeo.variable, "bg-foreground/5")}>
       <body>
-        <LoadingProvider>
-          <GlobalLoadingIndicator />
-          <ResponsiveWrapper>
-            <AuthProvider>
-              <QueryProvider>
-                <SuspenseBoundary>{children}</SuspenseBoundary>
-              </QueryProvider>
-            </AuthProvider>
-          </ResponsiveWrapper>
-        </LoadingProvider>
+        <div className="flex flex-col min-h-screen">
+          <LoadingProvider>
+            <GlobalLoadingIndicator />
+            <main className="flex-grow">
+              <ResponsiveWrapper>
+                <AuthProvider>
+                  <QueryProvider>
+                    <SuspenseBoundary>{children}</SuspenseBoundary>
+                  </QueryProvider>
+                </AuthProvider>
+              </ResponsiveWrapper>
+            </main>
+          </LoadingProvider>
+          <Footer />
+        </div>
       </body>
     </html>
   );
