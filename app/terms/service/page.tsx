@@ -9,7 +9,7 @@ export default function ServiceTermsPage() {
         
         <h2 id="introduction" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">1. 소개</h2>
         <p className="text-gray-700 mb-4">
-          더퍼레이드(이하 "회사")에 오신 것을 환영합니다. 본 이용약관(이하 "약관")은 회사가 제공하는 웹사이트, 서비스 및 애플리케이션(이하 "서비스")과 관련 콘텐츠(AI가 생성한 소설 및 코인 재화로 이용 가능한 콘텐츠)에 대한 귀하의 접근 및 이용을 규정합니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.
+          더퍼레이드(이하 &quot;회사&quot;)에 오신 것을 환영합니다. 본 이용약관(이하 &quot;약관&quot;)은 회사가 제공하는 웹사이트, 서비스 및 애플리케이션(이하 &quot;서비스&quot;)과 관련 콘텐츠(AI가 생성한 소설 및 코인 재화로 이용 가능한 콘텐츠)에 대한 귀하의 접근 및 이용을 규정합니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.
         </p>
 
         <h2 id="agreement" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">2. 약관 동의</h2>
@@ -29,7 +29,7 @@ export default function ServiceTermsPage() {
         </ul>
         <h3 className="text-lg font-semibold mt-4 mb-2">3.2 코인 제도</h3>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
-          <li className="mb-2">플랫폼 내 재화인 '코인'을 구매하여 AI 소설 생성 및 플레이에 사용</li>
+          <li className="mb-2">플랫폼 내 재화인 &apos;코인&apos;을 구매하여 AI 소설 생성 및 플레이에 사용</li>
           <li className="mb-2">코인 구매 및 사용에 대한 별도의 운영 정책 동의 필요</li>
         </ul>
 
@@ -64,7 +64,7 @@ export default function ServiceTermsPage() {
         <h2 id="coin-payment" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">6. 코인 및 결제</h2>
         <h3 className="text-lg font-semibold mt-4 mb-2">6.1 코인 구매 및 사용</h3>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
-          <li className="mb-2">회사는 서비스 유지 및 품질 개선을 위해 AI 콘텐츠 이용 및 생성에 필요한 가상 재화 '코인'을 판매합니다.</li>
+          <li className="mb-2">회사는 서비스 유지 및 품질 개선을 위해 AI 콘텐츠 이용 및 생성에 필요한 가상 재화 &apos;코인&apos;을 판매합니다.</li>
           <li className="mb-2">코인 결제 후 청약 철회는 불가합니다. 기술적 문제나 정당한 사유가 있는 경우, <a href="mailto:limdehan@gmail.com" className="text-blue-500 hover:underline">limdehan@gmail.com</a>으로 문의 바랍니다.</li>
           <li className="mb-2">결제 수수료는 통화 간 환율에 영향을 받을 수 있으며, 현지 상황에 따라 카드 및 은행 결제 수수료나 현전 수수료가 발생할 수 있습니다.</li>
           <li className="mb-2">유료 코인은 결제일로부터 1년 뒤 자동 소멸되며, 사용하지 않은 코인은 환불되지 않습니다.</li>
