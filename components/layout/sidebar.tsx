@@ -5,11 +5,15 @@ import { Menu } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signout } from "@/app/(auth)/_api/auth.server";
+import { useActionWithLoading } from "@/hooks/useActionWithLoading";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const router = useRouter();
+  
+  // useActionWithLoading 훅으로 signout 감싸기
+  const signoutWithLoading = useActionWithLoading(signout);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -42,8 +46,9 @@ export default function SideBar() {
 
   const handleSignout = async () => {
     try {
-      await signout();
+      await signoutWithLoading(); // 감싸진 액션 호출
     } catch {
+      // 에러 처리 (선택 사항)
     } finally {
       router.push("/");
     }

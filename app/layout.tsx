@@ -6,6 +6,8 @@ import QueryProvider from "@/components/common/queryProvider";
 import { AuthProvider } from "@/utils/supabase/authProvider";
 import ResponsiveWrapper from "@/components/common/responsiveWrapper";
 import SuspenseBoundary from "@/components/common/suspenseBoundary";
+import { LoadingProvider } from "@/contexts/LoadingContext";
+import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicator";
 
 const NanumSquareNeo = localFont({
   src: [
@@ -36,13 +38,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={cn(NanumSquareNeo.variable, "bg-foreground/5")}>
-      <ResponsiveWrapper>
-        <AuthProvider>
-          <QueryProvider>
-            <SuspenseBoundary>{children}</SuspenseBoundary>
-          </QueryProvider>
-        </AuthProvider>
-      </ResponsiveWrapper>
+      <body>
+        <LoadingProvider>
+          <GlobalLoadingIndicator />
+          <ResponsiveWrapper>
+            <AuthProvider>
+              <QueryProvider>
+                <SuspenseBoundary>{children}</SuspenseBoundary>
+              </QueryProvider>
+            </AuthProvider>
+          </ResponsiveWrapper>
+        </LoadingProvider>
+      </body>
     </html>
   );
 }

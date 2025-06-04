@@ -10,7 +10,7 @@ export default function ResponsiveWrapper({
 }) {
   const mobileEnvironMent = useIsMobile();
   return (
-    <body
+    <div
       className={`${
         mobileEnvironMent
           ? "max-w-md min-w-[360px] h-screen"
@@ -18,6 +18,6 @@ export default function ResponsiveWrapper({
       }  mx-auto relative`}
     >
       {children}
-    </body>
+    </div>
   );
 }

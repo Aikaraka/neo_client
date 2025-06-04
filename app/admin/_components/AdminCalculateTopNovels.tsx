@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { calculateAndSaveRankings } from "@/app/admin/_api/admin.server";
+import { useActionWithLoading } from "@/hooks/useActionWithLoading";
 
 export default function AdminCalculateTopNovels() {
-  const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{
     success: boolean;
     message: string;
@@ -17,18 +17,17 @@ export default function AdminCalculateTopNovels() {
     allTimeCount?: number;
   } | null>(null);
 
+  const calculateAndSaveRankingsWithLoading = useActionWithLoading(calculateAndSaveRankings);
+
   const handleCalculate = async () => {
-    setIsLoading(true);
     try {
-      const response = await calculateAndSaveRankings();
+      const response = await calculateAndSaveRankingsWithLoading();
       setResult(response);
     } catch {
       setResult({
         success: false,
         message: "오류가 발생했습니다.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -44,10 +43,9 @@ export default function AdminCalculateTopNovels() {
 
       <button
         onClick={handleCalculate}
-        disabled={isLoading}
         className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded disabled:bg-gray-400 mb-6"
       >
-        {isLoading ? "계산 중..." : "인기 소설 랭킹 계산 및 저장"}
+        인기 소설 랭킹 계산 및 저장
       </button>
 
       {result && (

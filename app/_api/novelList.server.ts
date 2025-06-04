@@ -76,6 +76,7 @@ export async function getNovelsByCategory(category: Category) {
   const { data, error } = await supabase
     .from("novels")
     .select("*")
+    .filter("settings->isPublic", "eq", true)
     .filter("mood", "cs", `{${category}}`)
     .limit(8);
   if (error) {

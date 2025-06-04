@@ -2,26 +2,25 @@
 
 import { updateTopNovelViews } from "@/app/admin/_api/admin.server";
 import { useState } from "react";
+import { useActionWithLoading } from "@/hooks/useActionWithLoading";
 
 export default function AdminChatStats() {
-  const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<{
     success: boolean;
     message: string;
   } | null>(null);
 
+  const updateTopNovelViewsWithLoading = useActionWithLoading(updateTopNovelViews);
+
   const handleResetStats = async () => {
-    setIsLoading(true);
     try {
-      const response = await updateTopNovelViews();
+      const response = await updateTopNovelViewsWithLoading();
       setResult(response);
     } catch {
       setResult({
         success: false,
         message: "오류가 발생했습니다.",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -37,10 +36,9 @@ export default function AdminChatStats() {
 
       <button
         onClick={handleResetStats}
-        disabled={isLoading}
         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded disabled:bg-gray-400"
       >
-        {isLoading ? "처리 중..." : "채팅 통계 초기화"}
+        채팅 통계 초기화
       </button>
 
       {result && (
