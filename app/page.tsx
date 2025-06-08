@@ -7,19 +7,19 @@ import {
 } from "@/app/_components/NovelList";
 import { Toaster } from "@/components/ui/toaster";
 import MainHeader from "@/app/_components/MainHeader";
-import { MainContent } from "@/components/ui/content";
+import Footer from "@/components/layout/Footer";
 
 export default async function Home() {
   return (
     <Toaster>
-      <div className="flex flex-col h-screen w-full bg-backgroud relative items-center ">
-        <MainContent className="scrollbar-hidden h-full overflow-y-auto md:max-h-screen">
+      <div className="flex w-full h-screen bg-background relative">
+        <div className="flex-1 flex flex-col overflow-y-auto scrollbar-hidden">
           {/* Header */}
           <MainHeader />
 
           {/* Main Content */}
-          <main className="flex-1 overflow-y-auto pb-16 w-full scrollbar-hidden">
-            <div className="container max-w-md md:max-w-full p-4 ">
+          <main className="flex-1 w-full">
+            <div className="container mx-auto max-w-7xl p-4">
               {/* Recommended Section */}
               <section className="relative">
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
@@ -38,7 +38,7 @@ export default async function Home() {
 
               {/* Top 5 Section */}
               <section className="relative pt-10">
-                <div className="absolute top-0 h-10  w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20" />
+                <div className="absolute top-0 h-10 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20" />
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <Image
                     src="/novel/top_badge.svg"
@@ -55,7 +55,7 @@ export default async function Home() {
 
               {/* Genres Section */}
               <section className="relative pt-10">
-                <div className="absolute top-0 h-10  w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20" />
+                <div className="absolute top-0 h-10 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20" />
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <Image
                     src="/novel/genre_badge.svg"
@@ -70,7 +70,8 @@ export default async function Home() {
               </section>
             </div>
           </main>
-        </MainContent>
+          <Footer />
+        </div>
         {/* Navigation Bar */}
         <Navbar />
       </div>

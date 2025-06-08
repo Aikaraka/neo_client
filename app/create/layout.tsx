@@ -10,14 +10,14 @@ export default function CreateLayout({
 }) {
   return (
     <Toaster>
-      <main className="w-full h-full pb-20 md:pb-0 flex flex-col md:bg-input justify-center items-center">
+      <div className="flex w-full h-screen justify-center items-center bg-input">
         <MainContent className="relative">
           <PageProvider maxPage={1}>
             {children}
           </PageProvider>
         </MainContent>
-        <Navbar />
-      </main>
+      </div>
+      <Navbar />
     </Toaster>
   );
 }

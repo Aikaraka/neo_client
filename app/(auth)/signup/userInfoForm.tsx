@@ -6,25 +6,19 @@ import {
 } from "@/app/(auth)/signup/schema";
 import SignupFormField from "@/app/(auth)/signup/signupFormField";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { FormMessage, useValidation } from "@/components/ui/form";
-import { Modal } from "@/components/ui/modal";
+import { useValidation } from "@/components/ui/form";
 
-import useModal from "@/hooks/use-modal";
 import { ChevronRight } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
 export default function UserInfoForm({ isPending }: { isPending: boolean }) {
-  const { watch, setValue, register, trigger } =
-    useFormContext<SignupFormType>();
-  const { open, switchModal } = useModal();
+  const { register, trigger } = useFormContext<SignupFormType>();
 
-  const canProceed =
-    useValidation<SignupFormFieldName>(
-      "email",
-      "password",
-      "passwordConfirm"
-    );
+  const canProceed = useValidation<SignupFormFieldName>(
+    "email",
+    "password",
+    "passwordConfirm"
+  );
 
   return (
     <div className="w-full h-full px-8 py-10 grid relative">

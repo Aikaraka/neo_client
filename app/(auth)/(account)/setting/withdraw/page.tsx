@@ -1,6 +1,6 @@
 "use client";
 
-import { withDrawAccount } from "@/app/(auth)/account/setting/withdraw/_api/withdraw";
+import { withDrawAccount } from "@/app/(auth)/(account)/setting/withdraw/_api/withdraw";
 import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
 import { Input } from "@/components/ui/input";

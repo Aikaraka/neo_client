@@ -33,7 +33,9 @@ export default function SignupFormField({
   name: keyof SignupFormType;
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   const formContext = useFormContext<SignupFormType>();
-  if (name === "terms") return null;
+  
+  // fieldType에 없는 필드는 null 반환
+  if (!(name in fieldType)) return null;
 
   return (
     <FormField

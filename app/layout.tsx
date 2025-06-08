@@ -8,7 +8,6 @@ import ResponsiveWrapper from "@/components/common/responsiveWrapper";
 import SuspenseBoundary from "@/components/common/suspenseBoundary";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicator";
-import Footer from '@/components/layout/Footer';
 
 const NanumSquareNeo = localFont({
   src: [
@@ -53,7 +52,6 @@ export default function RootLayout({
               </ResponsiveWrapper>
             </main>
           </LoadingProvider>
-          <Footer />
         </div>
       </body>
     </html>

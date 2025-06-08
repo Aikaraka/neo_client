@@ -14,7 +14,6 @@ import { InputFormField, useValidation } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Modal } from "@/components/ui/modal";
 import useModal from "@/hooks/use-modal";
-import * as Radio from "@radix-ui/react-radio-group";
 import { Mail, User } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
 
