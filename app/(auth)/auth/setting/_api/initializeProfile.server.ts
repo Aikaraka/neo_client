@@ -99,8 +99,9 @@ export const initialProfileSubmit = async (
           {
             id: user.id,
             email: user.email || "",
-            auth_provider: user.app_metadata?.provider || "email",
             created_at: new Date().toISOString(),
+            marketing: false,
+            profile_completed: false,
           },
         ]);
 
@@ -125,15 +126,39 @@ export const initialProfileSubmit = async (
         gender,
         profile_completed: true,
         marketing,
-        updated_at: new Date().toISOString(),
       })
       .eq("id", user.id);
       
     if (updateError) {
+      // 실제 에러 내용을 로그에 출력
+      console.error("프로필 업데이트 실패 - 원본 에러:", updateError);
+      console.error("에러 상세 정보:", {
+        errorCode: updateError.code,
+        errorMessage: updateError.message,
+        errorDetails: updateError.details,
+        errorHint: updateError.hint,
+        userId: user.id,
+        updateData: {
+          name,
+          nickname,
+          birthdate,
+          gender,
+          profile_completed: true,
+          marketing,
+        }
+      });
+      
       Sentry.captureException(updateError, {
         tags: {
           error_type: "profile_update_error",
           context: "profile_initialization"
+        },
+        extra: {
+          errorCode: updateError.code,
+          errorMessage: updateError.message,
+          errorDetails: updateError.details,
+          errorHint: updateError.hint,
+          userId: user.id,
         }
       });
       throw new Error("프로필 업데이트 중 오류가 발생했습니다.");

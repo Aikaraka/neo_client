@@ -18,7 +18,6 @@ export const signupFormSchema = z
     // name: z
     //   .string()
     //   .regex(/^[가-힣]{2,6}$/, { message: "이름을 제대로 입력해주세요." }),
-    terms: z.boolean({ required_error: "약관에 동의해야 가입이 가능합니다." }),
   })
   .refine((data) => data.password === data.passwordConfirm, {
     message: "비밀번호와 비밀번호 확인이 일치하지 않습니다.",

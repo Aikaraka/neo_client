@@ -3,12 +3,36 @@
 import { SignupFormType } from "@/app/(auth)/signup/schema";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useFormContext } from "react-hook-form";
+import { useEffect } from "react";
 
 export default function EmailSent() {
   const { getValues } = useFormContext<SignupFormType>();
   const { email } = getValues();
+  const router = useRouter();
+
+  useEffect(() => {
+    // 이메일이 없으면 홈으로 리다이렉트 (직접 URL 접근 방지)
+    if (!email) {
+      router.push("/");
+      return;
+    }
+    
+    // 뒤로가기 방지를 위해 히스토리 조작
+    window.history.pushState(null, "", window.location.pathname);
+    
+    const handlePopState = () => {
+      // 뒤로가기 시 홈으로 이동
+      router.push("/");
+    };
+    
+    window.addEventListener("popstate", handlePopState);
+    
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [router, email]);
 
   return (
     <div className="w-full h-full flex flex-col justify-center items-center text-center gap-5 px-8">
@@ -22,7 +46,11 @@ export default function EmailSent() {
         <br />
         가입을 완료해보세요.
       </p>
-      <Button className="w-full p-6 text-lg" onClick={() => redirect("/login")}>
+      <Button
+        type="button"
+        className="w-full p-6 text-lg"
+        onClick={() => router.push("/")}
+      >
         확인
       </Button>
     </div>

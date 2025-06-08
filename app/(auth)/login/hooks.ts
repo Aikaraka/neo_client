@@ -34,7 +34,13 @@ export function useLogin() {
     onSuccess: () => router.push("/"),
     onError: (error) => {
       if (error instanceof Error) {
-        setErrorMessage(error.message);
+        if (error.message === "Email not confirmed") {
+          setErrorMessage(
+            "이메일 인증이 되지 않았어요! 이메일 인증 이후 로그인 해주세요!"
+          );
+        } else {
+          setErrorMessage(error.message);
+        }
         switchModal();
       } else {
         setErrorMessage(

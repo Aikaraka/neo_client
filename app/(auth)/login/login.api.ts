@@ -39,7 +39,7 @@ export const handleEmailLogin = async ({
 
   if (data.user && !data.user.email_confirmed_at) {
     throw new Error(
-      "이메일 인증이 완료되지 않았습니다. 이메일을 확인해주세요."
+      "이메일 인증이 되지 않았어요 ! 이메일 인증 이후 로그인 해주세요 !"
     );
   }
 };

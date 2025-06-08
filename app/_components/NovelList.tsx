@@ -120,9 +120,17 @@ export async function TopNovelList() {
 const genre: Category[] = ["로맨스", "이세계", "회귀", "헌터", "무협"];
 export async function NovelListByGenre() {
   try {
-    const allNovels = Promise.all(genre.map((g) => getNovelsByCategory(g)));
-    const novelList = (await allNovels).flat();
-    return <NovelListByGenreSelector novelList={novelList} />;
+    const allNovels = await Promise.all(
+      genre.map((g) => getNovelsByCategory(g))
+    );
+    const flatNovelList = allNovels.flat();
+
+    // ID를 기준으로 중복 제거
+    const uniqueNovels = Array.from(
+      new Map(flatNovelList.map((novel) => [novel.id, novel])).values()
+    );
+
+    return <NovelListByGenreSelector novelList={uniqueNovels} />;
   } catch {
     return <NovelListErrorFallback />;
   }

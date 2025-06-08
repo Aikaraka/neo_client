@@ -9,8 +9,8 @@ export default function ProfileSetting() {
   const { form, submit, isPending } = useSettingForm();
 
   return (
-    <div className="w-full h-screen relative grid">
-      <div className="self-center text-2xl px-8 font-bold">
+    <div className="w-full h-screen flex flex-col px-8 py-10">
+      <div className="text-2xl font-bold">
         <h1>
           네오와 여정을 떠나기 위한
           <br />
@@ -20,7 +20,7 @@ export default function ProfileSetting() {
       <Toaster>
         <Form {...form}>
           <form
-            className="w-full h-full"
+            className="flex flex-col h-full"
             onSubmit={form.handleSubmit((values) => submit(values))}
           >
             <SettingForm isPending={isPending} />

@@ -63,6 +63,7 @@ export function LoginForm() {
                   </FormLabel>
                   <FormControl>
                     <TextInputWithIcon
+                      type="password"
                       className="p-6 bg-gray-100 rounded-lg"
                       IconComponent={loginFormFields["password"].icon}
                       {...field}
@@ -116,7 +117,7 @@ export function LoginForm() {
           </div>
         </form>
       </Form>
-      <Modal open={openErrorModal} switch={switchModal}>
+      <Modal open={openErrorModal} switch={switchModal} type="inform">
         {errorMessage}
       </Modal>
     </>
