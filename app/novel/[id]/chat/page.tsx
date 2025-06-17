@@ -47,6 +47,7 @@ export default function ChatPage() {
         paragraphSpacing={paragraphSpacing}
         paragraphWidth={paragraphWidth}
         font={font}
+        isDark={isDark}
       />
       <ChatInput
         onColorChange={setBgColor}

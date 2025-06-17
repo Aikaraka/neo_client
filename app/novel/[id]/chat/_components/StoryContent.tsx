@@ -11,9 +11,10 @@ interface StoryContentProps {
   paragraphSpacing: number;
   paragraphWidth: number;
   font: string;
+  isDark?: boolean;
 }
 
-export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraphWidth, font }: StoryContentProps) {
+export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraphWidth, font, isDark = false }: StoryContentProps) {
   const messageBoxRef = useRef<HTMLDivElement>(null);
   const { background, messages, fetchMoreStories, hasMoreStories, scrollType } =
     useStoryContext();
@@ -101,8 +102,8 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
                   key={j}
                   className="whitespace-pre-line tracking-wide text-neo-purple"
                   style={{ 
-                    color: "#9125B1", 
-                    WebkitTextFillColor: "#9125B1", 
+                    color: isDark ? "#fff" : "#9125B1", 
+                    WebkitTextFillColor: isDark ? "#fff" : "#9125B1", 
                     fontWeight: 400,
                     fontSize: `${fontSize}px`,
                     lineHeight: lineHeight,
@@ -126,6 +127,7 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
                   key={j}
                   className="text-gray-800 whitespace-pre-line tracking-wide"
                   style={{ 
+                    color: isDark ? "#fff" : undefined,
                     fontSize: `${fontSize}px`,
                     lineHeight: lineHeight,
                     marginBottom: `${paragraphSpacing / 2}px`,
