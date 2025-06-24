@@ -8,7 +8,7 @@ interface PlotFormProps {
 export function PlotForm({ plot, setPlot }: PlotFormProps) {
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium mb-3">줄거리</h3>
+      <h3 className="text-lg font-semibold mb-3">줄거리</h3>
       <textarea
         value={plot}
         onChange={(e) => setPlot(e.target.value)}

@@ -21,7 +21,7 @@ export default function Header({
     >
       <div className="flex gap-3 items-center justify-center">
         {icon}
-        {title}
+        <span className="font-semibold">{title}</span>
       </div>
       {prevPageButton && <PrevPageButton className="absolute left-0 top-4" />}
       {children}
