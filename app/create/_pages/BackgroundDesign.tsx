@@ -13,7 +13,7 @@ export default function BackgroundSetting() {
   const isPublic = watch("settings.isPublic");
 
   return (
-    <div className="w-full mx-auto p-4">
+    <div className="w-full mx-auto p-4 pb-20 md:pb-4">
       <h1 className="text-2xl font-bold mb-6">배경 설정</h1>
       <section className="space-y-8 mb-8">
         <BackgroundForm />
