@@ -269,7 +269,7 @@ export default function CharactorAndPlotDesign() {
   };
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-4 pb-20 md:pb-4">
       {/* ... (rest of the form sections remain the same) ... */}
       <section className="mb-8 flex flex-col gap-4">
         <h2 className="text-xl font-semibold">소설 제목</h2>
