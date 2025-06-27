@@ -2,6 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { NovelForAdmin } from "@/types/novel";
 
 // form action으로 사용할 수 있도록 FormData를 매개변수로 받고 void를 반환하도록 수정
 export async function updateTopNovelViews() {
@@ -279,4 +280,92 @@ export async function calculateAndSaveRankings() {
     monthlyCount: monthlyTopNovels?.length || 0,
     allTimeCount: allTimeTopNovels?.length || 0,
   };
+}
+
+// ====================================================================
+// 콘텐츠 관리 (소설 목록)
+// ====================================================================
+
+interface GetNovelsParams {
+  page?: number;
+  limit?: number;
+  searchTerm?: string;
+}
+
+export async function getNovelsForAdmin(params: GetNovelsParams) {
+  const { page = 1, limit = 10, searchTerm } = params;
+  const supabase = await createClient();
+
+  const from = (page - 1) * limit;
+  const to = from + limit - 1;
+
+  let query = supabase
+    .from("novels")
+    .select(
+      `
+      id,
+      created_at,
+      title,
+      image_url,
+      settings,
+      users ( nickname ),
+      novel_stats ( total_chats )
+    `,
+      { count: "exact" }
+    )
+    .order("created_at", { ascending: false })
+    .range(from, to);
+
+  if (searchTerm) {
+    // users 테이블의 nickname과 novels 테이블의 title에서 동시 검색
+    query = query.or(`title.ilike.%${searchTerm}%,users.nickname.ilike.%${searchTerm}%`);
+  }
+
+  const { data, error, count } = await query;
+
+  if (error) {
+    console.error("Error fetching novels for admin:", error);
+    throw new Error("소설 목록을 가져오는 중 오류가 발생했습니다.");
+  }
+  
+  // 데이터 구조를 사용하기 쉽게 가공
+  const novels: NovelForAdmin[] = data.map((novel: any) => ({
+    id: novel.id,
+    created_at: novel.created_at,
+    title: novel.title,
+    image_url: novel.image_url,
+    settings: novel.settings,
+    author_nickname: novel.users?.nickname || '알 수 없음',
+    total_chats: novel.novel_stats?.[0]?.total_chats || 0,
+  }));
+
+  return {
+    novels,
+    count: count ?? 0,
+  };
+}
+
+export async function getNovelDetailsForAdmin(novelId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('novels')
+    .select(
+      `
+      title,
+      background,
+      plot,
+      characters
+    `
+    )
+    .eq('id', novelId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching novel details for admin:', error);
+    throw new Error('소설 상세 정보를 가져오는 데 실패했습니다.');
+  }
+
+  // characters는 jsonb 배열일 수 있으므로 그대로 반환
+  return data;
 }

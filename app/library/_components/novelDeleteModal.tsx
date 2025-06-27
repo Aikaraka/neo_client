@@ -1,3 +1,5 @@
+"use client";
+
 import { deleteNovel } from "@/app/library/_api/novels";
 import { LoadingModal, Modal } from "@/components/ui/modal";
 import { toast } from "@/hooks/use-toast";
