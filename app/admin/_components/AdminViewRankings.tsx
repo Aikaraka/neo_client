@@ -22,7 +22,11 @@ interface PeriodLabel {
   period_label: string;
 }
 
-export default function AdminViewRankings() {
+interface AdminViewRankingsProps {
+  refreshKey: number;
+}
+
+export default function AdminViewRankings({ refreshKey }: AdminViewRankingsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [rankingType, setRankingType] = useState<RankingType>("daily");
   const [periods, setPeriods] = useState<string[]>([]);
@@ -30,7 +34,7 @@ export default function AdminViewRankings() {
   const [rankings, setRankings] = useState<NovelRanking[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  // 랭킹 타입이 변경되면 해당 타입의 기간 목록 가져오기
+  // 랭킹 타입이 변경되거나 refreshKey가 변경되면 기간 목록 다시 가져오기
   useEffect(() => {
     const fetchPeriods = async () => {
       setIsLoading(true);
@@ -72,7 +76,7 @@ export default function AdminViewRankings() {
     };
 
     fetchPeriods();
-  }, [rankingType]);
+  }, [rankingType, refreshKey]);
 
   // 선택된 기간이 변경되면 해당 기간의 랭킹 가져오기
   useEffect(() => {
@@ -208,28 +212,19 @@ export default function AdminViewRankings() {
             <tbody className="bg-white divide-y divide-gray-200">
               {rankings.map((novel) => (
                 <tr key={novel.novel_id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center justify-center bg-blue-500 text-white rounded-full w-6 h-6">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                       {novel.rank}
-                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 w-10 h-10 relative">
-                        {novel.image_url ? (
+                      <div className="flex-shrink-0 h-10 w-10">
                           <Image
-                            src={novel.image_url}
+                          className="h-10 w-10 rounded-full"
+                          src={novel.image_url || "/default-cover.png"}
                             alt={novel.title}
-                            fill
-                            className="object-cover rounded"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
-                            <span className="text-xs text-gray-500">
-                              No Image
-                            </span>
-                          </div>
-                        )}
+                          width={40}
+                          height={40}
+                        />
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">

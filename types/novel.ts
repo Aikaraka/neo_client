@@ -38,3 +38,15 @@ export interface Novel extends NovelCreationData {
   title: string;
   image_url: string;
 }
+
+export type NovelForAdmin = {
+  id: string;
+  created_at: string;
+  title: string;
+  author_nickname: string;
+  total_chats: number;
+  image_url: string | null;
+  settings: {
+    isPublic: boolean;
+  } | null;
+};

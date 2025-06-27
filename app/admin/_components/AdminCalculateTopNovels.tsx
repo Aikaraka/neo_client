@@ -2,9 +2,12 @@
 
 import { useState } from "react";
 import { calculateAndSaveRankings } from "@/app/admin/_api/admin.server";
-import { useActionWithLoading } from "@/hooks/useActionWithLoading";
 
-export default function AdminCalculateTopNovels() {
+interface AdminCalculateTopNovelsProps {
+  onCalculationComplete: () => void;
+}
+
+export default function AdminCalculateTopNovels({ onCalculationComplete }: AdminCalculateTopNovelsProps) {
   const [result, setResult] = useState<{
     success: boolean;
     message: string;
@@ -17,17 +20,30 @@ export default function AdminCalculateTopNovels() {
     allTimeCount?: number;
   } | null>(null);
 
-  const calculateAndSaveRankingsWithLoading = useActionWithLoading(calculateAndSaveRankings);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCalculate = async () => {
+    console.log("[AdminCalculateTopNovels] 버튼 클릭됨");
+    setIsProcessing(true);
+    setResult(null);
+    
     try {
-      const response = await calculateAndSaveRankingsWithLoading();
+      console.log("[AdminCalculateTopNovels] 서버 액션 호출 시작");
+      const response = await calculateAndSaveRankings();
+      console.log("[AdminCalculateTopNovels] 서버 액션 응답:", response);
       setResult(response);
-    } catch {
+      if (response.success) {
+        onCalculationComplete();
+      }
+    } catch (error) {
+      console.error("[AdminCalculateTopNovels] 서버 액션 에러:", error);
       setResult({
         success: false,
-        message: "오류가 발생했습니다.",
+        message: `오류가 발생했습니다: ${error instanceof Error ? error.message : '알 수 없는 오류'}`,
       });
+    } finally {
+      setIsProcessing(false);
+      console.log("[AdminCalculateTopNovels] 처리 완료");
     }
   };
 
@@ -43,19 +59,28 @@ export default function AdminCalculateTopNovels() {
 
       <button
         onClick={handleCalculate}
+        disabled={isProcessing}
         className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded disabled:bg-gray-400 mb-6"
       >
-        인기 소설 랭킹 계산 및 저장
+        {isProcessing ? "계산 중..." : "인기 소설 랭킹 계산 및 저장"}
       </button>
 
-      {result && (
+      {isProcessing && (
+        <div className="mt-4 p-3 bg-blue-100 rounded mb-4">
+          <p className="text-blue-700">인기 소설 랭킹을 계산하고 저장하고 있습니다. 잠시만 기다려주세요...</p>
+        </div>
+      )}
+
+      {result && !isProcessing && (
         <div className="mt-4">
           <p
             className={`p-3 rounded ${
               result.success ? "bg-green-100" : "bg-red-100"
             } mb-4`}
           >
+            <span className={result.success ? "text-green-700" : "text-red-700"}>
             {result.message}
+            </span>
           </p>
 
           {result.success && result.dailyLabel && (

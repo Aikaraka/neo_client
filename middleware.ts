@@ -31,12 +31,8 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(profileSettingURL);
     }
 
-    if (adminRoutes.includes(request.nextUrl.pathname)) {
-      if (
-        !JSON.parse(process.env.NEXT_PUBLIC_ADMIN_EMAIL || "[]").includes(
-          user.email || "NOT FOUND"
-        )
-      ) {
+    if (adminRoutes.some((route) => pathname.startsWith(route))) {
+      if (!userData || userData.role !== "admin") {
         console.error("관리자 권한이 없습니다.");
         const mainURL = new URL("/", request.url);
         return NextResponse.redirect(mainURL);

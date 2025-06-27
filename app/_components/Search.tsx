@@ -26,10 +26,10 @@ export default function Search() {
     <div className="flex-1 md:w-[495px] md:relative">
       <Button
         variant="ghost"
-        size="icon"
-        className="bg-accent w-full justify-end px-5 flex rounded-full"
+        className="bg-accent w-full justify-between px-5 flex rounded-full text-muted-foreground"
         onClick={() => setOpenSearchContent(true)}
       >
+        <span className="text-sm">마음에 드는 소설을 검색해보세요 !</span>
         <Image
           src="/search.svg"
           alt="Search Icon"
