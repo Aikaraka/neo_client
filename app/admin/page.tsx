@@ -1,7 +1,3 @@
-import AdminChatStats from "@/app/admin/_components/AdminCharStats";
-import AdminCalculateTopNovels from "@/app/admin/_components/AdminCalculateTopNovels";
-import AdminViewRankings from "@/app/admin/_components/AdminViewRankings";
-
 export default function AdminDashboardPage() {
   return (
     <div>

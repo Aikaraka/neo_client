@@ -8,11 +8,17 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { NovelForAdmin } from "@/types/novel";
+import { Json } from "@/utils/supabase/types/database.types";
 
+// 더 구체적인 타입을 정의합니다.
+interface Character {
+  name: string;
+  description: string;
+}
 interface NovelDetails extends NovelForAdmin {
-  background?: any;
-  plot?: any;
-  characters?: any[];
+  background?: Json;
+  plot?: Json;
+  characters?: Character[];
 }
 
 interface NovelDetailsModalProps {
@@ -24,8 +30,11 @@ interface NovelDetailsModalProps {
 }
 
 // Helper function to safely render content
-const renderContent = (content: any) => {
-  if (typeof content === "string") {
+const renderContent = (content: string | Json | undefined | null) => {
+  if (content === null || content === undefined) {
+    return "";
+  }
+  if (typeof content === 'string') {
     return content;
   }
   if (typeof content === "object" && content !== null) {
@@ -67,7 +76,7 @@ export function NovelDetailsModal({
             <div className="grid grid-cols-4 items-start gap-4">
               <span className="text-right font-semibold">캐릭터</span>
               <div className="col-span-3">
-                {novel.characters?.map((char: any, index: number) => (
+                {novel.characters?.map((char, index) => (
                   <div key={index} className="mb-2">
                     <p className="font-bold">{renderContent(char.name)}</p>
                     <pre className="whitespace-pre-wrap font-sans">

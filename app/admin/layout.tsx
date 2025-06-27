@@ -1,4 +1,3 @@
-import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 import { PropsWithChildren } from "react";
 import { BookMarked, Home, LineChart, Users } from "lucide-react";

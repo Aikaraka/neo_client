@@ -50,10 +50,11 @@ export default function StoragePage() {
                   <div className="flex border-r pr-3 mr-3">
                     <Button
                       type="button"
-                      variant={"none"}
+                      variant="ghost"
+                      size="sm"
                       className={`px-3 py-1 text-xs rounded-full mr-1 ${
                         filter === "all" 
-                          ? "bg-primary text-white" 
+                          ? "bg-primary text-white hover:bg-primary/90" 
                           : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                       onClick={() => setFilter("all")}
@@ -63,10 +64,11 @@ export default function StoragePage() {
                     </Button>
                     <Button
                       type="button"
-                      variant={"none"}
+                      variant="ghost"
+                      size="sm"
                       className={`px-3 py-1 text-xs rounded-full mr-1 ${
                         filter === "created" 
-                          ? "bg-primary text-white" 
+                          ? "bg-primary text-white hover:bg-primary/90" 
                           : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                       onClick={() => setFilter("created")}
@@ -76,10 +78,11 @@ export default function StoragePage() {
                     </Button>
                     <Button
                       type="button"
-                      variant={"none"}
+                      variant="ghost"
+                      size="sm"
                       className={`px-3 py-1 text-xs rounded-full ${
                         filter === "read" 
-                          ? "bg-primary text-white" 
+                          ? "bg-primary text-white hover:bg-primary/90" 
                           : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                       }`}
                       onClick={() => setFilter("read")}
@@ -92,7 +95,8 @@ export default function StoragePage() {
                   {/* 레이아웃 버튼들 */}
                   <Button
                     type="button"
-                    variant={"none"}
+                    variant="ghost"
+                    size="sm"
                     className={`[&_svg]:size-6 p-2 text-gray-500 ${
                       layout === "list" && "text-primary"
                     }`}
@@ -102,7 +106,8 @@ export default function StoragePage() {
                   </Button>
                   <Button
                     type="button"
-                    variant={"none"}
+                    variant="ghost"
+                    size="sm"
                     className={`[&_svg]:size-6 p-2 text-gray-500 ${
                       layout === "smallGrid" && "text-primary"
                     }`}
@@ -112,7 +117,8 @@ export default function StoragePage() {
                   </Button>
                   <Button
                     type="button"
-                    variant={"none"}
+                    variant="ghost"
+                    size="sm"
                     className={`[&_svg]:size-6 p-2 text-gray-500 ${
                       layout === "grid" && "text-primary"
                     }`}
@@ -127,7 +133,8 @@ export default function StoragePage() {
                 <div className="flex gap-1">
                   <Button
                     type="button"
-                    variant={"none"}
+                    variant="ghost"
+                    size="sm"
                     className={`[&_svg]:size-6 p-2 text-gray-500 ${
                       layout === "list" && "text-primary"
                     }`}
@@ -137,7 +144,8 @@ export default function StoragePage() {
                   </Button>
                   <Button
                     type="button"
-                    variant={"none"}
+                    variant="ghost"
+                    size="sm"
                     className={`[&_svg]:size-6 p-2 text-gray-500 ${
                       layout === "grid" && "text-primary"
                     }`}
@@ -147,7 +155,8 @@ export default function StoragePage() {
                   </Button>
                   <Button
                     type="button"
-                    variant={"none"}
+                    variant="ghost"
+                    size="sm"
                     className={`[&_svg]:size-6 p-2 text-gray-500 ${
                       layout === "smallGrid" && "text-primary"
                     }`}

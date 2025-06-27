@@ -99,6 +99,7 @@ export const initialProfileSubmit = async (
           {
             id: user.id,
             email: user.email || "",
+            role: "user",
             created_at: new Date().toISOString(),
             marketing: false,
             profile_completed: false,

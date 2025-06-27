@@ -299,7 +299,7 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  let query = supabase
+  const query = supabase
     .from("novels")
     .select(
       `
@@ -317,8 +317,106 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
     .range(from, to);
 
   if (searchTerm) {
-    // users 테이블의 nickname과 novels 테이블의 title에서 동시 검색
-    query = query.or(`title.ilike.%${searchTerm}%,users.nickname.ilike.%${searchTerm}%`);
+    // 제목과 작성자 모두 검색 (두 번의 쿼리로 처리)
+    const titleQuery = supabase
+      .from("novels")
+      .select(
+        `
+        id,
+        created_at,
+        title,
+        image_url,
+        settings,
+        users ( nickname ),
+        novel_stats ( total_chats )
+      `,
+        { count: "exact" }
+      )
+      .ilike('title', `%${searchTerm}%`)
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    const authorQuery = supabase
+      .from("novels")
+      .select(
+        `
+        id,
+        created_at,
+        title,
+        image_url,
+        settings,
+        users!inner ( nickname ),
+        novel_stats ( total_chats )
+      `,
+        { count: "exact" }
+      )
+      .ilike('users.nickname', `%${searchTerm}%`)
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    // 두 쿼리를 병렬로 실행
+    const [titleResult, authorResult] = await Promise.all([
+      titleQuery,
+      authorQuery
+    ]);
+
+    if (titleResult.error && authorResult.error) {
+      console.error("Search errors:", { titleError: titleResult.error, authorError: authorResult.error });
+      throw new Error("검색 중 오류가 발생했습니다.");
+    }
+
+    // 결과 합치기 (중복 제거)
+    const titleData = titleResult.data || [];
+    const authorData = authorResult.data || [];
+    const combinedIds = new Set();
+    const combinedData = [];
+
+    // 제목 검색 결과 추가
+    for (const item of titleData) {
+      if (!combinedIds.has(item.id)) {
+        combinedIds.add(item.id);
+        combinedData.push(item);
+      }
+    }
+
+    // 작성자 검색 결과 추가 (중복 제거)
+    for (const item of authorData) {
+      if (!combinedIds.has(item.id)) {
+        combinedIds.add(item.id);
+        combinedData.push(item);
+      }
+    }
+
+    // 생성일순으로 정렬
+    combinedData.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    const data = combinedData;
+    const count = (titleResult.count || 0) + (authorResult.count || 0);
+    
+    // 데이터 구조를 사용하기 쉽게 가공
+    const novels: NovelForAdmin[] = data.map((novel) => {
+      const totalChats =
+        Array.isArray(novel.novel_stats) && novel.novel_stats.length > 0
+          ? novel.novel_stats[0].total_chats
+          : 0;
+
+      return {
+        id: novel.id,
+        created_at: novel.created_at,
+        title: novel.title,
+        image_url: novel.image_url,
+        settings: novel.settings as { isPublic: boolean } | null,
+        author_nickname: novel.users?.nickname || "알 수 없음",
+        total_chats: totalChats || 0,
+      };
+    });
+
+    const totalCount = count || 0;
+
+    return {
+      novels,
+      count: totalCount,
+    };
   }
 
   const { data, error, count } = await query;
@@ -329,19 +427,28 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
   }
   
   // 데이터 구조를 사용하기 쉽게 가공
-  const novels: NovelForAdmin[] = data.map((novel: any) => ({
-    id: novel.id,
-    created_at: novel.created_at,
-    title: novel.title,
-    image_url: novel.image_url,
-    settings: novel.settings,
-    author_nickname: novel.users?.nickname || '알 수 없음',
-    total_chats: novel.novel_stats?.[0]?.total_chats || 0,
-  }));
+  const novels: NovelForAdmin[] = data.map((novel) => {
+    const totalChats =
+      Array.isArray(novel.novel_stats) && novel.novel_stats.length > 0
+        ? novel.novel_stats[0].total_chats
+        : 0;
+
+    return {
+      id: novel.id,
+      created_at: novel.created_at,
+      title: novel.title,
+      image_url: novel.image_url,
+      settings: novel.settings as { isPublic: boolean } | null,
+      author_nickname: novel.users?.nickname || "알 수 없음",
+      total_chats: totalChats || 0,
+    };
+  });
+
+  const totalCount = count || 0;
 
   return {
     novels,
-    count: count ?? 0,
+    count: totalCount,
   };
 }
 
@@ -368,4 +475,100 @@ export async function getNovelDetailsForAdmin(novelId: string) {
 
   // characters는 jsonb 배열일 수 있으므로 그대로 반환
   return data;
+}
+
+// 어드민 전용 소설 삭제 함수
+export async function deleteNovelAsAdmin(novelId: string) {
+  console.log(`[deleteNovelAsAdmin] 삭제 시작: novelId=${novelId}`);
+  const supabase = await createClient();
+
+  try {
+    // 현재 사용자 정보 확인
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    console.log(`[deleteNovelAsAdmin] 현재 사용자: ${user?.id}, 이메일: ${user?.email}`);
+    if (authError) {
+      console.error(`[deleteNovelAsAdmin] 인증 오류:`, authError);
+      throw new Error(`인증 오류: ${authError.message}`);
+    }
+
+    // 먼저 관련된 데이터들을 삭제해야 합니다 (외래 키 제약 때문에)
+    
+    // 1. novel_stats 삭제
+    console.log(`[deleteNovelAsAdmin] novel_stats 삭제 시도`);
+    const statsResponse = await supabase
+      .from("novel_stats")
+      .delete()
+      .eq("novel_id", novelId);
+
+    console.log(`[deleteNovelAsAdmin] novel_stats 삭제 응답:`, {
+      data: statsResponse.data,
+      error: statsResponse.error,
+      status: statsResponse.status,
+      statusText: statsResponse.statusText
+    });
+
+    // 2. novel_rankings 삭제
+    console.log(`[deleteNovelAsAdmin] novel_rankings 삭제 시도`);
+    const rankingsResponse = await supabase
+      .from("novel_rankings")
+      .delete()
+      .eq("novel_id", novelId);
+
+    console.log(`[deleteNovelAsAdmin] novel_rankings 삭제 응답:`, {
+      data: rankingsResponse.data,
+      error: rankingsResponse.error,
+      status: rankingsResponse.status,
+      statusText: rankingsResponse.statusText
+    });
+
+    // 3. 삭제 전에 소설이 존재하는지 확인
+    console.log(`[deleteNovelAsAdmin] 삭제할 소설 확인 중`);
+    const { data: novelToDelete, error: checkError } = await supabase
+      .from("novels")
+      .select("id, title, user_id")
+      .eq("id", novelId)
+      .single();
+
+    if (checkError || !novelToDelete) {
+      console.error(`[deleteNovelAsAdmin] 소설을 찾을 수 없음:`, checkError);
+      throw new Error(`소설을 찾을 수 없습니다: ${novelId}`);
+    }
+    console.log(`[deleteNovelAsAdmin] 삭제할 소설 찾음:`, novelToDelete);
+
+    // 4. 마지막으로 소설 자체를 삭제
+    console.log(`[deleteNovelAsAdmin] novels 테이블에서 삭제 시도`);
+    const deleteResponse = await supabase
+      .from("novels")
+      .delete()
+      .eq("id", novelId);
+
+    console.log(`[deleteNovelAsAdmin] novels 삭제 응답:`, {
+      data: deleteResponse.data,
+      error: deleteResponse.error,
+      status: deleteResponse.status,
+      statusText: deleteResponse.statusText,
+      count: deleteResponse.count
+    });
+
+    if (deleteResponse.error) {
+      console.error("[deleteNovelAsAdmin] Novel deletion error 상세:", {
+        message: deleteResponse.error.message,
+        details: deleteResponse.error.details,
+        hint: deleteResponse.error.hint,
+        code: deleteResponse.error.code
+      });
+      throw new Error(`소설 삭제 중 오류가 발생했습니다: ${deleteResponse.error.message}`);
+    }
+
+    // 5. 관련 페이지 캐시 무효화
+    console.log(`[deleteNovelAsAdmin] 캐시 무효화 중`);
+    revalidatePath("/admin/novels");
+    revalidatePath("/");
+
+    console.log(`[deleteNovelAsAdmin] 모든 작업 완료`);
+    return { success: true, message: "소설이 성공적으로 삭제되었습니다." };
+  } catch (error) {
+    console.error("[deleteNovelAsAdmin] Unexpected error:", error);
+    throw error;
+  }
 }

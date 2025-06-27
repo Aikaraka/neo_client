@@ -49,14 +49,6 @@ export async function getNovels() {
   return allTimeRankings;
 }
 
-export async function deleteNovel(novelId: string) {
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("novels")
-    .delete({ count: "exact" })
-    .eq("id", novelId);
-  if (error) throw new Error("소설 삭제 중 오류가 발생했습니다.");
-}
 
 export async function getRecentNovels() {
   const supabase = await createClient();
