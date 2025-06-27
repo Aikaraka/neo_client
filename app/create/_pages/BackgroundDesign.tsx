@@ -13,7 +13,7 @@ export default function BackgroundSetting() {
   const isPublic = watch("settings.isPublic");
 
   return (
-    <div className="w-full mx-auto p-4">
+    <div className="w-full mx-auto p-4 pb-20 md:pb-4">
       <h1 className="text-2xl font-bold mb-6">배경 설정</h1>
       <section className="space-y-8 mb-8">
         <BackgroundForm />
@@ -23,7 +23,7 @@ export default function BackgroundSetting() {
       <div className="flex flex-col gap-6">
 
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">유혈/폭력 묘사</label>
+          <label className="text-sm font-semibold">유혈/폭력 묘사</label>
           <input
             type="checkbox"
             checked={hasViolence}
@@ -33,7 +33,7 @@ export default function BackgroundSetting() {
         </div>
 
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">음란 묘사</label>
+          <label className="text-sm font-semibold">음란 묘사</label>
           <input
             type="checkbox"
             checked={hasAdultContent}
@@ -45,7 +45,7 @@ export default function BackgroundSetting() {
         </div>
 
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">공개 설정</label>
+          <label className="text-sm font-semibold">공개 설정</label>
           <input
             type="checkbox"
             checked={isPublic}

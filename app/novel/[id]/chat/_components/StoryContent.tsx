@@ -102,8 +102,8 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
                   key={j}
                   className="whitespace-pre-line tracking-wide text-neo-purple"
                   style={{ 
-                    color: isDark ? "#fff" : "#9125B1", 
-                    WebkitTextFillColor: isDark ? "#fff" : "#9125B1", 
+                    color: isDark ? "#BE7AD3" : "#9125B1", 
+                    WebkitTextFillColor: isDark ? "#BE7AD3" : "#9125B1", 
                     fontWeight: 400,
                     fontSize: `${fontSize}px`,
                     lineHeight: lineHeight,

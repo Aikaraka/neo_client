@@ -119,7 +119,7 @@ export function CharacterForm() {
               <div className="space-y-4 border p-4 rounded-lg">
                 <div className="flex justify-between items-start">
                   <div className="space-y-2 flex-1">
-                    <label className="text-sm font-medium">캐릭터 이름</label>
+                    <label className="text-sm font-semibold">캐릭터 이름</label>
                     <Input
                       value={character.name}
                       onChange={(e) =>
@@ -138,7 +138,7 @@ export function CharacterForm() {
                 </div>
                 <div className="space-y-2 flex justify-between items-center">
                   <div className="flex flex-col gap-2">
-                    <Label>성별</Label>
+                    <Label className="font-semibold">성별</Label>
                     <div className="flex gap-2">
                       <input
                         type="radio"
@@ -177,7 +177,7 @@ export function CharacterForm() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <Label>나이</Label>
+                  <Label className="font-semibold">나이</Label>
                   <Input
                     className="w-20"
                     min={0}
@@ -204,7 +204,7 @@ export function CharacterForm() {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">역할</label>
+                  <label className="text-sm font-semibold">역할</label>
                   <div className="flex gap-4">
                     <label className="flex items-center gap-2">
                       <input
@@ -242,7 +242,7 @@ export function CharacterForm() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">캐릭터 설명</label>
+                  <label className="text-sm font-semibold">캐릭터 설명</label>
                   <Input
                     value={character.description}
                     onChange={(e) =>

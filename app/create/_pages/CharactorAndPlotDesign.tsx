@@ -269,10 +269,10 @@ export default function CharactorAndPlotDesign() {
   };
 
   return (
-    <div className="w-full p-4">
+    <div className="w-full p-4 pb-20 md:pb-4">
       {/* ... (rest of the form sections remain the same) ... */}
       <section className="mb-8 flex flex-col gap-4">
-        <h2 className="text-xl ">소설 제목</h2>
+        <h2 className="text-xl font-semibold">소설 제목</h2>
         <div className="relative">
           <Input
             type="text"
@@ -287,7 +287,7 @@ export default function CharactorAndPlotDesign() {
         </div>
       </section>
       <section className="mb-8">
-        <h2 className="text-xl mb-4">줄거리</h2>
+        <h2 className="text-xl font-semibold mb-4">줄거리</h2>
         <div className="relative">
           <textarea
             className="w-full p-3 border rounded-lg resize-none"
@@ -304,12 +304,12 @@ export default function CharactorAndPlotDesign() {
         <p className="text-destructive">{errors.plot?.message}</p>
       </section>
       <section className="mb-8 relative">
-        <h2 className="text-xl mb-4">주요 등장인물</h2>
+        <h2 className="text-xl font-semibold mb-4">주요 등장인물</h2>
         <CharacterForm />
         <p>{errors.characters?.[0]?.message}</p>
       </section>
       <section className="mb-8 relative">
-        <h2 className="text-xl  mb-4">캐릭터 관계</h2>
+        <h2 className="text-xl font-semibold mb-4">캐릭터 관계</h2>
         <RelationshipForm />
       </section>
       <button

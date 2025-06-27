@@ -150,7 +150,7 @@ export function RelationshipForm() {
       {selectedCharacter1 !== -1 && selectedCharacter2 !== -1 && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="text-sm font-semibold">
               {characters[selectedCharacter1].name}이(가){" "}
               {characters[selectedCharacter2].name}을(를) 바라보는 관계
             </label>
@@ -164,7 +164,7 @@ export function RelationshipForm() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="text-sm font-semibold">
               {characters[selectedCharacter2].name}이(가){" "}
               {characters[selectedCharacter1].name}을(를) 바라보는 관계
             </label>
