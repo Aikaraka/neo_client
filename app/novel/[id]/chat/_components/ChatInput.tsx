@@ -26,6 +26,8 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
   const [isViewSettings, setIsViewSettings] = useState(false);
   const [isBookmarkModal, setIsBookmarkModal] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
+  const chatInputBoxRef = useRef<HTMLDivElement>(null);
+  const [chatInputTop, setChatInputTop] = useState<number | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -35,6 +37,13 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (chatInputBoxRef.current) {
+      const rect = chatInputBoxRef.current.getBoundingClientRect();
+      setChatInputTop(rect.top);
+    }
+  }, [isViewSettings]);
 
   const handleTextAreaChange: FormEventHandler<HTMLTextAreaElement> = (e) => {
     const el = e.currentTarget;
@@ -138,12 +147,7 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
   );
 
   return (
-    <div className="w-full" style={{
-      background: isMobile ? "#F5F5F5" : "transparent",
-      padding: isMobile ? "0 0 16px 0" : "0",
-      maxWidth: "100%",
-      overflow: "hidden"
-    }}>
+    <div className="w-full" style={{ position: 'relative', background: isMobile ? "#F5F5F5" : "transparent", padding: isMobile ? "0 0 16px 0" : "0", maxWidth: "100%", overflow: "hidden" }}>
       {isMobile ? (
         // 모바일: 기존 UI 100% 유지
         <>
@@ -270,12 +274,11 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
           </div>
         </>
       ) : (
-        // 데스크탑: 입력창 전체를 둥근 회색 박스로 분리
-        <div className="w-full flex justify-center" style={{ padding: "0 0 24px 0" }}>
+        <div ref={chatInputBoxRef} className="w-full flex justify-center" style={{ padding: "0 0 24px 0" }}>
           <div
             className="w-full"
             style={{
-              maxWidth: 800,
+              maxWidth: 900,
               background: "#F5F5F5",
               borderRadius: 24,
               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
@@ -285,14 +288,53 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
               alignItems: "stretch"
             }}
           >
+            {/* 책갈피/보기설정 버튼 줄 (위로 이동, 크기 축소, 좌측 정렬) */}
+            <div className="flex items-center mb-3" style={{ paddingLeft: 0, paddingRight: 0, justifyContent: 'flex-start', gap: 24, marginTop: -8 }}>
+              {/* 책갈피 버튼 (왼쪽) */}
+              <button
+                className="flex flex-col items-center justify-center"
+                style={{ color: "#868D96", minWidth: 48 }}
+                onClick={handleBookmarkClick}
+              >
+                <img
+                  src="/novel/chat/bookmark.svg"
+                  alt="bookmark"
+                  width={22}
+                  height={22}
+                />
+                <span className="mt-1" style={{
+                  fontFamily: 'NanumSquare Neo, Malgun Gothic, Apple SD Gothic Neo, sans-serif',
+                  fontSize: 12
+                }}>책갈피</span>
+              </button>
+              {/* 보기 설정 버튼 (왼쪽 두번째) */}
+              <button
+                className="flex flex-col items-center justify-center"
+                style={{ color: "#868D96", minWidth: 48 }}
+                onClick={() => setIsViewSettings(true)}
+              >
+                <img
+                  src="/novel/chat/text-edit.svg"
+                  alt="text-edit"
+                  width={22}
+                  height={22}
+                />
+                <span className="mt-1" style={{
+                  fontFamily: 'NanumSquare Neo, Malgun Gothic, Apple SD Gothic Neo, sans-serif',
+                  fontSize: 12
+                }}>보기 설정</span>
+              </button>
+            </div>
+            {/* 구분선 */}
+            <hr style={{ border: 0, borderTop: '1px solid #E2E1DC', margin: '0 0 20px 0' }} />
             <div style={{ display: "flex", alignItems: "center" }}>
               <img
                 src="/novel/chat/astroid.svg"
                 alt="astroid"
-                width={32}
-                height={32}
+                width={26}
+                height={26}
                 onClick={handleAsteriskClick}
-                style={{ cursor: "pointer", marginRight: 20 }}
+                style={{ cursor: "pointer", marginRight: 16 }}
               />
               <textarea
                 ref={textareaRef}
@@ -303,19 +345,19 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
                 className="flex-1 bg-[#F5F5F5] rounded-full p-0 resize-none leading-relaxed focus:outline-none focus:ring-0 focus:border-transparent placeholder:text-[#868D96]"
                 style={{
                   color: "#232325",
-                  fontSize: 17,
+                  fontSize: 15,
                   fontFamily: "NanumSquare Neo, Malgun Gothic, Apple SD Gothic Neo, sans-serif",
                   resize: "none",
                   overflow: "hidden",
-                  maxHeight: 60,
+                  maxHeight: 48,
                   minWidth: 0
                 }}
                 disabled={isMessageSending}
               ></textarea>
-              <div className="flex ml-4 flex-shrink-0" style={{ gap: 12 }}>
+              <div className="flex ml-4 flex-shrink-0" style={{ gap: 10 }}>
                 <Button
                   variant={"link"}
-                  className="text-primary p-0 flex items-center justify-center [&_svg]:size-6 min-w-[28px]"
+                  className="text-primary p-0 flex items-center justify-center [&_svg]:size-5 min-w-[24px]"
                   onClick={undoStory}
                   disabled={isMessageSending}
                 >
@@ -323,7 +365,7 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
                 </Button>
                 <Button
                   variant={"link"}
-                  className={`text-primary ${isMessageSending ? "opacity-50" : "cursor-pointer"} p-0 flex items-center justify-center [&_svg]:size-6 min-w-[28px]`}
+                  className={`text-primary ${isMessageSending ? "opacity-50" : "cursor-pointer"} p-0 flex items-center justify-center [&_svg]:size-5 min-w-[24px]`}
                   disabled={isMessageSending}
                   onClick={() => handleNovelProcess(true)}
                 >
@@ -333,50 +375,11 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
                   variant={"link"}
                   onClick={() => handleNovelProcess(false)}
                   aria-disabled={isMessageSending}
-                  className={`text-primary ${isMessageSending ? "opacity-50" : "cursor-pointer"} p-0 flex items-center [&_svg]:size-6 min-w-[28px]`}
+                  className={`text-primary ${isMessageSending ? "opacity-50" : "cursor-pointer"} p-0 flex items-center [&_svg]:size-5 min-w-[24px]`}
                 >
                   <PaperPlane />
                 </Button>
               </div>
-            </div>
-            {/* 책갈피/보기설정 버튼 줄 */}
-            <div className="flex items-center justify-between mt-4" style={{ paddingLeft: 8, paddingRight: 8 }}>
-              {/* 책갈피 버튼 (왼쪽) */}
-              <button
-                className="flex flex-col items-center justify-center"
-                style={{ color: "#868D96" }}
-                onClick={handleBookmarkClick}
-              >
-                <img
-                  src="/novel/chat/bookmark.svg"
-                  alt="bookmark"
-                  width={28}
-                  height={28}
-                />
-                <span className="mt-1" style={{
-                  fontFamily: 'NanumSquare Neo, Malgun Gothic, Apple SD Gothic Neo, sans-serif',
-                  fontSize: 14
-                }}>책갈피</span>
-              </button>
-              {/* 보기 설정 버튼 (가운데) */}
-              <button
-                className="flex flex-col items-center justify-center"
-                style={{ color: "#868D96" }}
-                onClick={() => setIsViewSettings(true)}
-              >
-                <img
-                  src="/novel/chat/text-edit.svg"
-                  alt="text-edit"
-                  width={28}
-                  height={28}
-                />
-                <span className="mt-1" style={{
-                  fontFamily: 'NanumSquare Neo, Malgun Gothic, Apple SD Gothic Neo, sans-serif',
-                  fontSize: 14
-                }}>보기 설정</span>
-              </button>
-              {/* 빈칸 (오른쪽, 추후 버튼 자리) */}
-              <div style={{ width: 48, height: 48 }} />
             </div>
           </div>
         </div>
@@ -399,6 +402,7 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
           onBrightnessChange={onBrightnessChange}
           font={font}
           onFontChange={onFontChange}
+          panelStyle={!isMobile && chatInputBoxRef.current ? { position: 'absolute', left: '50%', bottom: chatInputBoxRef.current.offsetHeight + 24, transform: 'translateX(-50%)' } : {}}
         />
       )}
       {isBookmarkModal && <BookmarkModal />}
