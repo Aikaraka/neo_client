@@ -402,7 +402,26 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
           onBrightnessChange={onBrightnessChange}
           font={font}
           onFontChange={onFontChange}
-          panelStyle={!isMobile && chatInputBoxRef.current ? { position: 'absolute', left: '50%', bottom: chatInputBoxRef.current.offsetHeight + 24, transform: 'translateX(-50%)' } : {}}
+          panelStyle={
+            !isMobile && chatInputBoxRef.current
+              ? {
+                  position: 'fixed',
+                  left: '50%',
+                  bottom: chatInputBoxRef.current.offsetHeight + 24,
+                  transform: 'translateX(-50%)',
+                  width: 600,
+                  background: '#fff',
+                  color: '#232325',
+                  borderRadius: 16,
+                  boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+                  border: '1px solid #DBDBDB',
+                  zIndex: 100,
+                  padding: '24px 0 16px 0',
+                  maxHeight: '80vh',
+                  overflowY: 'auto',
+                }
+              : {}
+          }
         />
       )}
       {isBookmarkModal && <BookmarkModal />}
