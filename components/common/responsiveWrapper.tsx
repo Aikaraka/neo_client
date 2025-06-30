@@ -14,7 +14,7 @@ export default function ResponsiveWrapper({
       className={`${
         mobileEnvironMent
           ? "max-w-md min-w-[360px]"
-          : "min-w-[1366px] min-h-screen w-full flex justify-center pl-24 "
+          : "min-h-screen w-full flex justify-center pl-[80px]"
       }  mx-auto relative flex-1 flex flex-col`}
     >
       {children}

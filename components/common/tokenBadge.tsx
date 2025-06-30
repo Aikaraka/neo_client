@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/utils/supabase/authProvider";
 import { getUserToken } from "@/utils/supabase/service/token.server";
 import { useQuery } from "@tanstack/react-query";
-import { Lock } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -13,15 +12,12 @@ export default function TokenBadge() {
   const router = useRouter();
   if (!user)
     return (
-      <Button
-        variant="ghost"
-        size="sm"
-        className="relative bg-purple-500 hover:bg-purple-600 text-white rounded-full p-2 text-sm"
+      <button
         onClick={() => router.push("/login")}
+        className="text-sm font-medium text-gray-500 hover:text-gray-800"
       >
-        <Lock />
         로그인
-      </Button>
+      </button>
     );
 
   return <Token />;
@@ -36,7 +32,7 @@ function Token() {
     <Button
       variant="ghost"
       size="sm"
-      className="relative bg-purple-500 hover:bg-purple-600 text-white rounded-full p-2 h-6"
+      className="relative bg-purple-500 hover:bg-purple-600 hover:!text-white text-white rounded-full p-2 h-6"
     >
       <Image
         src="/header/diamond.svg"

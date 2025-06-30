@@ -69,14 +69,15 @@ const BookShelf = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <ScrollArea className="w-full whitespace-nowrap">
-    <div className={twMerge("flex space-x-4", className)} {...props} ref={ref}>
-      {props.children}
-    </div>
-    <ScrollBar orientation="horizontal" />
+  <div className="relative">
     <div className="h-1/2 w-full absolute bottom-5 z-[5] bg-[#dbdbdb]" />
-    <div className="h-5 bg-[#F6F3F1] shadow-bookshelf" />
-  </ScrollArea>
+    <ScrollArea className="w-full whitespace-nowrap">
+      <div className={twMerge("flex space-x-4", className)} {...props} ref={ref}>
+        {props.children}
+      </div>
+      <ScrollBar orientation="horizontal" className="hidden" />
+    </ScrollArea>
+  </div>
 ));
 BookShelf.displayName = "BookShelf";
 
