@@ -74,7 +74,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 220 17% 93%;
     --foreground: 240 10% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -166,6 +166,16 @@
     }
     scrollbar-width: none;
     -ms-overflow-style: none;
+  }
+
+
+
+  @media (min-width: 768px) {
+    .bookshelf-backgrounds::before,
+    .bookshelf-backgrounds::after {
+      width: calc(100vw - 80px);
+      left: calc(50% + 44.5px);
+    }
   }
 
   .stroke-gradient {

@@ -19,7 +19,7 @@ export default async function Home() {
 
           {/* Main Content */}
           <main className="flex-1 w-full">
-            <div className="container mx-auto max-w-7xl p-4">
+            <div className="container mx-auto max-w-7xl ">
               {/* Recommended Section */}
               <section className="relative">
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
@@ -33,12 +33,21 @@ export default async function Home() {
                   네오님의 취향 저격
                 </h2>
 
-                <RecommendedNovelList />
+                <div className="relative overflow-visible">
+                  <RecommendedNovelList />
+                </div>
               </section>
 
               {/* Top 5 Section */}
               <section className="relative pt-10">
-                <div className="absolute top-0 h-10 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20" />
+                <div
+                  className="absolute top-0 h-10 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20"
+                  style={{
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '100vw'
+                  }}
+                />
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <Image
                     src="/novel/top_badge.svg"
@@ -50,12 +59,21 @@ export default async function Home() {
                   실시간 TOP 5 소설
                 </h2>
 
-                <TopNovelList />
+                <div className="relative overflow-visible">
+                  <TopNovelList />
+                </div>
               </section>
 
               {/* Genres Section */}
-              <section className="relative pt-10">
-                <div className="absolute top-0 h-10 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20" />
+              <section className="relative pt-10 pb-4">
+                <div
+                  className="absolute top-0 h-10 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20"
+                  style={{
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: '100vw'
+                  }}
+                />
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
                   <Image
                     src="/novel/genre_badge.svg"
@@ -66,7 +84,9 @@ export default async function Home() {
                   />
                   장르별 소설 추천
                 </h2>
-                <NovelListByGenre />
+                <div className="relative overflow-visible">
+                  <NovelListByGenre />
+                </div>
               </section>
             </div>
           </main>

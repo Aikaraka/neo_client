@@ -65,7 +65,7 @@ function NavItem({
   const NavIcon = isActive ? activeIcon : icon;
 
   return disabled ? (
-    <div className="flex flex-col items-center justify-center relative p-2 cursor-not-allowed opacity-50">
+    <div className="flex flex-col items-center justify-center relative p-2 cursor-not-allowed opacity-50 my-1">
       <NavIcon className="h-6 w-6" />
       <span className="text-xs mt-1">{label}</span>
     </div>
@@ -74,7 +74,7 @@ function NavItem({
       key={path}
       href={path}
       className={cn(
-        "flex flex-col items-center justify-center relative p-2",
+        "flex flex-col items-center justify-center relative p-2 my-1",
         isActive ? "text-primary" : "text-muted-foreground"
       )}
       data-tab={label.toLowerCase().replace(" ", "-")}
@@ -101,7 +101,7 @@ function NavItem({
 const NavBarMobile = forwardRef<HTMLDivElement>((props, ref) => {
   const pathname = usePathname() || "/";
   return (
-    <nav className="absolute bottom-0 left-0 right-0 bg-background border-b z-30">
+    <nav className="absolute bottom-0 left-0 right-0 bg-white border-b z-30">
       <div className="container max-w-md">
         <div
           className="flex justify-around items-center py-2 relative"
@@ -130,11 +130,11 @@ NavBarMobile.displayName = "NavBarMobile";
 const NavBarDesktop = forwardRef<HTMLDivElement>((props, ref) => {
   const pathname = usePathname() || "/";
   return (
-    <nav className="fixed flex flex-col left-0 top-0 bg-background border-b z-50 w-[89px] min-h-[768px] h-full shadow-lg items-center py-6 gap-4 px-3 rounded-3xl">
+    <nav className="fixed flex flex-col left-0 top-0 bg-white border-b z-50 w-[80px] min-h-[768px] h-full shadow-lg items-center gap-4 py-4 rounded-3xl">
       <Image src="/neo_emblem.svg" alt="NEO Logo" width={50} height={50} />
       <div className="container max-w-md">
         <div
-          className="flex flex-col justify-around items-center border-t py-2 relative"
+          className="flex flex-col justify-around items-center border-t py-4 relative"
           ref={ref}
         >
           {Object.entries(navItems).map(

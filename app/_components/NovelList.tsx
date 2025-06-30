@@ -14,27 +14,62 @@ import { NovelListByGenreSelector } from "@/app/_components/NovelListByGenre";
 
 export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
   if (!novelList || !novelList.length) return <NovelListEmpty />;
+  
   return (
-    <BookShelf>
-      {novelList?.map((novel) => (
-        <Book
-          key={novel.id}
-          href={`/novel/${novel.id}/detail`}
-        >
-          <Image
-            src={
-              novel.image_url
-                ? novel.image_url
-                : "https://i.imgur.com/D1fNsoW.png"
-            }
-            alt={novel.title ?? "Novel Title"}
-            width={180}
-            height={240}
-            className="rounded-t-lg object-cover w-full h-full z-30"
-          />
-        </Book>
-      ))}
-    </BookShelf>
+    <div className="relative">
+      {/* 전체 화면 베이지색 제목 배경 */}
+      <div 
+        className="absolute bottom-0 h-5 bg-[#F6F3F1] shadow-sm"
+        style={{
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100vw'
+        }}
+      />
+      
+      {/* 전체 화면 회색 책장 바닥 */}
+      <div 
+        className="absolute bottom-5 h-1/2 bg-[#dbdbdb]"
+        style={{
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100vw'
+        }}
+      />
+      
+      <BookShelf>
+        {novelList?.map((novel) => {
+          const title = novel.title || "제목 없음";
+          return (
+            <div key={novel.id} className="flex flex-col items-center">
+              <Book href={`/novel/${novel.id}/detail`}>
+                <Image
+                  src={
+                    novel.image_url
+                      ? novel.image_url
+                      : "https://i.imgur.com/D1fNsoW.png"
+                  }
+                  alt={novel.title ?? "Novel Title"}
+                  width={180}
+                  height={240}
+                  className="rounded-t-lg object-cover w-full h-full z-30"
+                />
+              </Book>
+              <div className="h-5 bg-transparent flex items-center justify-center mt-1 relative z-10">
+                <p className="text-sm font-light text-center px-2">
+                  <span className="md:hidden">
+                    {title.length > 10 ? `${title.slice(0, 8)}...` : title}
+                  </span>
+                  <span className="hidden md:inline">
+                    {title.length > 20 ? `${title.slice(0, 20)}...` : title}
+                  </span>
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </BookShelf>
+    </div>
   );
 }
 
