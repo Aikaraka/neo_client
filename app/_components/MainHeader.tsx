@@ -6,7 +6,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Bell, HelpCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {

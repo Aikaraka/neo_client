@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/utils/supabase/authProvider";
 import { getUserToken } from "@/utils/supabase/service/token.server";
 import { useQuery } from "@tanstack/react-query";
-import { Lock } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
