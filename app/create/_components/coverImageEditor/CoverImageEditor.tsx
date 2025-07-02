@@ -71,16 +71,18 @@ export default function CoverImageEditor() {
         {!imageSrc && <div className="w-full h-full bg-gray-200 flex items-center justify-center text-xs text-gray-500">표지 이미지 없음</div>}
         <TextEdit titleFontSize={titleFontSize} isTitleVisible={isTitleVisible} />
         </div>
-      <ColorSelect />
-      <FontSelect />
-      <TitleControlButtons
-        isTitleVisible={isTitleVisible}
-        onToggleVisibility={() => setIsTitleVisible((v) => !v)}
-        onIncreaseFontSize={() => setTitleFontSize((s) => s + 2)}
-        onDecreaseFontSize={() => setTitleFontSize((s) => Math.max(10, s - 2))}
-      />
-      <CoverImageUploader />
-      <CoverImageGenerator />
+      <div className="flex flex-col gap-2 items-center w-full mt-2">
+        <ColorSelect />
+        <FontSelect />
+        <TitleControlButtons
+          isTitleVisible={isTitleVisible}
+          onToggleVisibility={() => setIsTitleVisible((v) => !v)}
+          onIncreaseFontSize={() => setTitleFontSize((s) => s + 2)}
+          onDecreaseFontSize={() => setTitleFontSize((s) => Math.max(10, s - 2))}
+        />
+        <CoverImageUploader />
+        <CoverImageGenerator />
+      </div>
     </>
   );
 }
