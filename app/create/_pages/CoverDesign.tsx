@@ -19,7 +19,7 @@ export default function CoverDesign() {
         <CoverImageEditor />
 
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">유혈/폭력 묘사</label>
+          <label className="text-sm font-semibold">유혈/폭력 묘사</label>
           <input
             type="checkbox"
             checked={hasViolence}
@@ -29,7 +29,7 @@ export default function CoverDesign() {
         </div>
 
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">음란 묘사</label>
+          <label className="text-sm font-semibold">음란 묘사</label>
           <input
             type="checkbox"
             checked={hasAdultContent}
@@ -41,7 +41,7 @@ export default function CoverDesign() {
         </div>
 
         <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">공개 설정</label>
+          <label className="text-sm font-semibold">공개 설정</label>
           <input
             type="checkbox"
             checked={isPublic}

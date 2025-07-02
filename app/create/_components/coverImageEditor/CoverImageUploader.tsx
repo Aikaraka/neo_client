@@ -40,29 +40,27 @@ export function CoverImageUploader() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="w-full">
       {/* <LoadingModal visible={isPending} /> */}
-      <div className="space-y-4">
-        <Button
-          onClick={(e) => {
-            e.preventDefault();
-            inputRef.current?.click();
-          }}
-          className="w-full"
-          disabled={showImageCropper}
-        >
-          이미지 업로드
-        </Button>
-        <input
-          ref={inputRef}
-          id="file-upload"
-          type="file"
-          accept="image/*, .heic, .heif"
-          className="hidden"
-          multiple={false}
-          onChange={handleUploadImage}
-        />
-      </div>
+      <Button
+        onClick={(e) => {
+          e.preventDefault();
+          inputRef.current?.click();
+        }}
+        className="w-full"
+        disabled={showImageCropper}
+      >
+        이미지 업로드
+      </Button>
+      <input
+        ref={inputRef}
+        id="file-upload"
+        type="file"
+        accept="image/*, .heic, .heif"
+        className="hidden"
+        multiple={false}
+        onChange={handleUploadImage}
+      />
 
       {showImageCropper && originalImageSrcForCropping && (
         <ImageCropper

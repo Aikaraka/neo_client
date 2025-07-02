@@ -19,7 +19,7 @@ const DEFAULT_FONT_SIZE = 15;
 const DEFAULT_LINE_HEIGHT = 1.6;
 const DEFAULT_PARAGRAPH_SPACING = 16;
 
-export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontSize, onFontSizeChange, lineHeight, onLineHeightChange, paragraphSpacing, onParagraphSpacingChange, paragraphWidth, onParagraphWidthChange, brightness, onBrightnessChange, font, onFontChange }: {
+export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontSize, onFontSizeChange, lineHeight, onLineHeightChange, paragraphSpacing, onParagraphSpacingChange, paragraphWidth, onParagraphWidthChange, brightness, onBrightnessChange, font, onFontChange, panelStyle }: {
   onClose: () => void,
   onColorChange?: (color: string) => void,
   selectedColor: string,
@@ -35,6 +35,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
   onBrightnessChange: (b: number) => void,
   font: string,
   onFontChange: (font: string) => void,
+  panelStyle?: React.CSSProperties,
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
@@ -80,8 +81,8 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
   const dividerStyle = {
     border: "none",
     borderBottom: "1px solid #E2E1DC",
-    marginLeft: isMobile ? 56 : 80,
-    marginRight: isMobile ? 24 : 80,
+    marginLeft: isMobile ? 56 : 56,
+    marginRight: isMobile ? 24 : 24,
     width: "auto",
     height: 0,
   };
@@ -96,24 +97,49 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
   return (
     <div
       ref={panelRef}
-      style={{
-        position: "fixed",
-        left: isMobile ? 0 : 89,
-        right: 0,
-        bottom: 0,
-        width: isMobile ? "100%" : "calc(100% - 89px)",
-        background: "#F5F5F5",
-        borderRadius: "16px 16px 0 0",
-        boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
-        border: "1px solid #DBDBDB",
-        zIndex: 100,
-        padding: isMobile ? "24px 0 16px 0" : "32px 0 24px 0",
-        transform: visible ? "translateY(0)" : "translateY(100%)",
-        opacity: visible ? 1 : 0,
-        transition: "transform 0.35s cubic-bezier(.4,1.6,.6,1), opacity 0.3s",
-        maxHeight: isMobile ? "80vh" : "60vh",
-        overflowY: "auto"
-      }}
+      style={
+        isMobile
+          ? {
+              position: "fixed",
+              left: "50%",
+              bottom: 0,
+              width: "100%",
+              maxWidth: "100%",
+              transform: `translate(-50%,${visible ? "0" : "100%"})`,
+              background: "#F5F5F5",
+              borderRadius: "16px 16px 0 0",
+              boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
+              border: "1px solid #DBDBDB",
+              zIndex: 100,
+              padding: "24px 0 16px 0",
+              opacity: visible ? 1 : 0,
+              transition: "transform 0.35s cubic-bezier(.4,1.6,.6,1), opacity 0.3s",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }
+          : (panelStyle && Object.keys(panelStyle).length > 0
+              ? { ...panelStyle }
+              : {
+                  position: "fixed",
+                  left: "50%",
+                  bottom: 72,
+                  width: 600,
+                  maxWidth: "100%",
+                  transform: `translate(-50%,${visible ? "0" : "100%"})`,
+                  background: "#fff",
+                  borderRadius: "16px 16px 0 0",
+                  boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
+                  border: "1px solid #DBDBDB",
+                  zIndex: 100,
+                  padding: "24px 0 16px 0",
+                  opacity: visible ? 1 : 0,
+                  transition: "transform 0.35s cubic-bezier(.4,1.6,.6,1), opacity 0.3s",
+                  maxHeight: "80vh",
+                  overflowY: "auto",
+                  color: "#232325",
+                }
+            )
+      }
     >
       {/* 페인트 위 얇은 선 */}
       <hr style={dividerStyle} />
@@ -121,24 +147,24 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       <div style={{ 
         display: "flex", 
         alignItems: "center", 
-        gap: isMobile ? 16 : 24, 
-        marginLeft: isMobile ? 24 : "5%", 
+        gap: isMobile ? 16 : 16, 
+        marginLeft: isMobile ? 24 : 24, 
         marginTop: 8, 
         marginBottom: 8 
       }}>
-        <PaintIcon style={{ width: isMobile ? 16 : 20, height: isMobile ? 16 : 20 }} />
+        <PaintIcon style={{ width: isMobile ? 16 : 16, height: isMobile ? 16 : 16 }} />
         <div
           style={{
-            marginLeft: isMobile ? 16 : 24,
+            marginLeft: isMobile ? 16 : 16,
             marginRight: 0,
             overflowX: "auto",
-            maxWidth: isMobile ? "calc(100% - 56px - 24px)" : "calc(90% - 80px)",
+            maxWidth: isMobile ? "calc(100% - 56px - 24px)" : "calc(100% - 56px - 24px)",
             scrollbarWidth: "none",
             msOverflowStyle: "none",
           }}
           className="hide-scrollbar"
         >
-          <div style={{ display: "flex", gap: isMobile ? 20 : 28 }}>
+          <div style={{ display: "flex", gap: isMobile ? 20 : 20 }}>
             {colorList.map((color) => (
               <div
                 key={color}
@@ -147,18 +173,18 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
                   if (onColorChange) onColorChange(color);
                 }}
                 style={{
-                  width: isMobile ? 36 : 44, 
-                  height: isMobile ? 36 : 44, 
+                  width: isMobile ? 36 : 36, 
+                  height: isMobile ? 36 : 36, 
                   borderRadius: "50%",
                   border: color === selected ? "2px solid #A259D9" : "1px solid #E2E1DC",
                   background: color, 
                   boxSizing: "border-box",
-                  flex: `0 0 ${isMobile ? 36 : 44}px`, 
+                  flex: `0 0 ${isMobile ? 36 : 36}px`, 
                   cursor: "pointer",
                   transition: "transform 0.2s",
                 }}
-                onMouseEnter={(e) => !isMobile && (e.currentTarget.style.transform = "scale(1.1)")}
-                onMouseLeave={(e) => !isMobile && (e.currentTarget.style.transform = "scale(1)")}
+                onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
               />
             ))}
           </div>
@@ -168,19 +194,19 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       <hr style={dividerStyle} />
       {/* 밝기 슬라이더 */}
       <div style={{ 
-        marginLeft: isMobile ? 24 : "5%", 
+        marginLeft: isMobile ? 24 : 24, 
         marginTop: 24, 
         marginBottom: 20, 
         display: "flex", 
         alignItems: "center", 
-        gap: isMobile ? 16 : 24 
+        gap: isMobile ? 16 : 16 
       }}>
-        <LightIcon style={{ width: isMobile ? 16 : 20, height: isMobile ? 16 : 20 }} />
+        <LightIcon style={{ width: isMobile ? 16 : 16, height: isMobile ? 16 : 16 }} />
         <div style={{ 
           position: "relative", 
           flex: 1, 
-          marginLeft: isMobile ? 16 : 24, 
-          marginRight: isMobile ? 24 : "5%", 
+          marginLeft: isMobile ? 16 : 16, 
+          marginRight: isMobile ? 24 : 24, 
           height: 32 
         }}>
           <input
@@ -199,26 +225,26 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
           />
           {/* 보라색 트랙 */}
           <div style={{
-            height: isMobile ? 8 : 10,
+            height: isMobile ? 8 : 8,
             background: "#E2E1DC",
-            borderRadius: isMobile ? 4 : 5,
+            borderRadius: isMobile ? 4 : 4,
             position: "absolute",
-            left: 0, right: 0, top: isMobile ? 12 : 11, zIndex: 1
+            left: 0, right: 0, top: isMobile ? 12 : 12, zIndex: 1
           }}>
             <div style={{
               width: `${((brightness-0.5)/0.7)*100}%`,
-              height: isMobile ? 8 : 10,
+              height: isMobile ? 8 : 8,
               background: "#A259D9",
-              borderRadius: isMobile ? 4 : 5,
+              borderRadius: isMobile ? 4 : 4,
               position: "absolute", left: 0, top: 0
             }} />
             {/* 썸(thumb) */}
             <div style={{
               position: "absolute",
-              left: `calc(${((brightness-0.5)/0.7)*100}% - ${isMobile ? 8 : 10}px)`,
-              top: isMobile ? -4 : -5,
-              width: isMobile ? 16 : 20, 
-              height: isMobile ? 16 : 20,
+              left: `calc(${((brightness-0.5)/0.7)*100}% - ${isMobile ? 8 : 8}px)` ,
+              top: isMobile ? -4 : -4,
+              width: isMobile ? 16 : 16, 
+              height: isMobile ? 16 : 16,
               background: "#A259D9",
               borderRadius: "50%",
               border: "none",
@@ -235,22 +261,22 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       <div style={{ 
         display: "flex", 
         alignItems: "center", 
-        gap: isMobile ? 16 : 24, 
-        padding: isMobile ? "0 24px" : "0 5%", 
-        minHeight: isMobile ? 48 : 56, 
+        gap: 16, 
+        padding: "0 24px", 
+        minHeight: 56, 
         position: "relative" 
       }}>
-        <TextIcon style={{ width: isMobile ? 16 : 20, height: isMobile ? 16 : 20 }} />
+        <TextIcon style={{ width: 16, height: 16 }} />
         <span style={{ 
           flex: 1, 
-          fontSize: isMobile ? 17 : 19, 
+          fontSize: 16, 
           color: "#868D96" 
         }}>글꼴</span>
         <div ref={fontRef} style={{ position: "relative", display: "flex", alignItems: "center" }}>
           <button
             style={{
               color: "#868D96",
-              fontSize: 17,
+              fontSize: 14,
               fontWeight: 400,
               fontFamily: "inherit",
               background: "none",
@@ -281,27 +307,27 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       <div style={{ 
         display: "flex", 
         alignItems: "center", 
-        gap: isMobile ? 16 : 24, 
-        padding: isMobile ? "0 24px" : "0 5%", 
-        minHeight: isMobile ? 48 : 56, 
+        gap: 16, 
+        padding: "0 24px", 
+        minHeight: 56, 
         position: "relative" 
       }}>
-        <TextSizeIcon style={{ width: isMobile ? 16 : 20, height: isMobile ? 16 : 20 }} />
-        <span style={{ fontSize: isMobile ? 17 : 19, color: "#868D96" }}>글자크기</span>
-        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: isMobile ? 15 : 17, marginLeft: 8, marginRight: "auto" }}>{fontSize}</span>
-        <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 4 : 8 }}>
+        <TextSizeIcon style={{ width: 16, height: 16 }} />
+        <span style={{ fontSize: 16, color: "#868D96" }}>글자크기</span>
+        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: 14, marginLeft: 8, marginRight: "auto" }}>{fontSize}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           {fontSize !== DEFAULT_FONT_SIZE && (
             <button
               onClick={() => onFontSizeChange(DEFAULT_FONT_SIZE)}
               style={{ background: "none", border: "none", padding: 0, marginRight: 4, cursor: "pointer", display: "flex", alignItems: "center" }}
               title="기본값으로 되돌리기"
             >
-              <RefreshIcon style={{ width: isMobile ? 20 : 24, height: isMobile ? 20 : 24, color: "#858585" }} />
+              <RefreshIcon style={{ width: 20, height: 20, color: "#858585" }} />
             </button>
           )}
           <div style={{
-            width: isMobile ? 104 : 120, 
-            height: isMobile ? 28 : 36, 
+            width: 104, 
+            height: 28, 
             border: "1px solid #A259D9", 
             borderRadius: 9999,
             display: "flex", 
@@ -332,8 +358,8 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       {/* 줄간격 */}
       <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "0 24px 0 24px", minHeight: 48, position: "relative" }}>
         <LineHeightIcon />
-        <span style={{ fontSize: 17, color: "#868D96" }}>줄간격</span>
-        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: 15, marginLeft: 8, marginRight: "auto" }}>{lineHeight}</span>
+        <span style={{ fontSize: 16, color: "#868D96" }}>줄간격</span>
+        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: 14, marginLeft: 8, marginRight: "auto" }}>{lineHeight}</span>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           {lineHeight !== DEFAULT_LINE_HEIGHT && (
             <button
@@ -370,8 +396,8 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       {/* 문단간격 */}
       <div style={{ display: "flex", alignItems: "center", gap: 16, padding: "0 24px 0 24px", minHeight: 48, position: "relative" }}>
         <ParagraphSpacingIcon />
-        <span style={{ fontSize: 17, color: "#868D96" }}>문단 간격</span>
-        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: 15, marginLeft: 8, marginRight: "auto" }}>{paragraphSpacing}</span>
+        <span style={{ fontSize: 16, color: "#868D96" }}>문단 간격</span>
+        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: 14, marginLeft: 8, marginRight: "auto" }}>{paragraphSpacing}</span>
         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
           {paragraphSpacing !== DEFAULT_PARAGRAPH_SPACING && (
             <button
@@ -409,19 +435,19 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
       <div style={{ 
         display: "flex", 
         alignItems: "center", 
-        gap: isMobile ? 16 : 24, 
-        padding: isMobile ? "0 24px" : "0 5%", 
-        minHeight: isMobile ? 48 : 56, 
+        gap: 16, 
+        padding: "0 24px", 
+        minHeight: 56, 
         position: "relative" 
       }}>
-        <ParagraphWidthIcon style={{ width: isMobile ? 16 : 20, height: isMobile ? 16 : 20 }} />
-        <span style={{ fontSize: isMobile ? 17 : 19, color: "#868D96" }}>문단 너비</span>
-        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: isMobile ? 15 : 17, marginLeft: 8 }}>{Math.round((paragraphWidth / 800) * 100)}%</span>
+        <ParagraphWidthIcon style={{ width: 16, height: 16 }} />
+        <span style={{ fontSize: 16, color: "#868D96" }}>문단 너비</span>
+        <span style={{ color: "#A9ABAE", fontWeight: 400, fontSize: 14, marginLeft: 8 }}>{Math.round((paragraphWidth / 800) * 100)}%</span>
         <div style={{ 
           position: "relative", 
           flex: 1, 
-          marginLeft: isMobile ? 16 : 24, 
-          marginRight: isMobile ? 24 : "5%", 
+          marginLeft: 16, 
+          marginRight: 24, 
           height: 32 
         }}>
           <input
@@ -440,26 +466,26 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
           />
           {/* 보라색 트랙 */}
           <div style={{
-            height: isMobile ? 8 : 10,
+            height: 8,
             background: "#E2E1DC",
-            borderRadius: isMobile ? 4 : 5,
+            borderRadius: 4,
             position: "absolute",
-            left: 0, right: 0, top: isMobile ? 12 : 11, zIndex: 1
+            left: 0, right: 0, top: 12, zIndex: 1
           }}>
             <div style={{
               width: `${((paragraphWidth - 300) / 500) * 100}%`,
-              height: isMobile ? 8 : 10,
+              height: 8,
               background: "#A259D9",
-              borderRadius: isMobile ? 4 : 5,
+              borderRadius: 4,
               position: "absolute", left: 0, top: 0
             }} />
             {/* 썸(thumb) */}
             <div style={{
               position: "absolute",
-              left: `calc(${((paragraphWidth - 300) / 500) * 100}% - ${isMobile ? 8 : 10}px)`,
-              top: isMobile ? -4 : -5,
-              width: isMobile ? 16 : 20, 
-              height: isMobile ? 16 : 20,
+              left: `calc(${((paragraphWidth - 300) / 500) * 100}% - 8px)`,
+              top: -4,
+              width: 16, 
+              height: 16,
               background: "#A259D9",
               borderRadius: "50%",
               border: "none",
