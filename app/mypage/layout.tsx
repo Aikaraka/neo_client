@@ -1,4 +1,3 @@
-import Navbar from "@/components/layout/navbar";
 import { ReactNode } from "react";
 
 export default function Layout({ children }: { children: ReactNode }) {
@@ -6,7 +5,6 @@ export default function Layout({ children }: { children: ReactNode }) {
     <>
       <div className="w-full h-screen whitespace-nowrap pb-20 relative flex justify-center overflow-x-hidden">
         {children}
-        <Navbar />
       </div>
     </>
   );

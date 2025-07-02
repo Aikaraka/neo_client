@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "@/components/layout/navbar";
 import { Grid3x3, Inbox, LayoutGrid, LayoutList, Search, BookOpen, PenTool, Library } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -211,7 +210,6 @@ export default function StoragePage() {
               <NovelLibrary searchQuery={searchQuery} layout={layout} filter={filter} />
             </NovelDeleteModalProvider>
 
-            <Navbar />
           </div>
         </MainContent>
       </div>

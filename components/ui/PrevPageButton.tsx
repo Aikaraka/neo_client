@@ -6,18 +6,24 @@ import { useRouter } from "next/navigation";
 import React from "react";
 
 const PrevPageButton = React.forwardRef<
-  SVGSVGElement,
-  React.ComponentPropsWithoutRef<typeof ChevronLeftIcon>
->(({ size, className, ...props }, ref) => {
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<"button"> & {
+    iconSize?: number;
+  }
+>(({ className, iconSize, ...props }, ref) => {
   const router = useRouter();
   return (
-    <ChevronLeftIcon
-      className={cn(className, "absolute top-5 left-5 cursor-pointer z-20")}
+    <button
       ref={ref}
-      size={size ?? 40}
-      {...props}
       onClick={() => router.back()}
-    />
+      className={cn(
+        "p-2 rounded-full hover:bg-gray-200 transition-colors flex items-center justify-center",
+        className
+      )}
+      {...props}
+    >
+      <ChevronLeftIcon size={iconSize ?? 24} />
+    </button>
   );
 });
 

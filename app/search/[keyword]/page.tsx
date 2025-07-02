@@ -1,7 +1,7 @@
 "use client";
 import NotFound from "@/app/[...404]/page";
 import { getSearchResult } from "@/app/search/[keyword]/_api/searchResult.server";
-import Navbar from "@/components/layout/navbar";
+import { NavBarDesktop, NavBarMobile } from "@/components/layout/navbar";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { MainContent } from "@/components/ui/content";
@@ -393,7 +393,7 @@ export default function SearchResultPage() {
         </MainContent>
         
         {/* Navigation Bar */}
-        <Navbar />
+        {isMobile ? <NavBarMobile /> : <NavBarDesktop />}
         
         {/* 개선된 필터 모달 */}
         <Modal

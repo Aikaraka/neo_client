@@ -1,13 +1,13 @@
 "use client";
 
-import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
+import { StoryProvider, useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
 import ProgressRate from "@/app/novel/[id]/chat/_components/ProgressRate";
 import { StoryContent } from "@/app/novel/[id]/chat/_components/StoryContent";
 import { ChatInput } from "@/app/novel/[id]/chat/_components/ChatInput";
 import NotFound from "@/app/[...404]/page";
 import { useState, useEffect } from "react";
 
-export default function ChatPage() {
+function ChatPageContent() {
   const { initError } = useStoryContext();
   const [bgColor, setBgColor] = useState("#FFFFFF");
   const [fontSize, setFontSize] = useState(15);
@@ -30,41 +30,67 @@ export default function ChatPage() {
   if (initError) return <NotFound />;
   return (
     <div
-      className="flex flex-col w-full h-full overflow-hidden"
-      style={{
-        background: bgColor,
-        color: isDark ? "#fff" : "#232325",
-        transition: "background 0.2s, color 0.2s",
-        filter: `brightness(${brightness})`,
-        position: "relative",
-        maxWidth: "100vw"
-      }}
+      className="flex flex-col w-full h-screen overflow-hidden"
+      style={{ backgroundColor: "#EDEFF3" }}
     >
-      <ProgressRate />
-      <StoryContent 
-        fontSize={fontSize}
-        lineHeight={lineHeight}
-        paragraphSpacing={paragraphSpacing}
-        paragraphWidth={paragraphWidth}
-        font={font}
-        isDark={isDark}
-      />
-      <ChatInput
-        onColorChange={setBgColor}
-        selectedColor={bgColor}
-        fontSize={fontSize}
-        lineHeight={lineHeight}
-        paragraphSpacing={paragraphSpacing}
-        paragraphWidth={paragraphWidth}
-        onFontSizeChange={setFontSize}
-        onLineHeightChange={setLineHeight}
-        onParagraphSpacingChange={setParagraphSpacing}
-        onParagraphWidthChange={setParagraphWidth}
-        brightness={brightness}
-        onBrightnessChange={setBrightness}
-        font={font}
-        onFontChange={setFont}
-      />
+      {/* 중앙 카드 컨테이너 (헤더 + 콘텐츠) */}
+      <div className="flex-1 overflow-hidden flex items-center justify-center p-4 pb-24">
+        <div 
+          className="w-full max-w-2xl h-full flex flex-col rounded-2xl shadow-lg overflow-hidden"
+          style={{
+            background: bgColor,
+            color: isDark ? "#fff" : "#232325",
+            transition: "background 0.2s, color 0.2s",
+            filter: `brightness(${brightness})`,
+          }}
+        >
+          {/* 헤더 */}
+          <div className="flex-shrink-0 border-b border-gray-300">
+            <ProgressRate 
+              onColorChange={setBgColor}
+              selectedColor={bgColor}
+              fontSize={fontSize}
+              lineHeight={lineHeight}
+              paragraphSpacing={paragraphSpacing}
+              paragraphWidth={paragraphWidth}
+              onFontSizeChange={setFontSize}
+              onLineHeightChange={setLineHeight}
+              onParagraphSpacingChange={setParagraphSpacing}
+              onParagraphWidthChange={setParagraphWidth}
+              brightness={brightness}
+              onBrightnessChange={setBrightness}
+              font={font}
+              onFontChange={setFont}
+            />
+          </div>
+          
+          {/* 콘텐츠 영역 */}
+          <div className="flex-1 overflow-y-auto pt-4">
+            <StoryContent
+              fontSize={fontSize}
+              lineHeight={lineHeight}
+              paragraphSpacing={paragraphSpacing}
+              paragraphWidth={paragraphWidth}
+              font={font}
+              isDark={isDark}
+            />
+          </div>
+        </div>
+      </div>
+      {/* 하단 고정 채팅창 (카드 밖) */}
+      <div className="fixed bottom-0 left-0 md:left-[80px] right-0 p-4 flex justify-center transition-all duration-300 ease-in-out">
+        <div className="w-full max-w-2xl">
+          <ChatInput />
+        </div>
+      </div>
     </div>
+  );
+}
+
+export default function ChatPage() {
+  return (
+    <StoryProvider>
+      <ChatPageContent />
+    </StoryProvider>
   );
 }

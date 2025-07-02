@@ -1,5 +1,4 @@
 import Image from "next/image";
-import Navbar from "@/components/layout/navbar";
 import {
   NovelListByGenre,
   RecommendedNovelList,
@@ -92,8 +91,6 @@ export default async function Home() {
           </main>
           <Footer />
         </div>
-        {/* Navigation Bar */}
-        <Navbar />
       </div>
     </Toaster>
   );

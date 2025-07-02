@@ -4,7 +4,6 @@ import {
   NovelPlot,
 } from "@/app/novel/[id]/detail/_components/NovelInfo";
 import { ReadNovelButton } from "@/app/novel/[id]/detail/_components/ReadNovelButton";
-import Navbar from "@/components/layout/navbar";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { MainContent } from "@/components/ui/content";
 import PrevPageButton from "@/components/ui/PrevPageButton";
@@ -70,7 +69,7 @@ export default async function NovelDetail({
                     alt={novel.title}
                     width={150}
                     height={200}
-                    className="w-[180px] h-[240px] object-fill rounded-lg shadow-lg mx-auto mb-4"
+                    className="w-[180px] h-[240px] object-fill rounded-lg shadow-sm mx-auto mb-4"
                   />
                   <Image
                     src={"/novel/book_template.png"}
@@ -175,7 +174,6 @@ export default async function NovelDetail({
           {/* Floating '소설 읽기' Button */}
           <ReadNovelButton novelId={novelId} />
         </Toaster>
-        <Navbar />
       </MainContent>
     </div>
   );
