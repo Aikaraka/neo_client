@@ -27,7 +27,7 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
   const [isBookmarkModal, setIsBookmarkModal] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
   const chatInputBoxRef = useRef<HTMLDivElement>(null);
-  const [chatInputTop, setChatInputTop] = useState<number | null>(null);
+  const [, setChatInputTop] = useState<number | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {

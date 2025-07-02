@@ -3,7 +3,7 @@
 import Search from "@/app/_components/Search";
 import TokenBadge from "@/components/common/tokenBadge";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Bell, HelpCircle } from "lucide-react";
+import { HelpCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,7 @@ import {
 import { useUser } from "@/utils/supabase/authProvider";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { NotificationBell } from "@/components/ui/notification";
 
 export default function MainHeader() {
   const isMobile = useIsMobile();
@@ -35,7 +36,7 @@ function MainHeaderMobile() {
         </Link>
         <div className="flex items-center gap-3 flex-1 justify-end">
           <TokenBadge />
-          <Bell />
+          <NotificationBell />
         </div>
       </div>
       <div className="px-2 pt-2">
@@ -86,9 +87,7 @@ function MainHeaderDesktop() {
             <TokenBadge />
             {user && (
               <>
-                <button>
-                  <Bell className="w-5 h-5 text-gray-500" />
-                </button>
+                <NotificationBell />
                 <button
                   onClick={handleLogout}
                   className="text-xs font-medium text-gray-500 hover:text-gray-800"

@@ -27,9 +27,9 @@ export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
         }}
       />
       
-      {/* 전체 화면 회색 책장 바닥 */}
+      {/* 전체 화면 회색 책장 바닥 - 모바일에서 숨김 */}
       <div 
-        className="absolute bottom-5 h-1/2 bg-[#dbdbdb]"
+        className="absolute bottom-5 h-1/2 bg-[#dbdbdb] hidden md:block"
         style={{
           left: '50%',
           transform: 'translateX(-50%)',
