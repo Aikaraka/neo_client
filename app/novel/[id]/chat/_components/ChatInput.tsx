@@ -27,7 +27,6 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
   const [isBookmarkModal, setIsBookmarkModal] = useState(false);
   const [isMobile, setIsMobile] = useState(true);
   const chatInputBoxRef = useRef<HTMLDivElement>(null);
-  const [, setChatInputTop] = useState<number | null>(null);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -37,13 +36,6 @@ export function ChatInput({ onColorChange, selectedColor, fontSize, lineHeight, 
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  useEffect(() => {
-    if (chatInputBoxRef.current) {
-      const rect = chatInputBoxRef.current.getBoundingClientRect();
-      setChatInputTop(rect.top);
-    }
-  }, [isViewSettings]);
 
   const handleTextAreaChange: FormEventHandler<HTMLTextAreaElement> = (e) => {
     const el = e.currentTarget;
