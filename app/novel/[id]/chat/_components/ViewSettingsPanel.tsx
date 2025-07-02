@@ -39,12 +39,20 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [fontOpen, setFontOpen] = useState(false);
   const fontOptions = ["나눔명조", "나눔고딕", "KoPubWorld 돋움체", "KoPubWorld 바탕체"];
   const fontRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState(selectedColor);
   const [isMobile, setIsMobile] = useState(true);
   
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 350);
+  };
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
@@ -58,7 +66,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
     setTimeout(() => setVisible(true), 10);
     function handleClickOutside(event: MouseEvent) {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        onClose();
+        handleClose();
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -94,6 +102,11 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
     height: 0,
   };
 
+  const getTransformValue = () => {
+    if (isClosing) return "100%";
+    return visible ? "0" : "100%";
+  };
+
   return (
     <div
       ref={panelRef}
@@ -105,14 +118,14 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
               bottom: 0,
               width: "100%",
               maxWidth: "100%",
-              transform: `translate(-50%,${visible ? "0" : "100%"})`,
+              transform: `translate(-50%, ${getTransformValue()})`,
               background: "#F5F5F5",
               borderRadius: "16px 16px 0 0",
               boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
               border: "1px solid #DBDBDB",
               zIndex: 100,
               padding: "24px 0 16px 0",
-              opacity: visible ? 1 : 0,
+              opacity: isClosing ? 0 : (visible ? 1 : 0),
               transition: "transform 0.35s cubic-bezier(.4,1.6,.6,1), opacity 0.3s",
               maxHeight: "80vh",
               overflowY: "auto",
@@ -125,14 +138,14 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
                   bottom: 72,
                   width: 600,
                   maxWidth: "100%",
-                  transform: `translate(-50%,${visible ? "0" : "100%"})`,
+                  transform: `translate(-50%, ${getTransformValue()})`,
                   background: "#fff",
                   borderRadius: "16px 16px 0 0",
                   boxShadow: "0 -4px 24px rgba(0,0,0,0.08)",
                   border: "1px solid #DBDBDB",
                   zIndex: 100,
                   padding: "24px 0 16px 0",
-                  opacity: visible ? 1 : 0,
+                  opacity: isClosing ? 0 : (visible ? 1 : 0),
                   transition: "transform 0.35s cubic-bezier(.4,1.6,.6,1), opacity 0.3s",
                   maxHeight: "80vh",
                   overflowY: "auto",

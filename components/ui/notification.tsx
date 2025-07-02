@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/layout/scroll-area";
+import Link from "next/link";
 
 // 임시 알림 데이터 타입
 interface Notification {
@@ -211,9 +212,9 @@ export function NotificationBell({ className }: NotificationBellProps) {
         </ScrollArea>
         
         <div className="p-4 border-t">
-          <button className="w-full text-sm text-purple-600 hover:text-purple-800 text-center transition-colors">
+          <Link href="/notice" className="w-full text-sm text-purple-600 hover:text-purple-800 text-center transition-colors block">
             모든 알림 보기
-          </button>
+          </Link>
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

@@ -3,20 +3,53 @@
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
 import PrevPageButton from "@/components/ui/PrevPageButton";
 import { MoreHorizontal } from "lucide-react";
-import { PointPopup } from "./PointPopup";
-import React, { useRef, useState } from "react";
+import { MoreMenu } from "./MoreMenu";
+import React from "react";
 
-export default function ProgressRate() {
+interface ProgressRateProps {
+  onColorChange?: (color: string) => void;
+  selectedColor: string;
+  fontSize: number;
+  lineHeight: number;
+  paragraphSpacing: number;
+  paragraphWidth: number;
+  onFontSizeChange: (size: number) => void;
+  onLineHeightChange: (lh: number) => void;
+  onParagraphSpacingChange: (ps: number) => void;
+  onParagraphWidthChange: (width: number) => void;
+  brightness: number;
+  onBrightnessChange: (brightness: number) => void;
+  font: string;
+  onFontChange: (font: string) => void;
+}
+
+export default function ProgressRate({
+  onColorChange,
+  selectedColor,
+  fontSize,
+  lineHeight,
+  paragraphSpacing,
+  paragraphWidth,
+  onFontSizeChange,
+  onLineHeightChange,
+  onParagraphSpacingChange,
+  onParagraphWidthChange,
+  brightness,
+  onBrightnessChange,
+  font,
+  onFontChange,
+}: ProgressRateProps) {
   const { progressRate, title } = useStoryContext();
-  const [popupOpen, setPopupOpen] = useState(false);
-  const moreBtnRef = useRef<HTMLButtonElement>(null);
+
   return (
     <div className="px-4 py-3 flex items-center justify-between relative">
-      <PrevPageButton />
+      <div className="w-10">
+        <PrevPageButton />
+      </div>
 
-      <div className="flex-1 flex flex-col items-center">
+      <div className="flex-1 flex flex-col items-center text-center">
         {/* 예: 소설 제목, 진행률 등 표시 */}
-        <span className="font-medium text-sm">{title}</span>
+        <span className="font-medium text-sm truncate w-48">{title}</span>
         <div className="flex items-center gap-2">
           <span className="text-xs text-gray-500">진행률</span>
           <div className="flex-1 flex items-center w-48">
@@ -34,15 +67,29 @@ export default function ProgressRate() {
         </div>
       </div>
 
-      {/* 점 세개(더보기) 아이콘 */}
-      <button
-        ref={moreBtnRef}
-        className="text-gray-600 hover:text-black"
-        onClick={() => setPopupOpen(true)}
-      >
-        <MoreHorizontal className="w-5 h-5" />
-      </button>
-      <PointPopup open={popupOpen} onClose={() => setPopupOpen(false)} anchorRef={moreBtnRef} />
+      {/* 오른쪽 아이콘 그룹 */}
+      <div className="w-10 flex justify-end">
+        <MoreMenu
+          onColorChange={onColorChange}
+          selectedColor={selectedColor}
+          fontSize={fontSize}
+          lineHeight={lineHeight}
+          paragraphSpacing={paragraphSpacing}
+          paragraphWidth={paragraphWidth}
+          onFontSizeChange={onFontSizeChange}
+          onLineHeightChange={onLineHeightChange}
+          onParagraphSpacingChange={onParagraphSpacingChange}
+          onParagraphWidthChange={onParagraphWidthChange}
+          brightness={brightness}
+          onBrightnessChange={onBrightnessChange}
+          font={font}
+          onFontChange={onFontChange}
+        >
+          <button className="text-gray-600 hover:text-black p-2 rounded-full hover:bg-gray-100 transition-colors">
+            <MoreHorizontal className="w-5 h-5" />
+          </button>
+        </MoreMenu>
+      </div>
     </div>
   );
 }
