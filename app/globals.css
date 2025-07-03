@@ -204,13 +204,45 @@
     -ms-overflow-style: none;
   }
 
+  /* Safari Safe Area Support */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
 
+  /* Mobile Navigation Bar Height with Safe Area */
+  .pb-mobile-nav {
+    padding-bottom: calc(48px + env(safe-area-inset-bottom));
+  }
+
+  /* Medium screen breakpoint (tablets and small laptops) */
+  @media (min-width: 520px) and (max-width: 767px) {
+    .container {
+      max-width: 100%;
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
 
   @media (min-width: 768px) {
     .bookshelf-backgrounds::before,
     .bookshelf-backgrounds::after {
       width: calc(100vw - 80px);
       left: calc(50% + 44.5px);
+    }
+    .pb-mobile-nav {
+      padding-bottom: 0;
     }
   }
 

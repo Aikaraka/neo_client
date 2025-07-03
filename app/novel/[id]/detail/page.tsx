@@ -36,7 +36,7 @@ export default async function NovelDetail({
   console.log(novel);
 
   return (
-    <div className="w-full h-screen bg-background pb-20 relative flex justify-center">
+    <div className="w-full h-screen bg-background relative flex justify-center">
       <MainContent className="md:border md:h-[479px] overflow-auto self-center">
         <Toaster>
           <PrevPageButton color="white" className="md:hidden" />

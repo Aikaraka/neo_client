@@ -33,7 +33,7 @@ export default function StoragePage() {
     <Toaster>
       <div className="flex w-full h-screen justify-center items-center bg-input">
         <MainContent>
-          <div className="w-full h-full max-w-4xl mx-auto p-6 flex flex-col gap-4 pb-20">
+          <div className="w-full h-full max-w-4xl mx-auto p-6 flex flex-col gap-4">
             {/* 헤더 */}
             <div className="flex gap-2 items-center justify-between">
               <div className="flex gap-2 items-center">

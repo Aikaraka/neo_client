@@ -18,7 +18,7 @@ export default async function Home() {
 
           {/* Main Content */}
           <main className="flex-1 w-full">
-            <div className="container mx-auto max-w-7xl ">
+            <div className="w-full px-4 sm:px-6 lg:px-8">
               {/* Recommended Section */}
               <section className="relative">
                 <h2 className="text-lg font-semibold mb-4 flex items-center">

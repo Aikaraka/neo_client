@@ -1,10 +1,39 @@
 "use client";
 
-import { NavBarDesktop, NavBarMobile } from "@/components/layout/navbar";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname } from "next/navigation";
-import React from "react";
+import { NavBarDesktop, NavBarMobile } from "../layout/navbar";
+// 다양한 디자인 옵션들 import
+import { 
+  NavBarFloating, 
+  NavBarGradient, 
+  NavBarApple, 
+  NavBarMaterial,
+  NavBarFloatingMaterial
+} from "../layout/navbar-designs";
+
+// 🎨 네비게이션 바 디자인 설정
+// 이곳에서 원하는 디자인으로 바꿀 수 있습니다!
+const NAVBAR_DESIGN = "floating-material"; // "default" | "floating" | "gradient" | "apple" | "material" | "floating-material"
+
+// 선택된 디자인에 따라 컴포넌트 결정
+const getNavBarComponent = (design: string) => {
+  switch (design) {
+    case "floating":
+      return NavBarFloating;
+    case "gradient":
+      return NavBarGradient;
+    case "apple":
+      return NavBarApple;
+    case "material":
+      return NavBarMaterial;
+    case "floating-material":
+      return NavBarFloatingMaterial;
+    default:
+      return NavBarMobile;
+  }
+};
 
 export default function ResponsiveWrapper({
   children,
@@ -14,6 +43,9 @@ export default function ResponsiveWrapper({
   const isMobile = useIsMobile();
   const pathname = usePathname();
   const isChatPage = pathname.includes("/chat");
+
+  // 선택된 네비게이션 바 컴포넌트
+  const SelectedNavBar = getNavBarComponent(NAVBAR_DESIGN);
 
   return (
     <div className="relative min-h-screen">
@@ -31,14 +63,15 @@ export default function ResponsiveWrapper({
       <main
         className={cn(
           "transition-all duration-300 ease-in-out w-full",
-          isMobile ? "pl-0" : "pl-[80px]"
+          isMobile ? "pl-0" : "pl-[80px]",
+          isMobile && !isChatPage ? "pb-mobile-nav" : "pb-0"
         )}
       >
         {children}
       </main>
 
-      {/* --- Mobile Bottom Navbar (only on non-chat pages) --- */}
-      {isMobile && !isChatPage && <NavBarMobile />}
+      {/* --- Mobile Bottom Navigation --- */}
+      {isMobile && !isChatPage && <SelectedNavBar />}
     </div>
   );
 }

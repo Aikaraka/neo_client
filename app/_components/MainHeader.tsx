@@ -29,17 +29,17 @@ export default function MainHeader() {
 function MainHeaderMobile() {
   return (
     <header className="sticky top-0 z-50 w-full bg-background pb-4">
-      <div className="container flex h-14 max-w-md items-center justify-between px-4 gap-3">
-        <Link href="/" className="flex items-center gap-2">
+      <div className="w-full flex h-14 items-center justify-between px-4 gap-3">
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
           <Image src="/neo_emblem.svg" alt="NEO Logo" width={24} height={24} />
           <span className="font-nanum font-extrabold text-lg">NEO</span>
         </Link>
-        <div className="flex items-center gap-3 flex-1 justify-end">
+        <div className="flex items-center gap-2 flex-shrink-0">
           <TokenBadge />
           <NotificationBell />
         </div>
       </div>
-      <div className="px-2 pt-2">
+      <div className="px-4 pt-2">
         <Search />
       </div>
     </header>
@@ -59,7 +59,7 @@ function MainHeaderDesktop() {
 
   return (
     <header className="w-full bg-background p-4">
-      <div className="container mx-auto max-w-7xl">
+      <div className="w-full px-4">
         <div className="flex flex-col items-end space-y-4">
           <div className="flex items-center space-x-4">
             {user && (
@@ -97,7 +97,7 @@ function MainHeaderDesktop() {
               </>
             )}
           </div>
-          <div className="w-full max-w-lg">
+          <div className="w-full max-w-3xl">
             <Search />
           </div>
         </div>
