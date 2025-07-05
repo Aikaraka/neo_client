@@ -1,8 +1,7 @@
 "use client";
 
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
-import { useInfiniteScroll } from "@/hooks/use-infiniteScroll";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { splitChatParagraphs } from "@/utils/splitChatParagraphs";
 
 interface StoryContentProps {
@@ -12,11 +11,11 @@ interface StoryContentProps {
   paragraphWidth: number;
   font: string;
   isDark?: boolean;
+  messageBoxRef: React.RefObject<HTMLDivElement>;
 }
 
-export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraphWidth, font, isDark = false }: StoryContentProps) {
-  const messageBoxRef = useRef<HTMLDivElement>(null);
-  const { background, messages, fetchMoreStories, hasMoreStories, scrollType } =
+export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraphWidth, font, isDark = false, messageBoxRef }: StoryContentProps) {
+  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching } =
     useStoryContext();
   const interSectionRef = useRef<HTMLDivElement>(null);
   
@@ -38,23 +37,45 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
   
   const fontFamily = getFontFamily(font);
   
-  useInfiniteScroll<HTMLDivElement>({
-    observerRef: interSectionRef,
-    fetchMore: async () => {
-      const prevScrollHeight = messageBoxRef?.current?.scrollHeight ?? 0;
-      const prevScrollTop = messageBoxRef?.current?.scrollTop ?? 0;
-      await fetchMoreStories();
-      setTimeout(() => {
-        const newScrollHeight = messageBoxRef?.current?.scrollHeight ?? 0;
-        const heightDifference = newScrollHeight - prevScrollHeight;
-        messageBoxRef?.current?.scrollTo({
-          top: prevScrollTop + heightDifference,
-          behavior: "instant",
-        });
-      }, 0);
-    },
-    hasMore: hasMoreStories,
-  });
+  // 렌더링 시점마다 ref 상태 출력
+  console.log("[StoryContent render] messageBoxRef.current:", messageBoxRef.current);
+  console.log("[StoryContent render] interSectionRef.current:", interSectionRef.current);
+
+  useLayoutEffect(() => {
+    console.log("[StoryContent useLayoutEffect] 실행됨");
+    console.log("[StoryContent useLayoutEffect] messageBoxRef.current:", messageBoxRef.current);
+    console.log("[StoryContent useLayoutEffect] interSectionRef.current:", interSectionRef.current);
+    if (!messageBoxRef.current || !interSectionRef.current) {
+      console.log("observer not attached: ref missing", { messageBox: messageBoxRef.current, interSection: interSectionRef.current });
+      return;
+    }
+    console.log("observer attached", { messageBox: messageBoxRef.current, interSection: interSectionRef.current });
+    const observer = new window.IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMoreStories) {
+          console.log("IntersectionObserver: 최상단 감지됨, fetchMoreStories 호출");
+          // 스크롤 보정 로직
+          const prevScrollHeight = messageBoxRef.current.scrollHeight;
+          const prevScrollTop = messageBoxRef.current.scrollTop;
+          fetchMoreStories().then(() => {
+            setTimeout(() => {
+              const newScrollHeight = messageBoxRef.current?.scrollHeight ?? 0;
+              const heightDifference = newScrollHeight - prevScrollHeight;
+              messageBoxRef.current?.scrollTo({
+                top: prevScrollTop + heightDifference,
+                behavior: "instant",
+              });
+            }, 0);
+          });
+        } else {
+          console.log("IntersectionObserver: not intersecting", entries[0]);
+        }
+      },
+      { root: messageBoxRef.current, threshold: 0.3 }
+    );
+    observer.observe(interSectionRef.current);
+    return () => observer.disconnect();
+  }, [messageBoxRef, interSectionRef, hasMoreStories, fetchMoreStories]);
 
   useEffect(() => {
     switch (scrollType) {
@@ -84,13 +105,13 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
         margin: "0 auto",
       }}
     >
+      <div ref={interSectionRef} style={{ height: 1 }} />
       <div
         className={`bg-primary p-4 text-white rounded-xl`}
         style={{ fontFamily }}
       >
         {background?.start ?? "여러분들의 소설을 시작해보세요."}
       </div>
-      <div className="h-11" ref={interSectionRef}></div>
 
       {messages.map((msg, i) => {
         if (msg.type === "user") {

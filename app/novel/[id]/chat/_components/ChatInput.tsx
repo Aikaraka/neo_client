@@ -64,7 +64,7 @@ export function ChatInput() {
           rows={1}
           placeholder="대화를 입력하여 소설을 작성하세요."
           className="flex-1 bg-transparent p-0 resize-none leading-relaxed focus:outline-none placeholder:text-sm"
-          style={{ maxHeight: 80 }}
+          style={{ maxHeight: 80, paddingTop: '4px' }}
           disabled={isMessageSending}
         />
         <div className="flex ml-2 flex-shrink-0 gap-2">
