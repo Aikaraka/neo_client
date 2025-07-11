@@ -27,6 +27,7 @@ export default function MainHeader() {
 }
 
 function MainHeaderMobile() {
+  const user = useUser();
   return (
     <header className="sticky top-0 z-50 w-full bg-background pb-4">
       <div className="w-full flex h-14 items-center justify-between px-4 gap-3">
@@ -36,7 +37,7 @@ function MainHeaderMobile() {
         </Link>
         <div className="flex items-center gap-2 flex-shrink-0">
           <TokenBadge />
-          <NotificationBell />
+          {user && <NotificationBell />}
         </div>
       </div>
       <div className="px-4 pt-2">
@@ -54,13 +55,21 @@ function MainHeaderDesktop() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/");
-    router.refresh(); // 페이지를 새로고침하여 사용자 상태를 업데이트합니다.
+    router.refresh();
   };
 
   return (
     <header className="w-full bg-background p-4">
-      <div className="w-full px-4">
-        <div className="flex flex-col items-end space-y-4">
+      <div className="w-full px-4 flex items-start justify-between">
+        {/* Logo Section */}
+        <Link href="/" className="flex items-center gap-2 flex-shrink-0 pt-2">
+          <Image src="/neo_emblem.svg" alt="NEO Logo" width={32} height={32} />
+          <span className="font-nanum font-extrabold text-xl">NEO</span>
+        </Link>
+
+        {/* Right Section: Controls and Search */}
+        <div className="flex flex-col items-end space-y-2">
+          {/* Top Row: User Controls */}
           <div className="flex items-center space-x-4">
             {user && (
               <div className="flex items-center space-x-1.5">
@@ -97,7 +106,8 @@ function MainHeaderDesktop() {
               </>
             )}
           </div>
-          <div className="w-full max-w-3xl">
+          {/* Bottom Row: Search Bar */}
+          <div className="w-[480px]">
             <Search />
           </div>
         </div>

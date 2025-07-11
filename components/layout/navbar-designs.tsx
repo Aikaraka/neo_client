@@ -486,7 +486,7 @@ export const NavBarFloatingMaterial = forwardRef<HTMLDivElement>((props, ref) =>
         // Safari에서 더 부드러운 렌더링
         "transform-gpu"
       )}>
-        <div className="flex justify-around items-center py-2 px-3" ref={ref}>
+        <div className="flex justify-around items-center px-3" ref={ref}>
           {Object.entries(navItems).map(
             ([path, { label, icon, activeIcon, disabled }]) => (
               <FloatingMaterialNavItem

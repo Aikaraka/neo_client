@@ -24,6 +24,7 @@ export default function TokenBadge() {
 }
 
 function Token() {
+  const router = useRouter();
   const { data: token } = useQuery({
     queryKey: ["token"],
     queryFn: getUserToken,
@@ -33,6 +34,7 @@ function Token() {
       variant="ghost"
       size="sm"
       className="relative bg-purple-500 hover:bg-purple-600 hover:!text-white text-white rounded-full p-2 h-6"
+      onClick={() => router.push("/store")}
     >
       <Image
         src="/header/diamond.svg"

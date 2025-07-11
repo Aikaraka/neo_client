@@ -15,7 +15,8 @@ interface StoryContentProps {
 }
 
 export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraphWidth, font, isDark = false, messageBoxRef }: StoryContentProps) {
-  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching } =
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching: _prevFetching } =
     useStoryContext();
   const interSectionRef = useRef<HTMLDivElement>(null);
   
@@ -55,13 +56,19 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
         if (entries[0].isIntersecting && hasMoreStories) {
           console.log("IntersectionObserver: 최상단 감지됨, fetchMoreStories 호출");
           // 스크롤 보정 로직
-          const prevScrollHeight = messageBoxRef.current.scrollHeight;
-          const prevScrollTop = messageBoxRef.current.scrollTop;
+          const messageBox = messageBoxRef.current;
+          if (!messageBox) return;
+          
+          const prevScrollHeight = messageBox.scrollHeight;
+          const prevScrollTop = messageBox.scrollTop;
           fetchMoreStories().then(() => {
             setTimeout(() => {
-              const newScrollHeight = messageBoxRef.current?.scrollHeight ?? 0;
+              const currentMessageBox = messageBoxRef.current;
+              if (!currentMessageBox) return;
+              
+              const newScrollHeight = currentMessageBox.scrollHeight;
               const heightDifference = newScrollHeight - prevScrollHeight;
-              messageBoxRef.current?.scrollTo({
+              currentMessageBox.scrollTo({
                 top: prevScrollTop + heightDifference,
                 behavior: "instant",
               });
@@ -78,23 +85,26 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
   }, [messageBoxRef, interSectionRef, hasMoreStories, fetchMoreStories]);
 
   useEffect(() => {
-    switch (scrollType) {
-      case "smooth":
-        messageBoxRef?.current?.scrollTo({
-          top: messageBoxRef.current.scrollHeight,
-          behavior: "smooth",
-        });
-        break;
-      case "instant":
-        messageBoxRef?.current?.scrollTo({
-          top: messageBoxRef.current.scrollHeight,
-          behavior: "instant",
-        });
-        break;
-      case "none":
-        break;
+    const messageBox = messageBoxRef.current;
+    if (messageBox) {
+      switch (scrollType) {
+        case "smooth":
+          messageBox.scrollTo({
+            top: messageBox.scrollHeight,
+            behavior: "smooth",
+          });
+          break;
+        case "instant":
+          messageBox.scrollTo({
+            top: messageBox.scrollHeight,
+            behavior: "instant",
+          });
+          break;
+        case "none":
+          break;
+      }
     }
-  }, [messages, scrollType]);
+  }, [messages, scrollType, messageBoxRef]);
 
   return (
     <div

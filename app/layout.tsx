@@ -8,6 +8,7 @@ import ResponsiveWrapper from "@/components/common/responsiveWrapper";
 import SuspenseBoundary from "@/components/common/suspenseBoundary";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicator";
+import Script from "next/script";
 
 const NanumSquareNeo = localFont({
   src: [
@@ -46,6 +47,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={cn(NanumSquareNeo.variable, "bg-foreground/5")}>
+      <Script src="https://cdn.portone.io/v2/browser-sdk.js" async />
       <body>
         <div className="flex flex-col min-h-screen">
           <LoadingProvider>

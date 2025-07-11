@@ -73,6 +73,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose]);
 
   useEffect(() => {
