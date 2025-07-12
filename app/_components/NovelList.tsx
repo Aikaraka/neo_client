@@ -23,17 +23,17 @@ export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
         style={{
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '100vw'
+          width: '111.11vw'
         }}
       />
       
-      {/* 전체 화면 회색 책장 바닥 - 모바일에서 숨김 */}
+      {/* 전체 화면 회색 책장 바닥 */}
       <div 
-        className="absolute bottom-5 h-1/2 bg-[#dbdbdb] hidden md:block"
+        className="absolute bottom-5 h-1/2 bg-[#dbdbdb]"
         style={{
           left: '50%',
           transform: 'translateX(-50%)',
-          width: '100vw'
+          width: '111.11vw'
         }}
       />
       
@@ -58,10 +58,10 @@ export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
               <div className="h-5 bg-transparent flex items-center justify-center mt-1 relative z-10">
                 <p className="text-sm font-light text-center px-2">
                   <span className="md:hidden">
-                    {title.length > 10 ? `${title.slice(0, 8)}...` : title}
+                    {title.length > 9 ? `${title.slice(0, 7)}...` : title}
                   </span>
                   <span className="hidden md:inline">
-                    {title.length > 20 ? `${title.slice(0, 20)}...` : title}
+                    {title.length > 15 ? `${title.slice(0, 14)}...` : title}
                   </span>
                 </p>
               </div>

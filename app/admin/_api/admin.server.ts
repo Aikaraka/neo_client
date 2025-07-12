@@ -114,7 +114,7 @@ export async function calculateAndSaveRankings() {
   // 일별 인기 소설 계산
   const { data: dailyTopNovels, error: dailyError } = await supabase.rpc(
     "get_daily_top_novels_by_chat",
-    { top_count: 8 }
+    { top_count: 10 }
   );
 
   if (dailyError) {
@@ -125,7 +125,7 @@ export async function calculateAndSaveRankings() {
   // 주별 인기 소설 계산
   const { data: weeklyTopNovels, error: weeklyError } = await supabase.rpc(
     "get_weekly_top_novels_by_chat",
-    { top_count: 8 }
+    { top_count: 10 }
   );
 
   if (weeklyError) {
@@ -135,7 +135,7 @@ export async function calculateAndSaveRankings() {
   // 월별 인기 소설 계산
   const { data: monthlyTopNovels, error: monthlyError } = await supabase.rpc(
     "get_monthly_top_novels_by_chat",
-    { top_count: 8 }
+    { top_count: 10 }
   );
 
   if (monthlyError) {
@@ -145,7 +145,7 @@ export async function calculateAndSaveRankings() {
   // 전체 인기 소설 계산
   const { data: allTimeTopNovels, error: allTimeError } = await supabase.rpc(
     "get_top_novels_by_chat",
-    { top_count: 8 }
+    { top_count: 10 }
   );
 
   if (allTimeError) {

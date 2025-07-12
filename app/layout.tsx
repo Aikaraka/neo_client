@@ -49,7 +49,7 @@ export default function RootLayout({
     <html lang="ko" className={cn(NanumSquareNeo.variable, "bg-foreground/5")}>
       <Script src="https://cdn.portone.io/v2/browser-sdk.js" async />
       <body>
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen" style={{ zoom: 0.9 }}>
           <LoadingProvider>
             <GlobalLoadingIndicator />
             <main className="flex-grow">

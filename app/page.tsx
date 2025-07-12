@@ -11,14 +11,14 @@ import Footer from "@/components/layout/Footer";
 export default async function Home() {
   return (
     <Toaster>
-      <div className="flex w-full h-screen bg-background relative">
+      <div className="flex w-full bg-background relative" style={{ height: '111.11vh' }}>
         <div className="flex-1 flex flex-col overflow-y-auto scrollbar-hidden">
           {/* Header */}
           <MainHeader />
 
           {/* Main Content */}
-          <main className="flex-1 w-full">
-            <div className="w-full px-4 sm:px-6 lg:px-8">
+          <main className="flex-1 w-full flex justify-center">
+            <div className="w-full max-w-[1160px] px-4">
               {/* Recommended Section */}
               <section className="relative">
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
@@ -44,7 +44,7 @@ export default async function Home() {
                   style={{
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    width: '100vw'
+                    width: '111.11vw'
                   }}
                 />
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
@@ -55,7 +55,7 @@ export default async function Home() {
                     height={24}
                     className="h-6 w-auto mr-2"
                   />
-                  실시간 TOP 5 소설
+                  실시간 TOP 10 소설
                 </h2>
 
                 <div className="relative overflow-visible">
@@ -70,7 +70,7 @@ export default async function Home() {
                   style={{
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    width: '100vw'
+                    width: '111.11vw'
                   }}
                 />
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
