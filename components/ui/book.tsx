@@ -48,17 +48,6 @@ const Book = React.forwardRef<HTMLDivElement, BookProps>(
           className={cn("absolute top-0 z-10", bookVariants({ size }))}
           alt="book_template"
         />
-        <Image
-          src={"/novel/book_shadow.png"}
-          width={119}
-          height={59}
-          alt="book_shadow"
-          className={cn(
-            "absolute bottom-0 right-5 -z-10",
-            bookVariants({ size }),
-            !shadow && "hidden"
-          )}
-        />
       </Link>
     </div>
   )
@@ -70,7 +59,6 @@ const BookShelf = React.forwardRef<
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div className="relative">
-    <div className="h-1/2 w-full absolute bottom-5 z-[5] bg-[#dbdbdb] hidden md:block" />
     <ScrollArea className="w-full whitespace-nowrap">
       <div className={twMerge("flex space-x-4", className)} {...props} ref={ref}>
         {props.children}

@@ -42,9 +42,8 @@ export default async function Home() {
                 <div
                   className="absolute top-0 h-10 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20"
                   style={{
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '111.11vw'
+                    left: 'max(50% - 590px, -30px)',
+                    width: 'min(1160px, 111.11vw)'
                   }}
                 />
                 <h2 className="text-lg font-semibold mb-4 flex items-center">
@@ -55,7 +54,7 @@ export default async function Home() {
                     height={24}
                     className="h-6 w-auto mr-2"
                   />
-                  실시간 TOP 10 소설
+                  실시간 TOP 5 소설
                 </h2>
 
                 <div className="relative overflow-visible">
@@ -68,9 +67,8 @@ export default async function Home() {
                 <div
                   className="absolute top-0 h-10 w-full bg-gradient-to-b from-black/10 to-transparent pointer-events-none z-20"
                   style={{
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '111.11vw'
+                    left: 'max(50% - 590px, -30px)',
+                    width: 'min(1160px, 111.11vw)'
                   }}
                 />
                 <h2 className="text-lg font-semibold mb-4 flex items-center">

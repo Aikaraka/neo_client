@@ -123,13 +123,9 @@ function MainHeaderMobile() {
     }
   };
 
-  return (
+        return (
     <header className="sticky top-0 z-50 w-full bg-background pb-4">
-      <div className="w-full flex h-14 items-center justify-between px-4 gap-3">
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-          <Image src="/neo_emblem.svg" alt="NEO Logo" width={24} height={24} />
-          <span className="font-nanum font-extrabold text-lg">NEO</span>
-        </Link>
+      <div className="w-full max-w-[1160px] mx-auto flex h-14 items-center justify-end px-4 gap-3">
         <div className="flex items-center gap-2 flex-shrink-0">
           <div className="flex items-center gap-1">
             <Switch 
@@ -255,19 +251,14 @@ function MainHeaderDesktop() {
     }
   };
 
-  return (
+        return (
     <header className="w-full bg-background p-4">
-      <div className="w-full px-4 flex items-start justify-between">
-        {/* Logo Section */}
-        <Link href="/" className="flex items-center gap-2 flex-shrink-0 pt-2">
-          <Image src="/neo_emblem.svg" alt="NEO Logo" width={32} height={32} />
-          <span className="font-nanum font-extrabold text-xl">NEO</span>
-        </Link>
+      <div className="w-full max-w-[1160px] mx-auto px-4 flex items-start justify-end">
 
         {/* Right Section: Controls and Search */}
         <div className="flex flex-col items-end space-y-2">
           {/* Top Row: User Controls */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center  space-x-4">
             <div className="flex items-center space-x-1.5">
               <Switch 
                 id="safe-filter" 

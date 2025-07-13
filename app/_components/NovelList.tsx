@@ -17,13 +17,12 @@ export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
   
   return (
     <div className="relative">
-      {/* 전체 화면 베이지색 제목 배경 */}
+                  {/* 전체 화면 베이지색 제목 배경 */}
       <div 
         className="absolute bottom-0 h-5 bg-[#F6F3F1] shadow-sm"
         style={{
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '111.11vw'
+          left: 'max(50% - 590px, -30px)',
+          width: 'min(1160px, 111.11vw)'
         }}
       />
       
@@ -31,9 +30,8 @@ export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
       <div 
         className="absolute bottom-5 h-1/2 bg-[#dbdbdb]"
         style={{
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '111.11vw'
+          left: 'max(50% - 590px, -30px)',
+          width: 'min(1160px, 111.11vw)'
         }}
       />
       
