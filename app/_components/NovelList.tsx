@@ -11,13 +11,14 @@ import { Rabbit, Unplug } from "lucide-react";
 import { Category, Tables } from "@/utils/supabase/types/database.types";
 import { Book, BookShelf } from "@/components/ui/book";
 import { NovelListByGenreSelector } from "@/app/_components/NovelListByGenre";
+import { CarouselNovelListByGenreSelector } from "@/app/_components/CarouselNovelListByGenre";
 
 export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
   if (!novelList || !novelList.length) return <NovelListEmpty />;
   
   return (
     <div className="relative">
-                  {/* 전체 화면 베이지색 제목 배경 */}
+      {/* 전체 화면 베이지색 제목 배경 */}
       <div 
         className="absolute bottom-0 h-5 bg-[#F6F3F1] shadow-sm"
         style={{
@@ -40,7 +41,14 @@ export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
           const title = novel.title || "제목 없음";
           return (
             <div key={novel.id} className="flex flex-col items-center">
-              <Book href={`/novel/${novel.id}/detail`}>
+              <Book 
+                href={`/novel/${novel.id}/detail`} 
+                className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
+                style={{
+                  width: "clamp(150px, 18vw, 180px)",
+                  height: "clamp(200px, calc(18vw * 1.33), 240px)"
+                }}
+              >
                 <Image
                   src={
                     novel.image_url
@@ -122,6 +130,18 @@ export async function RecommendedNovelList() {
   }
 }
 
+export async function RecommendedNovelListCarousel() {
+  try {
+    const novelList = await getRecommendedNovels();
+    const { CarouselNovelList } = await import("./CarouselNovelList");
+    return <CarouselNovelList novelList={novelList} />;
+  } catch {
+    return <NovelListErrorFallback />;
+  }
+}
+
+
+
 export async function TopNovelList() {
   try {
     const rawNovelList = await getNovelsByView();
@@ -150,6 +170,30 @@ export async function TopNovelList() {
   }
 }
 
+export async function TopNovelListCarousel() {
+  try {
+    const rawNovelList = await getNovelsByView();
+    const novelList: Tables<"novels">[] = rawNovelList.map(viewNovel => ({
+      id: viewNovel.novel_id,
+      title: viewNovel.title,
+      image_url: viewNovel.image_url,
+      background: {},
+      characters: {},
+      created_at: new Date().toISOString(),
+      ending: "",
+      mood: [],
+      plot: "",
+      settings: {},
+      updated_at: new Date().toISOString(),
+      user_id: null,
+    }));
+    const { CarouselNovelList } = await import("./CarouselNovelList");
+    return <CarouselNovelList novelList={novelList} />;
+  } catch {
+    return <NovelListErrorFallback />;
+  }
+}
+
 const genre: Category[] = ["로맨스", "이세계", "회귀", "헌터", "무협"];
 export async function NovelListByGenre() {
   try {
@@ -164,6 +208,27 @@ export async function NovelListByGenre() {
     );
 
     return <NovelListByGenreSelector novelList={uniqueNovels} />;
+  } catch {
+    return <NovelListErrorFallback />;
+  }
+}
+
+export async function NovelListByGenreCarousel() {
+  try {
+    const allNovels = await Promise.all(
+      genre.map((g) => getNovelsByCategory(g))
+    );
+    const flatNovelList = allNovels.flat();
+
+    // ID를 기준으로 중복 제거
+    const uniqueNovels = Array.from(
+      new Map(flatNovelList.map((novel) => [novel.id, novel])).values()
+    );
+
+    // 신작 필터링을 위해 20개만 가져오기
+    const limitedNovels = uniqueNovels.slice(0, 20);
+
+    return <CarouselNovelListByGenreSelector novelList={limitedNovels} />;
   } catch {
     return <NovelListErrorFallback />;
   }

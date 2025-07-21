@@ -123,7 +123,7 @@ function MainHeaderMobile() {
     }
   };
 
-        return (
+  return (
     <header className="sticky top-0 z-50 w-full bg-background pb-4">
       <div className="w-full max-w-[1160px] mx-auto flex h-14 items-center justify-end px-4 gap-3">
         <div className="flex items-center gap-2 flex-shrink-0">
@@ -251,7 +251,7 @@ function MainHeaderDesktop() {
     }
   };
 
-        return (
+  return (
     <header className="w-full bg-background p-4">
       <div className="w-full max-w-[1160px] mx-auto px-4 flex items-start justify-end">
 

@@ -69,14 +69,7 @@ export default async function NovelDetail({
                     alt={novel.title}
                     width={150}
                     height={200}
-                    className="w-[180px] h-[240px] object-fill rounded-lg shadow-sm mx-auto mb-4"
-                  />
-                  <Image
-                    src={"/novel/book_template.png"}
-                    width={180}
-                    height={240}
-                    className="absolute h-full top-0 z-10"
-                    alt="book_template"
+                    className="w-[180px] h-[240px] object-fill shadow-sm mx-auto mb-4"
                   />
                 </div>
                 <div className="text-center max-w-[75%] mx-auto my-2">
@@ -129,7 +122,7 @@ export default async function NovelDetail({
                             alt={novel.title}
                             width={120}
                             height={160}
-                            className="rounded-lg object-cover mb-2"
+                            className="object-cover mb-2"
                           />
                           <p className="text-xs truncate">{novel.title}</p>
                         </div>
@@ -158,7 +151,7 @@ export default async function NovelDetail({
                             alt={novel.title}
                             width={120}
                             height={160}
-                            className="rounded-lg object-cover mb-2"
+                            className="object-cover mb-2"
                           />
                           <p className="text-xs truncate">{novel.title}</p>
                         </div>

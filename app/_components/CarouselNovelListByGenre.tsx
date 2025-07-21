@@ -1,6 +1,6 @@
 "use client";
 
-import { NovelList } from "@/app/_components/NovelList";
+import { CarouselNovelList } from "@/app/_components/CarouselNovelList";
 import { Button } from "@/components/ui/button";
 import { Category, Tables } from "@/utils/supabase/types/database.types";
 import { useState } from "react";
@@ -15,7 +15,7 @@ const genreToUrl: Record<string, string> = {
   "무협": "martial-arts"
 };
 
-export function NovelListByGenreSelector({
+export function CarouselNovelListByGenreSelector({
   novelList,
 }: {
   novelList: Tables<"novels">[];
@@ -58,7 +58,7 @@ export function NovelListByGenreSelector({
           </Link>
         ))}
       </div>
-      <NovelList novelList={filteredNovelList} />
+      <CarouselNovelList novelList={filteredNovelList} />
     </div>
   );
-}
+} 

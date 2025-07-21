@@ -101,23 +101,30 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const text = auto ? "계속 진행해주세요." : input;
       if (!text) return;
 
+      // 현재 메시지가 있는지 확인하고 story_number를 안전하게 가져오기
+      const lastMessage = messages[messages.length - 1];
+      const currentStoryNumber = lastMessage?.story_number ?? 0;
+
       if (!auto) {
         setMessages((prev) => [
           ...prev,
-          { type: 'user' as const, content: text, story_number: messages[messages.length - 1].story_number, user_input: text },
-          { type: 'ai' as const, content: "", story_number: messages[messages.length - 1].story_number, user_input: text }
+          { type: 'user' as const, content: text, story_number: currentStoryNumber, user_input: text },
+          { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text }
         ]);
       } else {
         setMessages((prev) => [
           ...prev,
-          { type: 'ai' as const, content: text, story_number: messages[messages.length - 1].story_number, user_input: text },
-          { type: 'ai' as const, content: "", story_number: messages[messages.length - 1].story_number, user_input: text }
+          { type: 'ai' as const, content: text, story_number: currentStoryNumber, user_input: text },
+          { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text }
         ]);
       }
 
+      console.log(`[StoryProvider] processNovel 호출 시작: novelId=${novelId}, text=${text}`);
       const stream = await processNovel(session, novelId, text);
+      console.log(`[StoryProvider] processNovel 응답 받음:`, stream);
 
       if (!stream?.body) {
+        console.error(`[StoryProvider] ReadableStream 없음:`, stream);
         throw new Error("ReadableStream not supported.");
       }
 
@@ -169,7 +176,11 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
           }
         }
       }
-    } catch {
+    } catch (error) {
+      console.error(`[StoryProvider] processNovel 오류:`, error);
+      console.error(`[StoryProvider] 오류 타입:`, typeof error);
+      console.error(`[StoryProvider] 오류 메시지:`, error instanceof Error ? error.message : String(error));
+      
       toast({
         variant: "destructive",
         title: TOAST_GEN_NOVEL_ERROR_TITLE,

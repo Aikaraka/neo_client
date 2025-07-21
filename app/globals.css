@@ -458,3 +458,13 @@ select:focus {
   border-radius: 14px;
   box-shadow: 0 0 0 2px var(--ring);
 }
+
+/* 은은한 빛 애니메이션 */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

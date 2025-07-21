@@ -1,8 +1,6 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import Image from "next/image";
-import Link from "next/link";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { twMerge } from "tailwind-merge";
 import { cva, VariantProps } from "class-variance-authority";
@@ -39,16 +37,6 @@ const Book = React.forwardRef<HTMLDivElement, BookProps>(
       )}
       {...props}
     >
-      <Link href={href}>
-        {props.children}
-        <Image
-          src={"/novel/book_template.png"}
-          width={180}
-          height={240}
-          className={cn("absolute top-0 z-10", bookVariants({ size }))}
-          alt="book_template"
-        />
-      </Link>
     </div>
   )
 );
