@@ -1,3 +1,5 @@
+"use client";
+
 import AiAssistButton from "@/app/create/_components/aiAssist";
 import CoverImageEditor from "@/app/create/_components/coverImageEditor/CoverImageEditor";
 import { CharacterForm } from "@/app/create/_components/CharacterForm";
@@ -325,6 +327,7 @@ export default function CharactorAndPlotDesign() {
       {debugCapturedImage && (
         <div className="mt-4 p-4 border border-dashed border-red-500">
           <h3 className="text-lg font-semibold text-red-500">디버그: 캡처된 이미지 미리보기</h3>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={debugCapturedImage} alt="Debug - Captured Cover Snapshot" style={{ border: '2px solid red', width: '210px', height: '270px', objectFit: 'contain' }} />
           <p className="text-sm text-gray-600 mt-2">이 이미지가 실제 캡처된 결과입니다. 배경 이미지가 누락되었는지 확인해주세요.</p>
         </div>

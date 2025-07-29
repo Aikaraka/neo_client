@@ -2,6 +2,7 @@
 import { createClient } from "@/utils/supabase/server";
 import * as Sentry from "@sentry/nextjs";
 
+
 export const initialProfileSubmit = async (
   name: string,
   nickname: string,
@@ -103,6 +104,8 @@ export const initialProfileSubmit = async (
             created_at: new Date().toISOString(),
             marketing: false,
             profile_completed: false,
+            is_adult: false,
+            safe_filter_enabled: true,
           },
         ]);
 
@@ -117,13 +120,18 @@ export const initialProfileSubmit = async (
       }
     }
 
+    // birthdate를 YYYYMMDD 문자열에서 YYYY-MM-DD 형식으로 변환
+    const formattedBirthdate = birthdate 
+      ? `${birthdate.substring(0, 4)}-${birthdate.substring(4, 6)}-${birthdate.substring(6, 8)}`
+      : null;
+
     // 프로필 업데이트
     const { error: updateError } = await supabase
       .from("users")
       .update({
         name,
         nickname,
-        birthdate,
+        birthdate: formattedBirthdate,
         gender,
         profile_completed: true,
         marketing,
@@ -164,6 +172,8 @@ export const initialProfileSubmit = async (
       });
       throw new Error("프로필 업데이트 중 오류가 발생했습니다.");
     }
+
+
 
     console.log("프로필 초기화 완료:", { userId: user.id, email: user.email });
     

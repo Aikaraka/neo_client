@@ -2,31 +2,42 @@
 export function splitChatParagraphs(text: string): string[] {
   if (!text) return [];
 
-  // 1. 따옴표로 감싸진 부분을 우선 분리
-  // "..." 또는 ‘...’ 등 다양한 따옴표 지원
-  const quoteRegex = /(["'""''][^"'""'']+["'""''"])/g;
   const parts: string[] = [];
-  let lastIndex = 0;
+  let buffer = '';
+  let inQuote = false;
+  let quoteChar = '';
 
-  text.replace(quoteRegex, (match, quoted, offset) => {
-    // 따옴표 앞의 일반 텍스트
-    if (offset > lastIndex) {
-      const normal = text.slice(lastIndex, offset);
-      parts.push(...splitBySentences(normal));
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    // 큰따옴표 시작
+    if (!inQuote && (char === '“' || char === '"')) {
+      if (buffer.trim()) parts.push(...splitBySentences(buffer));
+      buffer = char;
+      inQuote = true;
+      quoteChar = (char === '“') ? '”' : '"';
     }
-    // 따옴표로 감싼 부분
-    parts.push(quoted.trim());
-    lastIndex = offset + quoted.length;
-    return quoted;
-  });
-
-  // 마지막 남은 일반 텍스트
-  if (lastIndex < text.length) {
-    const normal = text.slice(lastIndex);
-    parts.push(...splitBySentences(normal));
+    // 큰따옴표 끝
+    else if (inQuote && char === quoteChar) {
+      buffer += char;
+      parts.push(buffer.trim());
+      buffer = '';
+      inQuote = false;
+      quoteChar = '';
+    }
+    // 따옴표 내부
+    else {
+      buffer += char;
+    }
   }
-
-  // 빈 문단 제거 및 트림
+  // 남은 텍스트 처리
+  if (buffer.trim()) {
+    if (inQuote) {
+      // 따옴표가 닫히지 않은 경우, 그냥 문단으로
+      parts.push(buffer.trim());
+    } else {
+      parts.push(...splitBySentences(buffer));
+    }
+  }
   return parts.map(p => p.trim()).filter(Boolean);
 }
 

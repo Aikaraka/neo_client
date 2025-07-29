@@ -73,6 +73,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose]);
 
   useEffect(() => {
@@ -135,7 +136,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
               : {
                   position: "fixed",
                   left: "50%",
-                  bottom: 72,
+                  bottom: 0,
                   width: 600,
                   maxWidth: "100%",
                   transform: `translate(-50%, ${getTransformValue()})`,
@@ -306,7 +307,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
           </button>
           {fontOpen && (
             <div style={{
-              position: "absolute", top: "100%", left: 0, background: "#fff", border: "1px solid #E2E1DC", borderRadius: 8, zIndex: 10, minWidth: 80
+              position: "absolute", top: "100%", right: 0, left: "auto", minWidth: "100%", background: "#fff", border: "1px solid #E2E1DC", borderRadius: 8, zIndex: 10
             }}>
               {fontOptions.map(opt => (
                 <div key={opt} style={{ padding: 8, cursor: "pointer", color: opt === font ? "#A259D9" : "#232325" }} onClick={() => { onFontChange(opt); setFontOpen(false); }}>{opt}</div>
@@ -460,7 +461,7 @@ export function ViewSettingsPanel({ onClose, onColorChange, selectedColor, fontS
           position: "relative", 
           flex: 1, 
           marginLeft: 16, 
-          marginRight: 24, 
+          marginRight: 0, 
           height: 32 
         }}>
           <input

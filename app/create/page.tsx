@@ -20,7 +20,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server";
-import { dataURLToFile } from "@/utils/image";
+import { dataURLToWebP } from "@/utils/image";
 
 // PageComponent는 2단계로 유지됩니다.
 const PageComponent: Record<number, React.FC> = {
@@ -92,7 +92,8 @@ function CreateNovelPageContent() {
       //   { width: 210, height: 270 } -- 삭제
       // ); -- 삭제
       
-      const imageFile = dataURLToFile(capturedImageDataUrl, "coverImage.png");
+      // WebP로 변환 (품질 0.9로 고화질 유지)
+      const imageFile = await dataURLToWebP(capturedImageDataUrl, "coverImage", 0.9);
       const coverImageUrl = await saveImageFileToStorage(imageFile);
 
       const isValid = await form.trigger();

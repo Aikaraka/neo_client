@@ -307,6 +307,8 @@ export type Database = {
           nickname: string | null;
           profile_completed: boolean | null;
           role: string;
+          is_adult: boolean;
+          safe_filter_enabled: boolean;
         };
         Insert: {
           birthdate?: string | null;
@@ -319,6 +321,8 @@ export type Database = {
           nickname?: string | null;
           profile_completed?: boolean | null;
           role: string;
+          is_adult?: boolean;
+          safe_filter_enabled?: boolean;
         };
         Update: {
           birthdate?: string | null;
@@ -331,8 +335,45 @@ export type Database = {
           nickname?: string | null;
           profile_completed?: boolean | null;
           role?: string;
+          is_adult?: boolean;
+          safe_filter_enabled?: boolean;
         };
         Relationships: [];
+      };
+      age_verifications: {
+        Row: {
+          id: string;
+          user_id: string;
+          verified_at: string;
+          verification_method: string;
+          imp_uid: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          verified_at?: string;
+          verification_method: string;
+          imp_uid?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          verified_at?: string;
+          verification_method?: string;
+          imp_uid?: string | null;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "age_verifications_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
       };
     };
     Views: {

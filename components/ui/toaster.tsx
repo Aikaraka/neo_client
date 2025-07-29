@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/toast";
 
 interface ToasterProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function Toaster({ children }: ToasterProps) {

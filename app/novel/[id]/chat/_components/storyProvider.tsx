@@ -17,7 +17,7 @@ import { useSession } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 
-export type Message = { type: 'user' | 'ai', content: string };
+export type Message = { type: 'user' | 'ai', content: string, story_number?: number, user_input?: string };
 
 type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   messages: Message[];
@@ -32,6 +32,7 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   initPending: boolean;
   hasMoreStories: boolean;
   scrollType: ScrollBehavior | "none";
+  prevFetching: boolean;
 };
 
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
@@ -62,7 +63,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const [scrollType, setScrollType] = useState<ScrollBehavior | "none">(
     "instant"
   );
-  const [prevFectching, setPrevFetching] = useState(false);
+  const [prevFetching, setPrevFetching] = useState(false);
 
   const {
     data: initialData,
@@ -74,13 +75,13 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     queryFn: async () => {
       const initSetting = await initStory(novelId);
       const restoredMessages: Message[] = [];
-      for (const s of initSetting.initial_stories) {
-        if (s.user_input) {
-          restoredMessages.push({ type: 'user', content: s.user_input });
-        }
-        restoredMessages.push({ type: 'ai', content: s.content });
+      for (const s of initSetting.initial_stories.slice().reverse()) {
+        if (typeof s.user_input !== "undefined") restoredMessages.push({ type: 'user', content: s.user_input, story_number: s.story_number, user_input: s.user_input });
+        if (s.content) restoredMessages.push({ type: 'ai', content: s.content, story_number: s.story_number, user_input: s.user_input });
       }
+      console.log('[initStory] restoredMessages:', restoredMessages);
       setMessages(restoredMessages);
+      setScrollType("instant");
       setProgressRate(initSetting.progress_rate);
       setCurrPage(initSetting.oldest_story_number);
       setHasMoreStories(initSetting.has_more_stories);
@@ -100,23 +101,30 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const text = auto ? "계속 진행해주세요." : input;
       if (!text) return;
 
+      // 현재 메시지가 있는지 확인하고 story_number를 안전하게 가져오기
+      const lastMessage = messages[messages.length - 1];
+      const currentStoryNumber = lastMessage?.story_number ?? 0;
+
       if (!auto) {
         setMessages((prev) => [
           ...prev,
-          { type: 'user' as const, content: text },
-          { type: 'ai' as const, content: "" }
+          { type: 'user' as const, content: text, story_number: currentStoryNumber, user_input: text },
+          { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text }
         ]);
       } else {
         setMessages((prev) => [
           ...prev,
-          { type: 'ai' as const, content: text },
-          { type: 'ai' as const, content: "" }
+          { type: 'ai' as const, content: text, story_number: currentStoryNumber, user_input: text },
+          { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text }
         ]);
       }
 
+      console.log(`[StoryProvider] processNovel 호출 시작: novelId=${novelId}, text=${text}`);
       const stream = await processNovel(session, novelId, text);
+      console.log(`[StoryProvider] processNovel 응답 받음:`, stream);
 
       if (!stream?.body) {
+        console.error(`[StoryProvider] ReadableStream 없음:`, stream);
         throw new Error("ReadableStream not supported.");
       }
 
@@ -152,7 +160,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
                 const newMsgs = [...prev];
                 const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
                 if (lastAiIdx !== -1) {
-                  newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText };
+                  newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText, story_number: data.story_number, user_input: data.user_input };
                 }
                 return newMsgs;
               });
@@ -168,7 +176,11 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
           }
         }
       }
-    } catch {
+    } catch (error) {
+      console.error(`[StoryProvider] processNovel 오류:`, error);
+      console.error(`[StoryProvider] 오류 타입:`, typeof error);
+      console.error(`[StoryProvider] 오류 메시지:`, error instanceof Error ? error.message : String(error));
+      
       toast({
         variant: "destructive",
         title: TOAST_GEN_NOVEL_ERROR_TITLE,
@@ -209,24 +221,24 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   };
 
   const fetchMoreStories = async () => {
-    if (initPending || !hasMoreStories || prevFectching) return;
+    if (initPending || !hasMoreStories || prevFetching) return;
     setScrollType("none");
     try {
       setPrevFetching(true);
       const { has_more, stories } = await getPreviousStories(
         novelId,
-        currPage - 3
+        currPage
       );
+      console.log('[fetchMoreStories] stories:', stories);
       const sortedStories = stories.sort(
         (a, b) => a.story_number - b.story_number
       );
       const prevMessages: Message[] = [];
       for (const s of sortedStories) {
-        if (s.user_input) {
-          prevMessages.push({ type: 'user', content: s.user_input });
-        }
-        prevMessages.push({ type: 'ai', content: s.content });
+        if (typeof s.user_input !== "undefined") prevMessages.push({ type: 'user', content: s.user_input, story_number: s.story_number, user_input: s.user_input });
+        if (s.content) prevMessages.push({ type: 'ai', content: s.content, story_number: s.story_number, user_input: s.user_input });
       }
+      console.log('[fetchMoreStories] prevMessages:', prevMessages);
       setMessages((prev) => [...prevMessages, ...prev]);
       setHasMoreStories(has_more);
       setCurrPage(sortedStories[0]?.story_number ?? 0);
@@ -264,6 +276,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         hasMoreStories,
         scrollType,
         initPending,
+        prevFetching,
       }}
     >
       {children}

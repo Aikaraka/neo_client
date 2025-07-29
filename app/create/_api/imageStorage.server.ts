@@ -13,14 +13,19 @@ export async function saveBase64ToStorage(base64Data: string) {
 
   const blob = await fetch(base64Data).then((res) => res.blob());
 
-  const fileName = `${Date.now()}.png`;
+  // WebP 파일인지 확인
+  const isWebP = base64Data.includes("image/webp");
+  const fileExt = isWebP ? "webp" : "png";
+  const contentType = isWebP ? "image/webp" : "image/png";
+
+  const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `${user.id}/${fileName}`;
 
   // Storage에 업로드
   const { error: uploadError } = await supabase.storage
     .from("novel-covers")
     .upload(filePath, blob, {
-      contentType: "image/png",
+      contentType: contentType,
     });
 
   if (uploadError)
@@ -46,9 +51,20 @@ export async function saveImageFileToStorage(file: File) {
   const fileName = `${Math.random()}.${fileExt}`;
   const filePath = `${user.id}/${fileName}`;
 
+  // 파일 타입에 따른 content-type 설정
+  let contentType = "image/png"; // 기본값
+  if (fileExt === "webp") {
+    contentType = "image/webp";
+  } else if (fileExt === "jpg" || fileExt === "jpeg") {
+    contentType = "image/jpeg";
+  }
+
   const { error: uploadError } = await supabase.storage
     .from("novel-covers")
-    .upload(filePath, file);
+    .upload(filePath, file, {
+      contentType: contentType,
+    });
+    
   if (uploadError) {
     console.error("[saveImageFileToStorage] upload error:", uploadError);
     throw new Error("이미지 업로드 중 오류가 발생했습니다.");
