@@ -23,7 +23,7 @@ export function CarouselNovelListByGenreSelector({
   const [filter, setFilter] = useState<string>("신작");
 
   const filteredNovelList = filter === "신작" 
-    ? novelList 
+    ? novelList
     : novelList.filter((novel) => novel.mood.includes(filter as Category));
 
   return (
@@ -58,7 +58,7 @@ export function CarouselNovelListByGenreSelector({
           </Link>
         ))}
       </div>
-      <CarouselNovelList novelList={filteredNovelList} />
+      <CarouselNovelList rows={2} novelList={filteredNovelList} />
     </div>
   );
 } 

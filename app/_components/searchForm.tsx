@@ -35,7 +35,7 @@ export default function SeacrhForm() {
         })}
       >
         <InputFormField
-          className="rounded-full lg:rounded-none lg:bg-background lg:border-x-0 lg:border-t-0 m-0"
+          className="bg-white rounded-full lg:rounded-none lg:border-x-0 lg:border-t-0 m-0 focus-visible:ring-0 focus-visible:ring-offset-0"
           control={form.control}
           name="query"
           showErrorMessage={false}

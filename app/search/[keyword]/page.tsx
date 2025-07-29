@@ -14,6 +14,8 @@ import { useParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { Filter, X, Sparkles, Search as SearchIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useNovelModal } from "@/hooks/useNovelModal";
+import { NovelDetailModal } from "@/components/common/NovelDetailModal";
 
 // 정의된 키워드 목록 (필터 옵션용)
 const FILTER_KEYWORDS = [
@@ -43,7 +45,8 @@ const SORT_OPTIONS = {
 export default function SearchResultPage() {
   const { keyword } = useParams<{ keyword: string }>();
   const decodedKeyword = decodeURIComponent(keyword);
-  
+  const { openModal } = useNovelModal();
+
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>("latest");
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -56,6 +59,8 @@ export default function SearchResultPage() {
     queryFn: () => getSearchResult(keyword),
     queryKey: ["search", keyword],
   });
+
+  const { isModalOpen, selectedNovelId, closeModal } = useNovelModal();
 
   // 검색 모달 외부 클릭 감지 (데스크톱에서만)
   useEffect(() => {
@@ -296,22 +301,25 @@ export default function SearchResultPage() {
               ) : sortedNovels.length > 0 ? (
                 <div className="space-y-4">
                   {sortedNovels.map((novel, index) => (
-                    <Link
-                      href={`/novel/${novel.id}/detail`}
+                    <div
                       key={novel.id}
-                      className="group block p-5 border rounded-xl hover:shadow-xl transition-all duration-300 bg-white hover:border-primary/20 relative overflow-hidden"
+                      onClick={() => openModal(novel.id as unknown as string)}
+                      className="group block p-5 border rounded-xl hover:shadow-xl transition-all duration-300 bg-white hover:border-primary/20 relative overflow-hidden cursor-pointer"
                       style={{
                         animationDelay: `${index * 50}ms`,
-                        animation: 'fadeInUp 0.5s ease-out forwards'
+                        animation: "fadeInUp 0.5s ease-out forwards",
                       }}
                     >
                       {/* 호버 시 배경 그라디언트 */}
                       <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      
+
                       <div className="relative flex gap-4">
                         <div className="relative">
                           <Image
-                            src={novel.image_url ?? "https://i.imgur.com/D1fNsoW.png"}
+                            src={
+                              novel.image_url ??
+                              "https://i.imgur.com/D1fNsoW.png"
+                            }
                             alt={`${novel.title}의 표지`}
                             width={80}
                             height={120}
@@ -322,7 +330,7 @@ export default function SearchResultPage() {
                             <Sparkles className="w-4 h-4 text-primary animate-pulse" />
                           </div>
                         </div>
-                        
+
                         <div className="flex-1 min-w-0">
                           <h3 className="text-lg font-bold mb-1 text-gray-900 line-clamp-1 group-hover:text-primary transition-colors">
                             {highlightKeyword(novel.title)}
@@ -330,22 +338,25 @@ export default function SearchResultPage() {
                           <p className="text-sm text-gray-600 line-clamp-2 mb-3">
                             {novel.plot}
                           </p>
-                          
+
                           {/* 키워드 태그들 */}
                           {novel.mood && novel.mood.length > 0 && (
                             <div className="flex flex-wrap gap-1.5 mb-2">
-                              {novel.mood.slice(0, 3).map((tag: string, index: number) => (
-                                <span
-                                  key={index}
-                                  className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
-                                    tag === decodedKeyword || selectedFilters.includes(tag)
-                                      ? "bg-primary text-primary-foreground shadow-sm"
-                                      : "bg-gray-100 text-gray-700 group-hover:bg-gray-200"
-                                  }`}
-                                >
-                                  #{tag}
-                                </span>
-                              ))}
+                              {novel.mood
+                                .slice(0, 3)
+                                .map((tag: string, index: number) => (
+                                  <span
+                                    key={index}
+                                    className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                                      tag === decodedKeyword ||
+                                      selectedFilters.includes(tag)
+                                        ? "bg-primary text-primary-foreground shadow-sm"
+                                        : "bg-gray-100 text-gray-700 group-hover:bg-gray-200"
+                                    }`}
+                                  >
+                                    #{tag}
+                                  </span>
+                                ))}
                               {novel.mood.length > 3 && (
                                 <span className="text-xs text-gray-400 px-2 py-1">
                                   +{novel.mood.length - 3}
@@ -355,7 +366,7 @@ export default function SearchResultPage() {
                           )}
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -486,6 +497,11 @@ export default function SearchResultPage() {
           }
         `}</style>
       </div>
+      <NovelDetailModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        novelId={selectedNovelId}
+      />
     </Toaster>
   );
 }

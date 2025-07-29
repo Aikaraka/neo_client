@@ -2,81 +2,20 @@ import { ScrollArea } from "@/components/layout/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  getNovelsByCategory,
   getNovelsByView,
   getRecommendedNovels,
 } from "@/app/_api/novelList.server";
-import Image from "next/image";
 import { Rabbit, Unplug } from "lucide-react";
-import { Category, Tables } from "@/utils/supabase/types/database.types";
-import { Book, BookShelf } from "@/components/ui/book";
+import { Tables } from "@/utils/supabase/types/database.types";
 import { NovelListByGenreSelector } from "@/app/_components/NovelListByGenre";
 import { CarouselNovelListByGenreSelector } from "@/app/_components/CarouselNovelListByGenre";
+import { createClient } from "@/utils/supabase/server";
+import { NovelGrid } from "./NovelGrid";
 
 export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
   if (!novelList || !novelList.length) return <NovelListEmpty />;
-  
-  return (
-    <div className="relative">
-      {/* 전체 화면 베이지색 제목 배경 */}
-      <div 
-        className="absolute bottom-0 h-5 bg-[#F6F3F1] shadow-sm"
-        style={{
-          left: 'max(50% - 590px, -30px)',
-          width: 'min(1160px, 111.11vw)'
-        }}
-      />
-      
-      {/* 전체 화면 회색 책장 바닥 */}
-      <div 
-        className="absolute bottom-5 h-1/2 bg-[#dbdbdb]"
-        style={{
-          left: 'max(50% - 590px, -30px)',
-          width: 'min(1160px, 111.11vw)'
-        }}
-      />
-      
-      <BookShelf>
-        {novelList?.map((novel) => {
-          const title = novel.title || "제목 없음";
-          return (
-            <div key={novel.id} className="flex flex-col items-center">
-              <Book 
-                href={`/novel/${novel.id}/detail`} 
-                className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
-                style={{
-                  width: "clamp(150px, 18vw, 180px)",
-                  height: "clamp(200px, calc(18vw * 1.33), 240px)"
-                }}
-              >
-                <Image
-                  src={
-                    novel.image_url
-                      ? novel.image_url
-                      : "https://i.imgur.com/D1fNsoW.png"
-                  }
-                  alt={novel.title ?? "Novel Title"}
-                  width={180}
-                  height={240}
-                  className="rounded-t-lg object-cover w-full h-full z-30"
-                />
-              </Book>
-              <div className="h-5 bg-transparent flex items-center justify-center mt-1 relative z-10">
-                <p className="text-sm font-light text-center px-2">
-                  <span className="md:hidden">
-                    {title.length > 9 ? `${title.slice(0, 7)}...` : title}
-                  </span>
-                  <span className="hidden md:inline">
-                    {title.length > 15 ? `${title.slice(0, 14)}...` : title}
-                  </span>
-                </p>
-              </div>
-            </div>
-          );
-        })}
-      </BookShelf>
-    </div>
-  );
+
+  return <NovelGrid novelList={novelList} />;
 }
 
 export function NovelListEmpty() {
@@ -194,20 +133,21 @@ export async function TopNovelListCarousel() {
   }
 }
 
-const genre: Category[] = ["로맨스", "이세계", "회귀", "헌터", "무협"];
 export async function NovelListByGenre() {
   try {
-    const allNovels = await Promise.all(
-      genre.map((g) => getNovelsByCategory(g))
-    );
-    const flatNovelList = allNovels.flat();
+    // NovelListByGenreCarousel과 동일한 로직 사용
+    const supabase = await createClient();
+    const { data: recentNovels, error } = await supabase
+      .from("novels")
+      .select("*")
+      .order("created_at", { ascending: false }) // 최신순으로 정렬
+      .limit(100); // 장르 필터링을 위해 넉넉하게 100개 로드
 
-    // ID를 기준으로 중복 제거
-    const uniqueNovels = Array.from(
-      new Map(flatNovelList.map((novel) => [novel.id, novel])).values()
-    );
+    if (error) {
+      throw error;
+    }
 
-    return <NovelListByGenreSelector novelList={uniqueNovels} />;
+    return <NovelListByGenreSelector novelList={recentNovels || []} />;
   } catch {
     return <NovelListErrorFallback />;
   }
@@ -215,21 +155,24 @@ export async function NovelListByGenre() {
 
 export async function NovelListByGenreCarousel() {
   try {
-    const allNovels = await Promise.all(
-      genre.map((g) => getNovelsByCategory(g))
-    );
-    const flatNovelList = allNovels.flat();
+    // 1. DB에 한 번만 요청하여 최신 소설 100개를 가져옵니다.
+    //    (20개 이상으로 넉넉하게 가져와서 장르별 필터링에 대비합니다)
+    const supabase = await createClient();
+    const { data: recentNovels, error } = await supabase
+      .from("novels")
+      .select("*")
+      .order("created_at", { ascending: false }) // 최신순으로 정렬
+      .limit(100); // 장르 필터링을 위해 넉넉하게 100개 로드
 
-    // ID를 기준으로 중복 제거
-    const uniqueNovels = Array.from(
-      new Map(flatNovelList.map((novel) => [novel.id, novel])).values()
-    );
+    if (error) {
+      throw error; // 에러가 발생하면 catch 블록으로 보냅니다.
+    }
 
-    // 신작 필터링을 위해 20개만 가져오기
-    const limitedNovels = uniqueNovels.slice(0, 20);
-
-    return <CarouselNovelListByGenreSelector novelList={limitedNovels} />;
-  } catch {
+    // 2. 이 데이터를 CarouselNovelListByGenreSelector에 전달합니다.
+    //    이전 답변에서 제안한 activeFilter prop도 추가하면 좋습니다.
+    return <CarouselNovelListByGenreSelector novelList={recentNovels || []} />;
+  } catch(err) {
+    console.error("Error fetching novels for genre carousel:", err);
     return <NovelListErrorFallback />;
   }
 }

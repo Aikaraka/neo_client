@@ -4,6 +4,11 @@ import { createClient } from "@/utils/supabase/server";
 import { Category } from "@/utils/supabase/types/database.types";
 import { getUserSafeFilterStatus } from "@/app/_api/safeFilter.server";
 
+type NovelSettings = {
+  hasAdultContent?: boolean;
+  isPublic?: boolean;
+};
+
 // 보호필터 상태를 확인하는 헬퍼 함수
 async function getSafeFilterEnabled() {
   try {
@@ -69,7 +74,7 @@ export async function getNovels() {
       
       if (novels) {
         const adultNovelIds = novels
-          .filter(n => (n.settings as any)?.hasAdultContent === true)
+          .filter(n => (n.settings as NovelSettings)?.hasAdultContent === true)
           .map(n => n.id);
         
         return dailyRankings.filter(r => !adultNovelIds.includes(r.novel_id));
@@ -98,7 +103,7 @@ export async function getNovels() {
     
     if (novels) {
       const adultNovelIds = novels
-        .filter(n => (n.settings as any)?.hasAdultContent === true)
+        .filter(n => (n.settings as NovelSettings)?.hasAdultContent === true)
         .map(n => n.id);
       
       return allTimeRankings.filter(r => !adultNovelIds.includes(r.novel_id));
@@ -181,7 +186,7 @@ export async function getNovelsByView() {
       
       if (novels) {
         const adultNovelIds = novels
-          .filter(n => (n.settings as any)?.hasAdultContent === true)
+          .filter(n => (n.settings as NovelSettings)?.hasAdultContent === true)
           .map(n => n.id);
         
         return dailyRankings.filter(r => !adultNovelIds.includes(r.novel_id));
@@ -207,7 +212,7 @@ export async function getNovelsByView() {
     
     if (novels) {
       const adultNovelIds = novels
-        .filter(n => (n.settings as any)?.hasAdultContent === true)
+        .filter(n => (n.settings as NovelSettings)?.hasAdultContent === true)
         .map(n => n.id);
       
       return allTimeRankings.filter(r => !adultNovelIds.includes(r.novel_id));

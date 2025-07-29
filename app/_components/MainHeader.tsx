@@ -4,8 +4,6 @@ import Search from "@/app/_components/Search";
 import TokenBadge from "@/components/common/tokenBadge";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { HelpCircle } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -40,12 +38,8 @@ function MainHeaderMobile() {
   useEffect(() => {
     const loadSafeFilterStatus = async () => {
       if (user) {
-        try {
-          const status = await getUserSafeFilterStatus();
-          setSafeFilterEnabled(status.safeFilterEnabled);
-        } catch (error) {
-          console.error("Failed to load safe filter status:", error);
-        }
+        const status = await getUserSafeFilterStatus();
+        setSafeFilterEnabled(status.safeFilterEnabled);
       } else {
         // 비로그인 유저는 항상 보호필터 ON
         setSafeFilterEnabled(true);
@@ -71,56 +65,39 @@ function MainHeaderMobile() {
     // 보호필터를 끄려고 하는 경우 (checked가 false)
     if (!checked) {
       setIsLoading(true);
-      try {
-        const currentStatus = await getUserSafeFilterStatus();
-        
-        // 성인 인증이 안 되어 있으면
-        if (!currentStatus.isAdult) {
-          // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
-          setSafeFilterEnabled(true);
-          
-          toast({
-            title: "성인 인증 필요",
-            description: "보호필터를 해제하려면 성인 인증이 필요합니다.",
-          });
-          
-          // 성인 인증 페이지로 이동
-          router.push("/verify-age");
-          return;
-        }
-      } catch (error) {
-        console.error("Failed to check adult status:", error);
-        // 에러 발생 시 안전하게 보호필터 ON 유지
+      const currentStatus = await getUserSafeFilterStatus();
+      setIsLoading(false);
+
+      // 성인 인증이 안 되어 있으면
+      if (!currentStatus.isAdult) {
+        // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
         setSafeFilterEnabled(true);
+
+        toast({
+          title: "성인 인증 필요",
+          description: "보호필터를 해제하려면 성인 인증이 필요합니다.",
+        });
+
+        // 성인 인증 페이지로 이동
+        router.push("/verify-age");
         return;
-      } finally {
-        setIsLoading(false);
       }
     }
 
     // 성인 인증이 되어 있거나, 보호필터를 켜는 경우
     setIsLoading(true);
-    try {
-      const result = await toggleSafeFilter();
-      
-      // 상태 업데이트 성공
-      setSafeFilterEnabled(result.safeFilterEnabled);
-      toast({
-        title: result.safeFilterEnabled ? "보호필터 켜짐" : "보호필터 꺼짐",
-        description: result.safeFilterEnabled 
-          ? "선정적인 콘텐츠가 차단됩니다." 
-          : "모든 콘텐츠를 볼 수 있습니다.",
-      });
-      router.refresh();
-    } catch (error) {
-      toast({
-        title: "오류",
-        description: "보호필터 설정 중 오류가 발생했습니다.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await toggleSafeFilter();
+    setIsLoading(false);
+
+    // 상태 업데이트 성공
+    setSafeFilterEnabled(result.safeFilterEnabled);
+    toast({
+      title: result.safeFilterEnabled ? "보호필터 켜짐" : "보호필터 꺼짐",
+      description: result.safeFilterEnabled
+        ? "선정적인 콘텐츠가 차단됩니다."
+        : "모든 콘텐츠를 볼 수 있습니다.",
+    });
+    router.refresh();
   };
 
   return (
@@ -161,12 +138,8 @@ function MainHeaderDesktop() {
   useEffect(() => {
     const loadSafeFilterStatus = async () => {
       if (user) {
-        try {
-          const status = await getUserSafeFilterStatus();
-          setSafeFilterEnabled(status.safeFilterEnabled);
-        } catch (error) {
-          console.error("Failed to load safe filter status:", error);
-        }
+        const status = await getUserSafeFilterStatus();
+        setSafeFilterEnabled(status.safeFilterEnabled);
       } else {
         // 비로그인 유저는 항상 보호필터 ON
         setSafeFilterEnabled(true);
@@ -199,56 +172,39 @@ function MainHeaderDesktop() {
     // 보호필터를 끄려고 하는 경우 (checked가 false)
     if (!checked) {
       setIsLoading(true);
-      try {
-        const currentStatus = await getUserSafeFilterStatus();
-        
-        // 성인 인증이 안 되어 있으면
-        if (!currentStatus.isAdult) {
-          // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
-          setSafeFilterEnabled(true);
-          
-          toast({
-            title: "성인 인증 필요",
-            description: "보호필터를 해제하려면 성인 인증이 필요합니다.",
-          });
-          
-          // 성인 인증 페이지로 이동
-          router.push("/verify-age");
-          return;
-        }
-      } catch (error) {
-        console.error("Failed to check adult status:", error);
-        // 에러 발생 시 안전하게 보호필터 ON 유지
+      const currentStatus = await getUserSafeFilterStatus();
+      setIsLoading(false);
+
+      // 성인 인증이 안 되어 있으면
+      if (!currentStatus.isAdult) {
+        // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
         setSafeFilterEnabled(true);
+
+        toast({
+          title: "성인 인증 필요",
+          description: "보호필터를 해제하려면 성인 인증이 필요합니다.",
+        });
+
+        // 성인 인증 페이지로 이동
+        router.push("/verify-age");
         return;
-      } finally {
-        setIsLoading(false);
       }
     }
 
     // 성인 인증이 되어 있거나, 보호필터를 켜는 경우
     setIsLoading(true);
-    try {
-      const result = await toggleSafeFilter();
-      
-      // 상태 업데이트 성공
-      setSafeFilterEnabled(result.safeFilterEnabled);
-      toast({
-        title: result.safeFilterEnabled ? "보호필터 켜짐" : "보호필터 꺼짐",
-        description: result.safeFilterEnabled 
-          ? "선정적인 콘텐츠가 차단됩니다." 
-          : "모든 콘텐츠를 볼 수 있습니다.",
-      });
-      router.refresh();
-    } catch (error) {
-      toast({
-        title: "오류",
-        description: "보호필터 설정 중 오류가 발생했습니다.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    const result = await toggleSafeFilter();
+    setIsLoading(false);
+
+    // 상태 업데이트 성공
+    setSafeFilterEnabled(result.safeFilterEnabled);
+    toast({
+      title: result.safeFilterEnabled ? "보호필터 켜짐" : "보호필터 꺼짐",
+      description: result.safeFilterEnabled 
+        ? "선정적인 콘텐츠가 차단됩니다." 
+        : "모든 콘텐츠를 볼 수 있습니다.",
+    });
+    router.refresh();
   };
 
   return (

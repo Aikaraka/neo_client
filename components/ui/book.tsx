@@ -1,11 +1,11 @@
 import * as React from "react";
+import Link from "next/link";
 
 import { cn } from "@/lib/utils";
 import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 import { twMerge } from "tailwind-merge";
-import { cva, VariantProps } from "class-variance-authority";
+import { cva, type VariantProps } from "class-variance-authority";
 
-type BookVariantProps = VariantProps<typeof bookVariants>;
 const bookVariants = cva("", {
   variants: {
     size: {
@@ -20,25 +20,39 @@ const bookVariants = cva("", {
   },
 });
 
-interface BookProps
+export interface BookProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    BookVariantProps {
-  href: string;
+    VariantProps<typeof bookVariants> {
+  href?: string;
   shadow?: boolean;
 }
 const Book = React.forwardRef<HTMLDivElement, BookProps>(
-  ({ className, size, href, shadow = true, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn(
-        "bg-card text-card-foreground shadow-sm shrink-0 relative z-10",
-        className,
-        bookVariants({ size })
-      )}
-      {...props}
-    >
-    </div>
-  )
+  ({ className, size, href, shadow = true, children, ...props }, ref) => {
+    const bookContent = (
+      <div
+        ref={ref}
+        className={cn(
+          "bg-card text-card-foreground shadow-sm shrink-0 relative z-10",
+          className,
+          bookVariants({ size }),
+          shadow && "shadow-lg"
+        )}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+
+    if (href) {
+      return (
+        <Link href={href} className="flex flex-col items-center group">
+          {bookContent}
+        </Link>
+      );
+    }
+
+    return bookContent;
+  }
 );
 Book.displayName = "Book";
 
