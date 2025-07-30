@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import Header from "@/components/ui/header";
 import { Input } from "@/components/ui/input";
 import { LoadingModal, Modal } from "@/components/ui/modal";
-import { Toaster } from "@/components/ui/toaster";
 import useModal from "@/hooks/use-modal";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
@@ -45,7 +44,6 @@ export default function WithdrawPage() {
 
   return (
     <div aria-orientation="vertical" className="w-full h-screen relative">
-      <Toaster>
         <Header prevPageButton />
         <div className="p-4 w-full h-full justify-center flex flex-col">
           <div className="p-4">
@@ -133,7 +131,6 @@ export default function WithdrawPage() {
           </p>
         </Modal>
         <LoadingModal visible={isPending} />
-      </Toaster>
     </div>
   );
 }

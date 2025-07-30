@@ -7,7 +7,6 @@ import {
   TopNovelList,
   NovelListByGenre,
 } from "@/app/_components/NovelList";
-import { Toaster } from "@/components/ui/toaster";
 import MainHeader from "@/app/_components/MainHeader";
 import Footer from "@/components/layout/Footer";
 import HomePageClient from "@/app/_components/HomePageClient";
@@ -15,7 +14,6 @@ import HomePageClient from "@/app/_components/HomePageClient";
 export default async function Home() {
   return (
     <>
-      <Toaster />
       <HomePageClient>
         <div
           className="flex w-full bg-background relative"

@@ -10,6 +10,7 @@ import { LoadingProvider } from "@/contexts/LoadingContext";
 import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicator";
 import { NovelModalProvider } from "@/contexts/NovelModalContext";
 import Script from "next/script";
+import { Toaster } from "@/components/ui/toaster";
 
 const NanumSquareNeo = localFont({
   src: [
@@ -64,6 +65,7 @@ export default function RootLayout({
                 </AuthProvider>
               </ResponsiveWrapper>
             </main>
+            <Toaster />
           </LoadingProvider>
         </div>
       </body>

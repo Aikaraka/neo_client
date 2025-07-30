@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/utils/supabase/server"
+import { createServiceRoleClient } from "@/utils/supabase/server"
 
 interface VerificationResult {
   isSuccess: boolean
@@ -24,7 +24,6 @@ interface VerificationResult {
 async function verifyPayment(paymentId: string): Promise<VerificationResult> {
   const apiSecret = process.env.PORTONE_V2_API_SECRET
   if (!apiSecret) {
-    console.error("PortOne API secret is not configured.")
     return { isSuccess: false, message: "서버 설정 오류" }
   }
 
@@ -42,7 +41,6 @@ async function verifyPayment(paymentId: string): Promise<VerificationResult> {
     const paymentData = await response.json()
 
     if (!response.ok) {
-      console.error("PortOne API error:", paymentData)
       return {
         isSuccess: false,
         message: paymentData.message || "결제 정보 조회에 실패했습니다.",
@@ -50,7 +48,6 @@ async function verifyPayment(paymentId: string): Promise<VerificationResult> {
     }
     return { isSuccess: true, message: "검증 성공", paymentData }
   } catch (error) {
-    console.error("An unexpected error occurred during verification:", error)
     return { isSuccess: false, message: "결제 검증 중 오류가 발생했습니다." }
   }
 }
@@ -105,8 +102,8 @@ export async function processAndGrantToken(
   }
 
   try {
-    // 일반 클라이언트 사용 (Service Role Key 불필요)
-    const supabase = await createClient()
+    // 관리자 권한으로 Supabase 클라이언트 생성 (RLS 우회)
+    const supabase = await createServiceRoleClient()
 
     // 1. 이메일로 users 테이블에서 user_id 조회
     const { data: userData, error: userError } = await supabase
@@ -145,14 +142,13 @@ export async function processAndGrantToken(
     )
 
     if (updateError) {
-      throw new Error("데이터베이스 업데이트에 실패했습니다.")
+      throw new Error(`데이터베이스 업데이트에 실패했습니다: ${updateError.message}`)
     }
 
     // TODO: 결제 성공 내역을 별도 테이블에 기록하는 로직 추가
     
     return { success: true, message: "결제가 성공적으로 완료되었으며, 토큰이 지급되었습니다." }
   } catch (dbError) {
-    console.error("Database or token grant error:", dbError)
     // TODO: 토큰 지급 실패 시 처리 (예: 재시도 큐, 관리자 알림)
     const errorMessage = dbError instanceof Error ? dbError.message : String(dbError)
     return {
@@ -200,7 +196,6 @@ export async function cancelPayment(
       message: "결제가 성공적으로 취소되었습니다.",
     }
   } catch (error) {
-    console.error("Payment cancellation error:", error)
     return {
       success: false,
       message: "결제 취소 중 오류가 발생했습니다.",
