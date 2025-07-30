@@ -109,7 +109,7 @@ export default function ContentPolicyPage() {
         <h2 id="contact" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">6. 문의 및 연락처</h2>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
           <li className="mb-2"><strong>회사명</strong>: 더퍼레이드</li>
-          <li className="mb-2"><strong>문의 이메일</strong>: <a href="mailto:limdehan@gmail.com" className="text-blue-500 hover:underline">limdehan@gmail.com</a></li>
+          <li className="mb-2"><strong>문의 이메일</strong>: <a href="mailto:neoyourscene@gmail.com" className="text-blue-500 hover:underline">neoyourscene@gmail.com</a></li>
         </ul>
         <p className="text-gray-700 mb-4">
           본 콘텐츠 규정은 2025년 3월 1일부터 시행됩니다.

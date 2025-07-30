@@ -14,7 +14,7 @@ export default function ServiceTermsPage() {
 
         <h2 id="agreement" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">2. 약관 동의</h2>
         <p className="text-gray-700 mb-4">
-          서비스에 접근하거나 이용함으로써 귀하는 본 약관에 동의하고, 본 약관을 준수하는 것으로 간주됩니다. 약관에 동의하지 않는 경우, <a href="mailto:limdehan@gmail.com" className="text-blue-500 hover:underline">limdehan@gmail.com</a>으로 즉시 이메일을 발송하여 회원 탈퇴 의사를 표시함으로써 철회할 수 있습니다.
+          서비스에 접근하거나 이용함으로써 귀하는 본 약관에 동의하고, 본 약관을 준수하는 것으로 간주됩니다. 약관에 동의하지 않는 경우, <a href="mailto:neoyourscene@gmail.com" className="text-blue-500 hover:underline">neoyourscene@gmail.com</a>으로 즉시 이메일을 발송하여 회원 탈퇴 의사를 표시함으로써 철회할 수 있습니다.
         </p>
         <p className="text-gray-700 mb-4">
           회사는 이용자 식별 및 데이터 분석을 위해 쿠키를 사용하며, 귀하는 이에 동의합니다. 브라우저 설정을 통해 쿠키 사용을 거부할 수 있으나, 이 경우 서비스 이용에 제한이 있을 수 있습니다.
@@ -65,7 +65,7 @@ export default function ServiceTermsPage() {
         <h3 className="text-lg font-semibold mt-4 mb-2">6.1 코인 구매 및 사용</h3>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
           <li className="mb-2">회사는 서비스 유지 및 품질 개선을 위해 AI 콘텐츠 이용 및 생성에 필요한 가상 재화 &apos;코인&apos;을 판매합니다.</li>
-          <li className="mb-2">코인 결제 후 청약 철회는 불가합니다. 기술적 문제나 정당한 사유가 있는 경우, <a href="mailto:limdehan@gmail.com" className="text-blue-500 hover:underline">limdehan@gmail.com</a>으로 문의 바랍니다.</li>
+          <li className="mb-2">코인 결제 후 청약 철회는 불가합니다. 기술적 문제나 정당한 사유가 있는 경우, <a href="mailto:neoyourscene@gmail.com" className="text-blue-500 hover:underline">neoyourscene@gmal.com</a>으로 문의 바랍니다.</li>
           <li className="mb-2">결제 수수료는 통화 간 환율에 영향을 받을 수 있으며, 현지 상황에 따라 카드 및 은행 결제 수수료나 현전 수수료가 발생할 수 있습니다.</li>
           <li className="mb-2">유료 코인은 결제일로부터 1년 뒤 자동 소멸되며, 사용하지 않은 코인은 환불되지 않습니다.</li>
           <li className="mb-2">상품 구매 후 사용 내역이 없는 경우, 결제 후 7일 이내 결제 수단으로만 환불이 가능합니다.</li>
@@ -116,7 +116,7 @@ export default function ServiceTermsPage() {
         <h2 id="contact-info" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">12. 연락처</h2>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
           <li className="mb-2"><strong>회사명</strong>: 더퍼레이드</li>
-          <li className="mb-2"><strong>문의 이메일</strong>: <a href="mailto:limdehan@gmail.com" className="text-blue-500 hover:underline">limdehan@gmail.com</a></li>
+          <li className="mb-2"><strong>문의 이메일</strong>: <a href="mailto:neoyourscene@gmail.com" className="text-blue-500 hover:underline">neoyourscene@gmail.com</a></li>
         </ul>
       </div>
     </div>

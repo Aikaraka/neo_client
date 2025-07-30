@@ -11,7 +11,7 @@ const Footer = () => {
             <p>대표: 임대한 | 사업자등록번호: 702-11-02885 | 통신판매업신고번호</p>
             <p>주소: 서울시 서대문구 성산로 18길 49 </p>
             <p>전화번호: 070-4517-7801</p>
-            <p>문의: <a href="mailto:limdehan@gmail.com" className="hover:text-blue-500">limdehan@gmail.com</a></p>
+            <p>문의: <a href="mailto:neoyourscene@gmail.com" className="hover:text-blue-500">neoyourscene@gmail.com</a></p>
           </div>
           <div className="flex space-x-6">
             <Link href="/terms/service" className="hover:text-blue-500">이용약관</Link>

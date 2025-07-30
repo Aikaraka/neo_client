@@ -90,7 +90,7 @@ export default function PrivacyPolicyPage() {
         </p>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
           <li className="mb-2"><strong>개인정보 관리 책임자</strong>: 더퍼레이드 고객지원팀</li>
-          <li className="mb-2"><strong>문의 이메일</strong>: <a href="mailto:limdehan@gmail.com" className="text-blue-500 hover:underline">limdehan@gmail.com</a></li>
+          <li className="mb-2"><strong>문의 이메일</strong>: <a href="mailto:neoyourscene@gmail.com" className="text-blue-500 hover:underline">neoyourscene@gmail.com</a></li>
         </ul>
         <p className="text-gray-700 mb-4">
           기타 개인정보 침해에 대한 신고나 상담이 필요하신 경우에는 아래 기관에 문의하시기 바랍니다.
