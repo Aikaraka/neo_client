@@ -48,7 +48,8 @@ async function verifyPayment(paymentId: string): Promise<VerificationResult> {
     }
     return { isSuccess: true, message: "검증 성공", paymentData }
   } catch (error) {
-    return { isSuccess: false, message: "결제 검증 중 오류가 발생했습니다." }
+    // Sentry의 전역 에러 핸들러가 처리하도록 에러를 다시 던집니다.
+    throw error
   }
 }
 
@@ -196,9 +197,7 @@ export async function cancelPayment(
       message: "결제가 성공적으로 취소되었습니다.",
     }
   } catch (error) {
-    return {
-      success: false,
-      message: "결제 취소 중 오류가 발생했습니다.",
-    }
+    // Sentry의 전역 에러 핸들러가 처리하도록 에러를 다시 던집니다.
+    throw error
   }
 } 
