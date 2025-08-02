@@ -16,7 +16,7 @@ interface StoryContentProps {
 
 export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraphWidth, font, isDark = false, messageBoxRef }: StoryContentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching: _prevFetching } =
+  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching: _prevFetching, isMessageSending } =
     useStoryContext();
   const interSectionRef = useRef<HTMLDivElement>(null);
   
@@ -174,6 +174,15 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
           );
         }
       })}
+      {isMessageSending && (
+        <div className="flex justify-center items-center p-4">
+          <div className="animate-pulse">
+            <p style={{ fontFamily, color: isDark ? "#fff" : "#232325" }}>
+              Neo가 소설을 작성중이에요...
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

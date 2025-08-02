@@ -123,7 +123,7 @@ export function NovelDetailModal({
             {/* 태그 */}
             <div className="flex flex-wrap gap-2 justify-center mb-4 w-full">
               {novel.mood?.map((tag: string) => (
-                <span key={tag} className="text-sm text-foreground/40">
+                <span key={tag} className="text-sm text-white">
                   {tag}
                 </span>
               ))}
