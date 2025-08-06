@@ -14,7 +14,7 @@ import { InputFormField, useValidation } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Modal } from "@/components/ui/modal";
 import useModal from "@/hooks/use-modal";
-import { Mail, User } from "lucide-react";
+import { AtSign, User } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
 
 export default function SettingForm({ isPending }: { isPending: boolean }) {
@@ -50,18 +50,20 @@ export default function SettingForm({ isPending }: { isPending: boolean }) {
   return (
     <div className="flex flex-col h-full pt-10 px-8">
       <div className="flex-grow overflow-y-auto pb-10 pr-4 -mr-4">
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-y-6">
           <InputFormField
             control={control}
             name="name"
             placeHolder="이름"
             icon={<User />}
+            className="bg-white"
           />
           <InputFormField
             control={control}
             name="nickname"
             placeHolder="닉네임"
-            icon={<Mail />}
+            icon={<AtSign />}
+            className="bg-white"
           />
           <div className="flex items-center gap-2 px-2 justify-between">
             생년월일
@@ -121,7 +123,7 @@ export default function SettingForm({ isPending }: { isPending: boolean }) {
                     >
                       이용 약관
                     </span>
-                    에 동의합니다.
+                    에 동의합니다.<span className="ml-1 text-xs text-gray-400">(필수)</span>
                   </Label>
                 </div>
               )}
@@ -149,7 +151,7 @@ export default function SettingForm({ isPending }: { isPending: boolean }) {
                     >
                       개인정보처리방침
                     </span>
-                    에 동의합니다.
+                    에 동의합니다.<span className="ml-1 text-xs text-gray-400">(필수)</span>
                   </Label>
                 </div>
               )}
@@ -177,7 +179,7 @@ export default function SettingForm({ isPending }: { isPending: boolean }) {
                     >
                       마케팅 이용 약관
                     </span>
-                    에 동의합니다.
+                    에 동의합니다.<span className="ml-1 text-xs text-gray-400">(선택)</span>
                   </Label>
                 </div>
               )}
@@ -187,10 +189,13 @@ export default function SettingForm({ isPending }: { isPending: boolean }) {
       </div>
       <div className="form-action py-5">
         <Button
-          className="w-full bg-neo text-base p-6 disabled:bg-background"
+          className={`w-full bg-neo text-white hover:bg-neo-purple/80 ${
+            canProceed ? "opacity-100" : "opacity-50 cursor-not-allowed"
+          }`}
+          type="submit"
           disabled={!canProceed || isPending}
         >
-          계정 생성 완료
+          {isPending ? "계정 생성 중..." : "계정 생성 완료"}
         </Button>
       </div>
       <Modal

@@ -41,7 +41,7 @@ export default function UserInfoForm({ isPending }: { isPending: boolean }) {
       </div>
       
       <Button
-        className={`w-full hover:bg-neo-purple/80 ${
+        className={`w-full bg-neo text-white hover:bg-neo-purple/80 ${
           canProceed
             ? "opacity-100"
             : "opacity-50 cursor-not-allowed"

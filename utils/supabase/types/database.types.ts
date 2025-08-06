@@ -309,6 +309,7 @@ export type Database = {
           role: string;
           is_adult: boolean;
           safe_filter_enabled: boolean;
+          age_verification_completed: boolean;
         };
         Insert: {
           birthdate?: string | null;
@@ -323,6 +324,7 @@ export type Database = {
           role: string;
           is_adult?: boolean;
           safe_filter_enabled?: boolean;
+          age_verification_completed?: boolean;
         };
         Update: {
           birthdate?: string | null;
@@ -337,6 +339,7 @@ export type Database = {
           role?: string;
           is_adult?: boolean;
           safe_filter_enabled?: boolean;
+          age_verification_completed?: boolean;
         };
         Relationships: [];
       };

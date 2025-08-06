@@ -165,7 +165,11 @@ export default function VerifyAgePage() {
       console.log("PortOne 초기화 완료");
       
       window.IMP.certification(
-        { merchant_uid: `mid_verify_${Date.now()}`, popup: true },
+        { 
+          merchant_uid: `mid_verify_${Date.now()}`, 
+          popup: true,
+          pg: 'danal' // 다날 PG 명시적 지정
+        },
         async (rsp) => {
           console.log("인증 결과:", rsp);
           if (rsp.success) {

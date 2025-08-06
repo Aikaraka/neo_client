@@ -50,6 +50,8 @@ function MainHeaderMobile() {
   }, [user]);
 
   const handleSafeFilterToggle = async (checked: boolean) => {
+    console.log("보호필터 토글 시도:", { checked, user: !!user });
+    
     if (!user) {
       // 비로그인 유저는 보호필터 해제 불가
       if (!checked) {
@@ -64,30 +66,38 @@ function MainHeaderMobile() {
 
     // 보호필터를 끄려고 하는 경우 (checked가 false)
     if (!checked) {
+      console.log("보호필터 끄기 시도");
       setIsLoading(true);
       const currentStatus = await getUserSafeFilterStatus();
       setIsLoading(false);
+      
+      console.log("현재 상태:", currentStatus);
+      console.log("ageVerificationCompleted 값:", currentStatus.ageVerificationCompleted);
 
-      // 성인 인증이 안 되어 있으면
-      if (!currentStatus.isAdult) {
+      // 본인인증이 완료되지 않았으면
+      if (!currentStatus.ageVerificationCompleted) {
+        console.log("본인인증 필요 - 리다이렉트");
         // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
         setSafeFilterEnabled(true);
 
         toast({
-          title: "성인 인증 필요",
-          description: "보호필터를 해제하려면 성인 인증이 필요합니다.",
+          title: "본인인증 필요",
+          description: "보호필터를 해제하려면 본인인증이 필요합니다.",
         });
 
-        // 성인 인증 페이지로 이동
+        // 본인인증 페이지로 이동
         router.push("/verify-age");
         return;
       }
     }
 
     // 성인 인증이 되어 있거나, 보호필터를 켜는 경우
+    console.log("서버에 토글 요청");
     setIsLoading(true);
     const result = await toggleSafeFilter();
     setIsLoading(false);
+
+    console.log("서버 응답:", result);
 
     // 상태 업데이트 성공
     setSafeFilterEnabled(result.safeFilterEnabled);
@@ -175,17 +185,21 @@ function MainHeaderDesktop() {
       const currentStatus = await getUserSafeFilterStatus();
       setIsLoading(false);
 
-      // 성인 인증이 안 되어 있으면
-      if (!currentStatus.isAdult) {
+      console.log("데스크톱 - 현재 상태:", currentStatus);
+      console.log("데스크톱 - ageVerificationCompleted 값:", currentStatus.ageVerificationCompleted);
+
+      // 본인인증이 완료되지 않았으면
+      if (!currentStatus.ageVerificationCompleted) {
+        console.log("데스크톱 - 본인인증 필요 - 리다이렉트");
         // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
         setSafeFilterEnabled(true);
 
         toast({
-          title: "성인 인증 필요",
-          description: "보호필터를 해제하려면 성인 인증이 필요합니다.",
+          title: "본인인증 필요",
+          description: "보호필터를 해제하려면 본인인증이 필요합니다.",
         });
 
-        // 성인 인증 페이지로 이동
+        // 본인인증 페이지로 이동
         router.push("/verify-age");
         return;
       }
@@ -195,6 +209,28 @@ function MainHeaderDesktop() {
     setIsLoading(true);
     const result = await toggleSafeFilter();
     setIsLoading(false);
+
+    // 디버깅: 서버 응답 확인
+    console.log("toggleSafeFilter 응답:", result);
+    console.log("requiresVerification:", result.requiresVerification);
+    console.log("success:", result.success);
+    console.log("safeFilterEnabled:", result.safeFilterEnabled);
+
+    // 서버에서 본인인증이 필요하다고 응답한 경우
+    if (result.requiresVerification) {
+      console.log("본인인증 필요 - 리다이렉트");
+      // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
+      setSafeFilterEnabled(true);
+
+      toast({
+        title: "본인인증 필요",
+        description: "보호필터를 해제하려면 본인인증이 필요합니다.",
+      });
+
+      // 본인인증 페이지로 이동
+      router.push("/verify-age");
+      return;
+    }
 
     // 상태 업데이트 성공
     setSafeFilterEnabled(result.safeFilterEnabled);

@@ -42,7 +42,7 @@ export default function DatePicker({ name }: { name: string }) {
         options={years}
         value={year}
         onChange={(e) => handleChange("year", e.target.value)}
-        placeholder="출생년도"
+        placeholder="년"
         className="border px-3 py-2 rounded flex-1 min-w-0"
       />
       <Select
@@ -50,7 +50,7 @@ export default function DatePicker({ name }: { name: string }) {
         value={month}
         onChange={(e) => handleChange("month", e.target.value)}
         placeholder="월"
-        className="border px-3 py-2 rounded flex-1 min-w-0"
+        className="border px-3 py-2 rounded w-24 min-w-0"
       />
       <Select
         options={year && month ? getDays(Number(year), Number(month)) : []}
@@ -58,7 +58,7 @@ export default function DatePicker({ name }: { name: string }) {
         onChange={(e) => handleChange("day", e.target.value)}
         disabled={!year || !month}
         placeholder="일"
-        className="border px-3 py-2 rounded flex-1 min-w-0"
+        className="border px-3 py-2 rounded w-24 min-w-0"
       />
     </div>
   );

@@ -105,7 +105,11 @@ export default function Page() {
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-full hover:bg-neo-purple/80" disabled={isPending}>
+            <Button
+              type="submit"
+              className="w-full bg-neo text-white hover:bg-neo-purple/80"
+              disabled={isPending}
+            >
               {isPending ? "메일 전송 중..." : "비밀번호 재설정 메일 보내기"}
             </Button>
           </form>

@@ -76,7 +76,7 @@ export function LoginForm() {
               disabled={isPending}
               type="submit"
               variant="default"
-              className="w-full flex items-center justify-center gap-2 p-6 rounded-lg hover:opacity-90 hover:bg-primary"
+              className="w-full flex items-center justify-center gap-2 p-6 rounded-lg bg-neo text-white hover:bg-neo-purple/80"
             >
               <span className="text-lg font-base">
                 {isPending ? "로그인 중.." : "로그인"}
