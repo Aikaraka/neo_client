@@ -12,14 +12,14 @@ import { TextInputWithIcon } from "@/components/ui/input";
 import { Modal } from "@/components/ui/modal";
 import PrevPageButton from "@/components/ui/PrevPageButton";
 import useModal from "@/hooks/use-modal";
-import { maskEmail } from "@/utils/maskEmail";
 import { findEmail } from "@/app/(auth)/_api/auth.server";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { Info, User } from "lucide-react";
+import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import Link from "next/link";
 
 const findEmailSchema = z.object({
   name: z.string().nonempty(),
@@ -56,7 +56,7 @@ export default function Page() {
   const { mutate, isPending } = useMutation({
     mutationFn: findEmail,
     onSuccess: (email) => {
-      setEmailInformMessage(`회원님의 이메일은 ${maskEmail(email)}입니다.`);
+      setEmailInformMessage(`회원님의 이메일은 ${email}입니다.`);
       switchEmailInfromModal();
     },
     onError: (error) => {
@@ -73,42 +73,64 @@ export default function Page() {
   });
 
   return (
-    <div className="w-full h-screen flex justify-center px-8 flex-col gap-10">
-      <PrevPageButton />
-      <h1 className="text-xl font-bold">네오 가입 당시 정보를 입력해주세요.</h1>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit((values) => mutate(values))}
-          className="flex flex-col gap-5"
-        >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex justify-between">
-                  <span className="text-sm font-medium">이름</span>
-                </FormLabel>
-                <FormControl>
-                  <TextInputWithIcon
-                    placeholder="이름"
-                    className="p-6 bg-gray-100 rounded-lg"
-                    IconComponent={<User />}
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <div className="flex items-center gap-2 px-2 justify-between">
-            생년월일
-            <DatePicker name="birth" />
-          </div>
-          <Button type="submit" className="p-6 mt-3" disabled={isPending}>
-            {isPending ? "찾는중.." : "이메일 찾기"}
+    <main className="flex items-center justify-center min-h-screen">
+      <div className="w-full max-w-sm mx-auto flex flex-col gap-y-6 px-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">이메일 찾기</h1>
+          <p className="mt-2 text-muted-foreground">
+            가입 시 입력한 정보를 입력해주세요.
+          </p>
+        </div>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit((values) => mutate(values))}
+            className="flex flex-col gap-4"
+          >
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>이름</FormLabel>
+                  <FormControl>
+                    <TextInputWithIcon
+                      placeholder="홍길동"
+                      IconComponent={<User />}
+                      {...field}
+                      className="bg-white"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="birth"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>생년월일</FormLabel>
+                  <FormControl>
+                    <DatePicker name="birth" />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" className="w-full hover:bg-neo-purple/80" disabled={isPending}>
+              {isPending ? "찾는 중..." : "이메일 찾기"}
+            </Button>
+          </form>
+        </Form>
+        <div className="mt-2">
+          <Button variant="ghost-muted" className="w-full text-muted-foreground" asChild>
+            <Link href="/find" className="gap-1">
+              <PrevPageButton />
+              이전 페이지로
+            </Link>
           </Button>
-        </form>
-      </Form>
+        </div>
+      </div>
+
       <Modal open={errorModal} switch={switchErrorModal}>
         {errorMessage}
       </Modal>
@@ -119,11 +141,7 @@ export default function Page() {
         confirmText="로그인"
       >
         {emailInform}
-        <div className="flex text-sm gap-3 bg-muted rounded-lg p-2">
-          <Info />
-          정보 보호를 위해 아이디의 일부만 보여집니다.
-        </div>
       </Modal>
-    </div>
+    </main>
   );
 }

@@ -17,12 +17,14 @@ export default async function Signup() {
   }
   
   return (
-    <div className="h-screen relative bg-gray-100">
+    <main className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="w-full max-w-sm mx-auto px-4">
         <ErrorBoundary FallbackComponent={ErrorFallback}>
           <PageProvider maxPage={2}>
             <SignupForm />
           </PageProvider>
         </ErrorBoundary>
-    </div>
+      </div>
+    </main>
   );
 }

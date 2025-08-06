@@ -21,15 +21,16 @@ export default function UserInfoForm({ isPending }: { isPending: boolean }) {
   );
 
   return (
-    <div className="w-full h-full px-8 py-10 grid relative">
-      <div className="text-2xl font-bold items-center self-center">
-        <h1>
+    <div className="flex flex-col gap-y-6 text-center">
+      <div>
+        <h1 className="text-2xl font-bold">
           네오에 오신걸
           <br />
           환영합니다!
         </h1>
       </div>
-      <div className="flex flex-col w-full gap-5 itmes-center">
+      
+      <div className="flex flex-col gap-4">
         <SignupFormField name="email" />
         <SignupFormField
           {...register("password", {
@@ -38,21 +39,20 @@ export default function UserInfoForm({ isPending }: { isPending: boolean }) {
         />
         <SignupFormField name="passwordConfirm" />
       </div>
-      <div className="absolute w-full px-8 bottom-20">
-        <Button
-          className={`text-lg p-7 rounded-xl w-full self-center bottom-20  ${
-            canProceed
-              ? "hover:bg-primary opacity-100"
-              : "opacity-50 cursor-not-allowed"
-          }`}
-          type="submit"
-          variant={"default"}
-          disabled={!canProceed || isPending}
-        >
-          {isPending ? "인증중..." : "이메일 인증하기"}
-          <ChevronRight size={20} />
-        </Button>
-      </div>
+      
+      <Button
+        className={`w-full hover:bg-neo-purple/80 ${
+          canProceed
+            ? "opacity-100"
+            : "opacity-50 cursor-not-allowed"
+        }`}
+        type="submit"
+        variant={"default"}
+        disabled={!canProceed || isPending}
+      >
+        <span>{isPending ? "인증중..." : "이메일 인증하기"}</span>
+        <ChevronRight className="w-5 h-5" />
+      </Button>
     </div>
   );
 }

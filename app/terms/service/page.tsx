@@ -9,15 +9,12 @@ export default function ServiceTermsPage() {
         
         <h2 id="introduction" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">1. 소개</h2>
         <p className="text-gray-700 mb-4">
-          더퍼레이드(이하 &quot;회사&quot;)에 오신 것을 환영합니다. 본 이용약관(이하 &quot;약관&quot;)은 회사가 제공하는 웹사이트, 서비스 및 애플리케이션(이하 &quot;서비스&quot;)과 관련 콘텐츠(AI가 생성한 소설 및 코인 재화로 이용 가능한 콘텐츠)에 대한 귀하의 접근 및 이용을 규정합니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.
+          더퍼레이드(이하 &quot;회사&quot;)에 오신 것을 환영합니다. 본 이용약관(이하 &quot;약관&quot;)은 회사가 제공하는 웹사이트, 서비스 및 애플리케이션(이하 &quot;서비스&quot;)과 관련 콘텐츠(AI가 생성한 소설 및 토큰 재화로 이용 가능한 콘텐츠)에 대한 귀하의 접근 및 이용을 규정합니다. 서비스를 이용함으로써 귀하는 본 약관에 동의하는 것으로 간주됩니다.
         </p>
 
         <h2 id="agreement" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">2. 약관 동의</h2>
         <p className="text-gray-700 mb-4">
-          서비스에 접근하거나 이용함으로써 귀하는 본 약관에 동의하고, 본 약관을 준수하는 것으로 간주됩니다. 약관에 동의하지 않는 경우, <a href="mailto:neoyourscene@gmail.com" className="text-blue-500 hover:underline">neoyourscene@gmail.com</a>으로 즉시 이메일을 발송하여 회원 탈퇴 의사를 표시함으로써 철회할 수 있습니다.
-        </p>
-        <p className="text-gray-700 mb-4">
-          회사는 이용자 식별 및 데이터 분석을 위해 쿠키를 사용하며, 귀하는 이에 동의합니다. 브라우저 설정을 통해 쿠키 사용을 거부할 수 있으나, 이 경우 서비스 이용에 제한이 있을 수 있습니다.
+          서비스에 접근하거나 이용함으로써 귀하는 본 약관에 동의하고, 본 약관을 준수하는 것으로 간주됩니다. 회사는 관련 법령을 위배하지 않는 범위에서 본 약관을 개정할 수 있습니다. 약관 변경 시 서비스 내 공지 또는 이메일 등을 통해 사전 안내하며, 변경 후에도 서비스를 계속 이용하는 경우 변경된 약관에 동의한 것으로 간주됩니다. 약관에 동의하지 않는 경우, 즉시 서비스 이용을 중단해야 합니다.
         </p>
 
         <h2 id="service-description" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">3. 서비스 설명</h2>
@@ -27,10 +24,10 @@ export default function ServiceTermsPage() {
           <li className="mb-2">사용자가 소설의 주인공으로 참여할 수 있는 인터랙티브 스토리 제공</li>
           <li className="mb-2">다양한 테마와 스토리 선택 가능</li>
         </ul>
-        <h3 className="text-lg font-semibold mt-4 mb-2">3.2 코인 제도</h3>
+        <h3 className="text-lg font-semibold mt-4 mb-2">3.2 토큰 제도</h3>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
-          <li className="mb-2">플랫폼 내 재화인 &apos;코인&apos;을 구매하여 AI 소설 생성 및 플레이에 사용</li>
-          <li className="mb-2">코인 구매 및 사용에 대한 별도의 운영 정책 동의 필요</li>
+          <li className="mb-2">플랫폼 내 재화인 &apos;토큰&apos;을 구매하여 AI 소설 생성 및 플레이에 사용</li>
+          <li className="mb-2">토큰 구매 및 사용에 대한 별도의 운영 정책 동의 필요</li>
         </ul>
 
         <h2 id="user-account" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">4. 사용자 계정</h2>
@@ -61,27 +58,27 @@ export default function ServiceTermsPage() {
           <li className="mb-2">이용자는 회사의 명시적 허가 없이 콘텐츠를 상업적 또는 기타 개인적 이익 목적으로 사용할 수 없습니다. 무단 도용으로 회사에 손해를 끼친 경우, 법적 절차에 따라 손해를 배상할 책임이 있습니다.</li>
         </ul>
 
-        <h2 id="coin-payment" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">6. 코인 및 결제</h2>
-        <h3 className="text-lg font-semibold mt-4 mb-2">6.1 코인 구매 및 사용</h3>
+        <h2 id="coin-payment" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">6. 토큰 및 결제</h2>
+        <h3 className="text-lg font-semibold mt-4 mb-2">6.1 토큰 구매 및 사용</h3>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
-          <li className="mb-2">회사는 서비스 유지 및 품질 개선을 위해 AI 콘텐츠 이용 및 생성에 필요한 가상 재화 &apos;코인&apos;을 판매합니다.</li>
-          <li className="mb-2">코인 결제 후 청약 철회는 불가합니다. 기술적 문제나 정당한 사유가 있는 경우, <a href="mailto:neoyourscene@gmail.com" className="text-blue-500 hover:underline">neoyourscene@gmal.com</a>으로 문의 바랍니다.</li>
+          <li className="mb-2">회사는 서비스 유지 및 품질 개선을 위해 AI 콘텐츠 이용 및 생성에 필요한 가상 재화 &apos;토큰&apos;을 판매합니다.</li>
+          <li className="mb-2">토큰 결제 후 청약 철회는 불가합니다. 기술적 문제나 정당한 사유가 있는 경우, <a href="mailto:neoyourscene@gmail.com" className="text-blue-500 hover:underline">neoyourscene@gmal.com</a>으로 문의 바랍니다.</li>
           <li className="mb-2">결제 수수료는 통화 간 환율에 영향을 받을 수 있으며, 현지 상황에 따라 카드 및 은행 결제 수수료나 현전 수수료가 발생할 수 있습니다.</li>
-          <li className="mb-2">유료 코인은 결제일로부터 1년 뒤 자동 소멸되며, 사용하지 않은 코인은 환불되지 않습니다.</li>
+          <li className="mb-2">유료 토큰은 결제일로부터 1년 뒤 자동 소멸되며, 사용하지 않은 토큰은 환불되지 않습니다.</li>
           <li className="mb-2">상품 구매 후 사용 내역이 없는 경우, 결제 후 7일 이내 결제 수단으로만 환불이 가능합니다.</li>
         </ul>
         <h3 className="text-lg font-semibold mt-4 mb-2">6.2 결제 조건</h3>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
           <li className="mb-2">결제는 승인된 결제 제공업체를 통해 처리됩니다.</li>
-          <li className="mb-2">회사는 사전 공지 후 코인 가격을 변경할 권리를 보유합니다.</li>
+          <li className="mb-2">회사는 사전 공지 후 토큰 가격을 변경할 권리를 보유합니다.</li>
         </ul>
 
         <h2 id="service-restriction" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">7. 서비스 이용 제한</h2>
         <ul className="list-disc pl-6 text-gray-700 mb-4">
-          <li className="mb-2">이용자는 서비스에 피해를 입힐 수 있는 행위를 해서는 안 됩니다. 피해를 입힌다고 판단될 경우, 경고 없이 계정을 차단하거나 법적 조치를 취할 수 있으며, 사용하지 않은 코인은 환불되지 않습니다.</li>
+          <li className="mb-2">이용자는 서비스에 피해를 입힐 수 있는 행위를 해서는 안 됩니다. 피해를 입힌다고 판단될 경우, 경고 없이 계정을 차단하거나 법적 조치를 취할 수 있으며, 사용하지 않은 토큰은 환불되지 않습니다.</li>
           <li className="mb-2">회사는 다음 각 호에 해당하는 이용 신청에 대해 승낙하지 않을 수 있습니다.</li>
           <ul className="list-decimal pl-6 mt-2 mb-2">
-            <li className="mb-1">코인 구매 대금을 납부하지 않거나 잘못 납부하여 확인할 수 없는 경우</li>
+            <li className="mb-1">토큰 구매 대금을 납부하지 않거나 잘못 납부하여 확인할 수 없는 경우</li>
             <li className="mb-1">최근 3개월 내 이용 제한 기록이 있거나 서비스 운영 정책에 따라 영구 이용 제한을 받은 경우</li>
             <li className="mb-1">법령에서 금지하는 위법 행위를 목적으로 이용 신청을 하는 경우</li>
             <li className="mb-1">만 14세 미만인 경우</li>
@@ -92,7 +89,7 @@ export default function ServiceTermsPage() {
         <ul className="list-disc pl-6 text-gray-700 mb-4">
           <li className="mb-2">회사는 컴퓨터 등 정보통신설비의 보수 점검, 교체, 고장, 통신 두절 등의 사유로 서비스 제공을 일시적으로 중단할 수 있습니다.</li>
           <li className="mb-2">회사는 새로운 서비스로의 교체 등 적절하다고 판단하는 사유에 따라 현재 제공되는 서비스를 사전 통지 없이 완전히 변경 또는 중단할 수 있습니다.</li>
-          <li className="mb-2">서비스가 완전히 중단될 경우, 3개월 이내 결제 건에 한하여 사용하지 않은 유료 코인은 환불받을 수 있습니다.</li>
+          <li className="mb-2">서비스가 완전히 중단될 경우, 3개월 이내 결제 건에 한하여 사용하지 않은 유료 토큰은 환불받을 수 있습니다.</li>
         </ul>
 
         <h2 id="intellectual-property" className="text-xl font-bold mt-6 mb-3 scroll-mt-20">9. 지적 재산권</h2>

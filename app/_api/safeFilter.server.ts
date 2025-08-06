@@ -4,6 +4,83 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 /**
+ * PortOne API를 통해 본인인증 결과를 검증합니다
+ */
+async function verifyPortOnePayment(impUid: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    console.log("PortOne API 검증 시작, impUid:", impUid);
+    
+    const apiKey = process.env.PORTONE_API_KEY;
+    const secretKey = process.env.PORTONE_SECRET_KEY;
+    
+    console.log("API Key 존재:", !!apiKey);
+    console.log("Secret Key 존재:", !!secretKey);
+    
+    if (!apiKey || !secretKey) {
+      console.error("PortOne API 키 누락:", { apiKey: !!apiKey, secretKey: !!secretKey });
+      throw new Error("PortOne API 키가 설정되지 않았습니다.");
+    }
+
+    console.log("PortOne 토큰 발급 시작");
+    
+    // PortOne API 토큰 발급
+    const tokenResponse = await fetch("https://api.iamport.kr/users/getToken", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imp_key: apiKey,
+        imp_secret: secretKey,
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+    console.log("토큰 응답:", tokenData);
+    
+    if (tokenData.code !== 0) {
+      console.error("토큰 발급 실패:", tokenData);
+      throw new Error("PortOne 토큰 발급 실패");
+    }
+
+    const accessToken = tokenData.response.access_token;
+    console.log("액세스 토큰 획득");
+
+    // 본인인증 결과 조회
+    console.log("본인인증 결과 조회 시작");
+    const verificationResponse = await fetch(`https://api.iamport.kr/certifications/${impUid}`, {
+      method: "GET",
+      headers: {
+        "Authorization": accessToken,
+      },
+    });
+
+    const verificationData = await verificationResponse.json();
+    console.log("본인인증 결과:", verificationData);
+    
+    if (verificationData.code !== 0) {
+      console.error("본인인증 결과 조회 실패:", verificationData);
+      throw new Error("본인인증 결과 조회 실패");
+    }
+
+    const certification = verificationData.response;
+    
+    // 본인인증 성공 여부 확인 - certified 필드 사용
+    if (!certification.certified) {
+      console.error("본인인증이 완료되지 않음:", certification);
+      return { success: false, error: "본인인증이 완료되지 않았습니다." };
+    }
+
+    console.log("PortOne API 검증 성공");
+    return { success: true };
+  } catch (error) {
+    console.error("PortOne API 검증 오류:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { success: false, error: `본인인증 검증 중 오류가 발생했습니다: ${errorMessage}` };
+  }
+}
+
+/**
  * 사용자의 성인 인증 상태와 보호필터 설정을 가져옵니다
  */
 export async function getUserSafeFilterStatus() {
@@ -101,8 +178,11 @@ export async function completeAgeVerification(impUid: string) {
     throw new Error("로그인이 필요합니다.");
   }
 
-  // TODO: PortOne API를 통해 실제 인증 결과 검증
-  // 여기서는 실제 PortOne API 호출 로직이 필요합니다
+  // PortOne API를 통해 실제 인증 결과 검증
+  const verificationResult = await verifyPortOnePayment(impUid);
+  if (!verificationResult.success) {
+    throw new Error(verificationResult.error || "본인인증 검증에 실패했습니다.");
+  }
   
   // 트랜잭션으로 처리
   const { error: updateError } = await supabase

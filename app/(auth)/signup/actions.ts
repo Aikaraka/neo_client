@@ -42,7 +42,24 @@ export const signup = async ({
     });
 
     if (error) {
-      console.error("Supabase signup error:", error);
+      console.error("Supabase signup error details:", {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+        name: error.name
+      });
+      
+      // 이메일 전송 실패 에러 처리
+      if (error.message?.includes("Error sending confirmation email") ||
+          error.message?.includes("sending email")) {
+        return { 
+          authData: null, 
+          error: { 
+            message: "이메일 전송에 실패했습니다. 이메일 주소를 확인하고 다시 시도해주세요.", 
+            name: "EmailSendingError" 
+          } 
+        };
+      }
       
       // Supabase Auth에서 이미 존재하는 사용자 에러 처리
       if (error.message?.includes("User already registered") || 
