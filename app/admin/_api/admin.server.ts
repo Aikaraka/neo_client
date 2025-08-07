@@ -400,13 +400,17 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
           ? novel.novel_stats[0].total_chats
           : 0;
 
+      const authorNickname = Array.isArray(novel.users)
+        ? novel.users[0]?.nickname
+        : (novel.users as { nickname?: string } | null)?.nickname;
+
       return {
         id: novel.id,
         created_at: novel.created_at,
         title: novel.title,
         image_url: novel.image_url,
         settings: novel.settings as { isPublic: boolean } | null,
-        author_nickname: novel.users?.nickname || "알 수 없음",
+        author_nickname: authorNickname ?? "알 수 없음",
         total_chats: totalChats || 0,
       };
     });
@@ -433,13 +437,17 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
         ? novel.novel_stats[0].total_chats
         : 0;
 
+    const authorNickname = Array.isArray(novel.users)
+      ? novel.users[0]?.nickname
+      : (novel.users as { nickname?: string } | null)?.nickname;
+
     return {
       id: novel.id,
       created_at: novel.created_at,
       title: novel.title,
       image_url: novel.image_url,
       settings: novel.settings as { isPublic: boolean } | null,
-      author_nickname: novel.users?.nickname || "알 수 없음",
+      author_nickname: authorNickname ?? "알 수 없음",
       total_chats: totalChats || 0,
     };
   });

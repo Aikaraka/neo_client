@@ -12,6 +12,13 @@ import { CarouselNovelListByGenreSelector } from "@/app/_components/CarouselNove
 import { createClient } from "@/utils/supabase/server";
 import { NovelGrid } from "./NovelGrid";
 
+// RPC 또는 뷰에서 내려오는 상위 소설 항목의 최소 타입 정의
+interface ViewNovelDTO {
+  novel_id: string;
+  title: string;
+  image_url: string | null;
+}
+
 export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
   if (!novelList || !novelList.length) return <NovelListEmpty />;
 
@@ -79,30 +86,26 @@ export async function RecommendedNovelListCarousel() {
   }
 }
 
-
-
 export async function TopNovelList() {
   try {
     const rawNovelList = await getNovelsByView();
-    //TODO: type 변환
-    const novelList: Tables<"novels">[] = rawNovelList.map(viewNovel => ({
-      // Map fields from viewNovel to Tables<"novels">
-      id: viewNovel.novel_id,
-      title: viewNovel.title,
-      image_url: viewNovel.image_url, // string is assignable to string | null
-      // Provide default/placeholder values for other required fields
-      background: {}, // Assuming Json can be an empty object
-      characters: {}, // Assuming Json can be an empty object
-      created_at: new Date().toISOString(), // Or a suitable default string
-      ending: "",
-      mood: [],
-      plot: "", // Top list might not show plot here
-      settings: {}, // Assuming Json can be an empty object
-      updated_at: new Date().toISOString(), // Or a suitable default string
-      user_id: null,
-      // Fields like chat_count, rank from viewNovel are not in Tables<"novels">
-      // and are thus omitted in this transformation.
-    }));
+    // 뷰 결과를 novels 테이블 형태로 변환
+    const novelList: Tables<"novels">[] = (rawNovelList as ViewNovelDTO[]).map(
+      (viewNovel: ViewNovelDTO) => ({
+        id: viewNovel.novel_id,
+        title: viewNovel.title,
+        image_url: viewNovel.image_url,
+        background: {},
+        characters: {},
+        created_at: new Date().toISOString(),
+        ending: "",
+        mood: [],
+        plot: "",
+        settings: {},
+        updated_at: new Date().toISOString(),
+        user_id: null,
+      })
+    );
     return <NovelList novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
@@ -112,20 +115,22 @@ export async function TopNovelList() {
 export async function TopNovelListCarousel() {
   try {
     const rawNovelList = await getNovelsByView();
-    const novelList: Tables<"novels">[] = rawNovelList.map(viewNovel => ({
-      id: viewNovel.novel_id,
-      title: viewNovel.title,
-      image_url: viewNovel.image_url,
-      background: {},
-      characters: {},
-      created_at: new Date().toISOString(),
-      ending: "",
-      mood: [],
-      plot: "",
-      settings: {},
-      updated_at: new Date().toISOString(),
-      user_id: null,
-    }));
+    const novelList: Tables<"novels">[] = (rawNovelList as ViewNovelDTO[]).map(
+      (viewNovel: ViewNovelDTO) => ({
+        id: viewNovel.novel_id,
+        title: viewNovel.title,
+        image_url: viewNovel.image_url,
+        background: {},
+        characters: {},
+        created_at: new Date().toISOString(),
+        ending: "",
+        mood: [],
+        plot: "",
+        settings: {},
+        updated_at: new Date().toISOString(),
+        user_id: null,
+      })
+    );
     const { CarouselNovelList } = await import("./CarouselNovelList");
     return <CarouselNovelList novelList={novelList} />;
   } catch {

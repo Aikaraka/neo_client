@@ -9,6 +9,12 @@ type NovelSettings = {
   isPublic?: boolean;
 };
 
+// RPC 랭킹 결과 타입(필요 필드만 정의)
+interface RankingRow {
+  novel_id: string;
+  // 필요한 경우 아래에 추가 필드 정의
+}
+
 // 보호필터 상태를 확인하는 헬퍼 함수
 async function getSafeFilterEnabled() {
   try {
@@ -66,7 +72,7 @@ export async function getNovels() {
     // 보호필터가 켜져 있으면 성인 콘텐츠 필터링
     if (safeFilterEnabled) {
       // 각 소설의 상세 정보를 가져와서 필터링
-      const novelIds = dailyRankings.map(r => r.novel_id);
+      const novelIds = (dailyRankings as RankingRow[]).map((r: RankingRow) => r.novel_id);
       const { data: novels } = await supabase
         .from("novels")
         .select("id, settings")
@@ -74,10 +80,10 @@ export async function getNovels() {
       
       if (novels) {
         const adultNovelIds = novels
-          .filter(n => (n.settings as NovelSettings)?.hasAdultContent === true)
-          .map(n => n.id);
+          .filter((n) => (n.settings as NovelSettings)?.hasAdultContent === true)
+          .map((n) => n.id);
         
-        return dailyRankings.filter(r => !adultNovelIds.includes(r.novel_id));
+        return (dailyRankings as RankingRow[]).filter((r) => !adultNovelIds.includes(r.novel_id));
       }
     }
     return dailyRankings;
@@ -95,7 +101,7 @@ export async function getNovels() {
 
   // 보호필터가 켜져 있으면 성인 콘텐츠 필터링
   if (safeFilterEnabled && allTimeRankings) {
-    const novelIds = allTimeRankings.map(r => r.novel_id);
+    const novelIds = (allTimeRankings as RankingRow[]).map((r: RankingRow) => r.novel_id);
     const { data: novels } = await supabase
       .from("novels")
       .select("id, settings")
@@ -103,10 +109,10 @@ export async function getNovels() {
     
     if (novels) {
       const adultNovelIds = novels
-        .filter(n => (n.settings as NovelSettings)?.hasAdultContent === true)
-        .map(n => n.id);
+        .filter((n) => (n.settings as NovelSettings)?.hasAdultContent === true)
+        .map((n) => n.id);
       
-      return allTimeRankings.filter(r => !adultNovelIds.includes(r.novel_id));
+      return (allTimeRankings as RankingRow[]).filter((r) => !adultNovelIds.includes(r.novel_id));
     }
   }
 
@@ -178,7 +184,7 @@ export async function getNovelsByView() {
   if (dailyRankings && dailyRankings.length > 0) {
     // 보호필터가 켜져 있으면 성인 콘텐츠 필터링
     if (safeFilterEnabled) {
-      const novelIds = dailyRankings.map(r => r.novel_id);
+      const novelIds = (dailyRankings as RankingRow[]).map((r: RankingRow) => r.novel_id);
       const { data: novels } = await supabase
         .from("novels")
         .select("id, settings")
@@ -186,10 +192,10 @@ export async function getNovelsByView() {
       
       if (novels) {
         const adultNovelIds = novels
-          .filter(n => (n.settings as NovelSettings)?.hasAdultContent === true)
-          .map(n => n.id);
+          .filter((n) => (n.settings as NovelSettings)?.hasAdultContent === true)
+          .map((n) => n.id);
         
-        return dailyRankings.filter(r => !adultNovelIds.includes(r.novel_id));
+        return (dailyRankings as RankingRow[]).filter((r) => !adultNovelIds.includes(r.novel_id));
       }
     }
     return dailyRankings;
@@ -204,7 +210,7 @@ export async function getNovelsByView() {
   
   // 보호필터가 켜져 있으면 성인 콘텐츠 필터링
   if (safeFilterEnabled && allTimeRankings) {
-    const novelIds = allTimeRankings.map(r => r.novel_id);
+    const novelIds = (allTimeRankings as RankingRow[]).map((r: RankingRow) => r.novel_id);
     const { data: novels } = await supabase
       .from("novels")
       .select("id, settings")
@@ -212,10 +218,10 @@ export async function getNovelsByView() {
     
     if (novels) {
       const adultNovelIds = novels
-        .filter(n => (n.settings as NovelSettings)?.hasAdultContent === true)
-        .map(n => n.id);
+        .filter((n) => (n.settings as NovelSettings)?.hasAdultContent === true)
+        .map((n) => n.id);
       
-      return allTimeRankings.filter(r => !adultNovelIds.includes(r.novel_id));
+        return (allTimeRankings as RankingRow[]).filter((r) => !adultNovelIds.includes(r.novel_id));
     }
   }
   

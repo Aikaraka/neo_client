@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 interface IamportCertificationData {
   merchant_uid: string;
   popup?: boolean;
+  pg?: string; // 예: 'danal'
 }
 
 interface IamportCallbackResponse {
@@ -61,7 +62,7 @@ export default function VerifyAgePage() {
           } else {
             console.log("스크립트는 있지만 window.IMP가 없음, 재로드 시도");
             // 기존 스크립트 제거 후 재로드
-            existingScript.remove();
+            (existingScript as HTMLScriptElement).remove();
             loadPortOneSDK();
           }
         }, 1000);
@@ -168,7 +169,7 @@ export default function VerifyAgePage() {
         { 
           merchant_uid: `mid_verify_${Date.now()}`, 
           popup: true,
-          pg: 'danal' // 다날 PG 명시적 지정
+          pg: 'danal'
         },
         async (rsp) => {
           console.log("인증 결과:", rsp);
@@ -176,7 +177,8 @@ export default function VerifyAgePage() {
             try {
               await completeAgeVerification(rsp.imp_uid);
               toast({ title: "인증 성공", description: "성인 인증이 완료되었습니다." });
-              router.push("/");
+              const to = "/";
+              router.push(to);
               router.refresh();
             } catch (error) {
               console.error("인증 처리 오류:", error);

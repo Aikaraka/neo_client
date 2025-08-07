@@ -106,7 +106,7 @@ export default function Page() {
             <FormField
               control={form.control}
               name="birth"
-              render={({ field }) => (
+              render={() => (
                 <FormItem>
                   <FormLabel>생년월일</FormLabel>
                   <FormControl>
