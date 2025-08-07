@@ -105,19 +105,12 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const lastMessage = messages[messages.length - 1];
       const currentStoryNumber = lastMessage?.story_number ?? 0;
 
-      if (!auto) {
-        setMessages((prev) => [
-          ...prev,
-          { type: 'user' as const, content: text, story_number: currentStoryNumber, user_input: text },
-          { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text }
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { type: 'ai' as const, content: text, story_number: currentStoryNumber, user_input: text },
-          { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text }
-        ]);
-      }
+      // 자동 생성이든 수동 입력이든 사용자 입력 메시지는 항상 'user' 타입으로 추가
+      setMessages((prev) => [
+        ...prev,
+        { type: 'user' as const, content: text, story_number: currentStoryNumber, user_input: text },
+        { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text }
+      ]);
 
       console.log(`[StoryProvider] processNovel 호출 시작: novelId=${novelId}, text=${text}`);
       const stream = await processNovel(session, novelId, text);
@@ -155,7 +148,22 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
             const data = JSON.parse(dataStr);
 
             if (data.type === "story") {
-              accumulatedText += data.content;
+              // <E> 토큰 필터링 (완전한 토큰과 불완전한 토큰 모두 제거)
+              const originalContent = data.content;
+              const filteredContent = originalContent
+                .replace(/<E[^>]*>/g, '')  // 완전한 <E> 토큰 제거
+                .replace(/<E[^>]*$/g, '')  // <E로 시작하는 불완전한 토큰 제거
+                .replace(/<E$/g, '');      // <E로 끝나는 경우 제거
+              
+              // 필터링된 내용이 원본과 다른 경우 로그 출력
+              if (originalContent !== filteredContent) {
+                console.log('[StoryProvider] <E> 토큰 필터링됨:', {
+                  original: originalContent,
+                  filtered: filteredContent
+                });
+              }
+              
+              accumulatedText += filteredContent;
               setMessages((prev) => {
                 const newMsgs = [...prev];
                 const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');

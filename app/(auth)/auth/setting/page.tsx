@@ -9,24 +9,22 @@ export default function ProfileSetting() {
   const { form, submit, isPending } = useSettingForm();
 
   return (
-    <div className="w-full h-screen flex flex-col px-8 py-10">
-      <div className="text-2xl font-bold">
-        <h1>
-          네오와 여정을 떠나기 위한
-          <br />
-          마지막 단계입니다.
+    <main className="w-full max-w-md mx-auto flex flex-col justify-center min-h-screen gap-y-6 px-4 bg-background">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold">
+          네오와 여정을 떠나기 위한<br />마지막 단계입니다.
         </h1>
       </div>
       <Toaster>
         <Form {...form}>
           <form
-            className="flex flex-col h-full"
+            className="flex flex-col gap-4"
             onSubmit={form.handleSubmit((values) => submit(values))}
           >
             <SettingForm isPending={isPending} />
           </form>
         </Form>
       </Toaster>
-    </div>
+    </main>
   );
 }

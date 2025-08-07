@@ -21,10 +21,10 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="w-full h-full flex">
+    <div className="flex flex-col gap-y-6">
       <Form {...form}>
         <form
-          className="w-full h-full"
+          className="flex flex-col gap-y-6"
           onSubmit={handleSubmit}
         >
           {currPage === 0 && <UserInfoForm isPending={isPending} />}

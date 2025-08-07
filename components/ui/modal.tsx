@@ -37,18 +37,22 @@ export const Modal = ({
       onClick={handleBackgroundClick}
     >
       <div
-        className="bg-white p-6 rounded-lg shadow-lg w-3/4 max-w-[80%] max-h-[80%] z-50 flex flex-col gap-5 overflow-auto"
+        className="bg-white p-6 rounded-lg shadow-lg w-11/12 max-w-md max-h-[80%] z-50 flex flex-col gap-5 overflow-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {children}
         {type === "confirm" && (
           <div className="w-full flex gap-4 justify-center">
-            <Button variant={"destructive"} className="w-3/4" onClick={toggle}>
+            <Button 
+              variant={"destructive"} 
+              className="w-3/4 hover:bg-red-600" 
+              onClick={toggle}
+            >
               취소
             </Button>
             <Button
               variant={"default"}
-              className="w-3/4"
+              className="w-3/4 hover:bg-neo-purple/80"
               onClick={() => {
                 if (onConfirm) onConfirm();
                 toggle();
@@ -59,7 +63,11 @@ export const Modal = ({
           </div>
         )}
         {type === "inform" && (
-          <Button type="button" onClick={onConfirm ?? toggle}>
+          <Button 
+            type="button" 
+            className="hover:bg-neo-purple/80"
+            onClick={onConfirm ?? toggle}
+          >
             {confirmText ?? "확인"}
           </Button>
         )}

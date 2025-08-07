@@ -1,6 +1,6 @@
 "use server"
 
-import { createClient } from "@/utils/supabase/server"
+import { createServiceRoleClient } from "@/utils/supabase/server"
 
 interface VerificationResult {
   isSuccess: boolean
@@ -24,7 +24,6 @@ interface VerificationResult {
 async function verifyPayment(paymentId: string): Promise<VerificationResult> {
   const apiSecret = process.env.PORTONE_V2_API_SECRET
   if (!apiSecret) {
-    console.error("PortOne API secret is not configured.")
     return { isSuccess: false, message: "서버 설정 오류" }
   }
 
@@ -42,7 +41,6 @@ async function verifyPayment(paymentId: string): Promise<VerificationResult> {
     const paymentData = await response.json()
 
     if (!response.ok) {
-      console.error("PortOne API error:", paymentData)
       return {
         isSuccess: false,
         message: paymentData.message || "결제 정보 조회에 실패했습니다.",
@@ -50,8 +48,8 @@ async function verifyPayment(paymentId: string): Promise<VerificationResult> {
     }
     return { isSuccess: true, message: "검증 성공", paymentData }
   } catch (error) {
-    console.error("An unexpected error occurred during verification:", error)
-    return { isSuccess: false, message: "결제 검증 중 오류가 발생했습니다." }
+    // Sentry의 전역 에러 핸들러가 처리하도록 에러를 다시 던집니다.
+    throw error
   }
 }
 
@@ -105,8 +103,8 @@ export async function processAndGrantToken(
   }
 
   try {
-    // 일반 클라이언트 사용 (Service Role Key 불필요)
-    const supabase = await createClient()
+    // 관리자 권한으로 Supabase 클라이언트 생성 (RLS 우회)
+    const supabase = await createServiceRoleClient()
 
     // 1. 이메일로 users 테이블에서 user_id 조회
     const { data: userData, error: userError } = await supabase
@@ -145,14 +143,31 @@ export async function processAndGrantToken(
     )
 
     if (updateError) {
-      throw new Error("데이터베이스 업데이트에 실패했습니다.")
+      throw new Error(`데이터베이스 업데이트에 실패했습니다: ${updateError.message}`)
     }
 
-    // TODO: 결제 성공 내역을 별도 테이블에 기록하는 로직 추가
+    // 결제 성공 내역을 payment_history 테이블에 기록
+    const { error: historyError } = await supabase
+      .from("payment_history")
+      .insert({
+        user_id: userId,
+        amount: amount.total,
+        tokens_charged: grantedToken,
+        provider: "portone", // 실제 사용하는 PG사 이름으로 변경 가능
+      });
+
+    if (historyError) {
+      // 중요: 결제와 토큰 지급은 성공했으므로, 내역 기록 실패가 전체 트랜잭션을 롤백해서는 안 됩니다.
+      // 에러를 로깅하고 관리자에게 알림을 보내는 것이 좋습니다.
+      console.error("CRITICAL: Payment history recording failed!", {
+        userId,
+        paymentId,
+        error: historyError,
+      });
+    }
     
     return { success: true, message: "결제가 성공적으로 완료되었으며, 토큰이 지급되었습니다." }
   } catch (dbError) {
-    console.error("Database or token grant error:", dbError)
     // TODO: 토큰 지급 실패 시 처리 (예: 재시도 큐, 관리자 알림)
     const errorMessage = dbError instanceof Error ? dbError.message : String(dbError)
     return {
@@ -200,10 +215,7 @@ export async function cancelPayment(
       message: "결제가 성공적으로 취소되었습니다.",
     }
   } catch (error) {
-    console.error("Payment cancellation error:", error)
-    return {
-      success: false,
-      message: "결제 취소 중 오류가 발생했습니다.",
-    }
+    // Sentry의 전역 에러 핸들러가 처리하도록 에러를 다시 던집니다.
+    throw error
   }
 } 

@@ -47,13 +47,14 @@ export default function PurchaseCard({
 
     const result = await requestPayment({
       storeId: "store-9352e30f-52b7-42c5-8d98-052d88aeb3b5",
-      channelKey: "channel-key-0690e752-9c9e-421e-abfc-40148e5d0400",
-      paymentId: `payment-${crypto.randomUUID()}`,
+      channelKey: "channel-key-210bd239-bbd0-4948-a7f6-5544b7ec7c3c",
+      paymentId: `payment-${Date.now()}-${crypto.randomUUID().slice(0, 9)}`, // KG이니시스 OID 길이 제한 대응
       orderName,
       totalAmount: price,
       customer: {
-        name: user.user_metadata?.nickname || user.email,
-        email: user.email,
+        fullName: user.user_metadata?.nickname || user.email || "고객",  // KG이니시스는 fullName 필드 사용
+        phoneNumber: user.phone || user.user_metadata?.phone || "010-0000-0000", // 필수
+        email: user.email || "customer@example.com", // 필수
       },
     })
 

@@ -16,8 +16,9 @@ interface PaymentParams {
   orderName: string
   totalAmount: number
   customer: {
-    name?: string
+    fullName?: string    // KG이니시스는 fullName 필드를 사용
     email?: string
+    phoneNumber?: string
   }
 }
 

@@ -1,3 +1,4 @@
+//관리자용 소설 상세 모달
 import {
   Dialog,
   DialogContent,

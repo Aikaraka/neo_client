@@ -1,9 +1,9 @@
 "use server";
 
-import { createAdminClient } from "@/utils/supabase/server";
+import { createServiceRoleClient } from "@/utils/supabase/server";
 
 export async function withDrawAccount() {
-  const supabase = await createAdminClient();
+  const supabase = await createServiceRoleClient();
   const {
     data: { user },
     error: userError,

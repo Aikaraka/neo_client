@@ -4,7 +4,6 @@ import { Grid3x3, Inbox, LayoutGrid, LayoutList, Search, BookOpen, PenTool, Libr
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { NovelLibrary } from "@/app/library/_components/novelStorageList";
-import { Toaster } from "@/components/ui/toaster";
 import { MainContent } from "@/components/ui/content";
 import { NovelDeleteModalProvider } from "@/app/library/_components/novelDeleteModal";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -30,7 +29,6 @@ export default function StoragePage() {
   const isMobile = useIsMobile();
 
   return (
-    <Toaster>
       <div className="flex w-full h-screen justify-center items-center bg-input">
         <MainContent>
           <div className="w-full h-full max-w-4xl mx-auto p-6 flex flex-col gap-4">
@@ -213,6 +211,5 @@ export default function StoragePage() {
           </div>
         </MainContent>
       </div>
-    </Toaster>
   );
 }

@@ -2,6 +2,7 @@
 
 import { Database } from "@/utils/supabase/types/database.types";
 import { createServerClient } from "@supabase/ssr";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
 export async function createClient() {
@@ -31,27 +32,18 @@ export async function createClient() {
   );
 }
 
-export async function createAdminClient() {
-  const cookieStore = await cookies();
-  return createServerClient<Database>(
+/**
+ * 이 클라이언트는 Row-Level-Security를 우회합니다.
+ * 서버 측에서 관리자 작업을 수행할 때만 매우 신중하게 사용해야 합니다.
+ */
+export async function createServiceRoleClient() {
+  return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE!,
+    process.env.SUPABASE_SERVICE_ROLE!,
     {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
-            );
-          } catch {
-            // The `setAll` method was called from a Server Component.
-            // This can be ignored if you have middleware refreshing
-            // user sessions.
-          }
-        },
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
       },
     }
   );

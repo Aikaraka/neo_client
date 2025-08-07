@@ -4,6 +4,83 @@ import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 
 /**
+ * PortOne API를 통해 본인인증 결과를 검증합니다
+ */
+async function verifyPortOnePayment(impUid: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    console.log("PortOne API 검증 시작, impUid:", impUid);
+    
+    const apiKey = process.env.PORTONE_API_KEY;
+    const secretKey = process.env.PORTONE_SECRET_KEY;
+    
+    console.log("API Key 존재:", !!apiKey);
+    console.log("Secret Key 존재:", !!secretKey);
+    
+    if (!apiKey || !secretKey) {
+      console.error("PortOne API 키 누락:", { apiKey: !!apiKey, secretKey: !!secretKey });
+      throw new Error("PortOne API 키가 설정되지 않았습니다.");
+    }
+
+    console.log("PortOne 토큰 발급 시작");
+    
+    // PortOne API 토큰 발급
+    const tokenResponse = await fetch("https://api.iamport.kr/users/getToken", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        imp_key: apiKey,
+        imp_secret: secretKey,
+      }),
+    });
+
+    const tokenData = await tokenResponse.json();
+    console.log("토큰 응답:", tokenData);
+    
+    if (tokenData.code !== 0) {
+      console.error("토큰 발급 실패:", tokenData);
+      throw new Error("PortOne 토큰 발급 실패");
+    }
+
+    const accessToken = tokenData.response.access_token;
+    console.log("액세스 토큰 획득");
+
+    // 본인인증 결과 조회
+    console.log("본인인증 결과 조회 시작");
+    const verificationResponse = await fetch(`https://api.iamport.kr/certifications/${impUid}`, {
+      method: "GET",
+      headers: {
+        "Authorization": accessToken,
+      },
+    });
+
+    const verificationData = await verificationResponse.json();
+    console.log("본인인증 결과:", verificationData);
+    
+    if (verificationData.code !== 0) {
+      console.error("본인인증 결과 조회 실패:", verificationData);
+      throw new Error("본인인증 결과 조회 실패");
+    }
+
+    const certification = verificationData.response;
+    
+    // 본인인증 성공 여부 확인 - certified 필드 사용
+    if (!certification.certified) {
+      console.error("본인인증이 완료되지 않음:", certification);
+      return { success: false, error: "본인인증이 완료되지 않았습니다." };
+    }
+
+    console.log("PortOne API 검증 성공");
+    return { success: true };
+  } catch (error) {
+    console.error("PortOne API 검증 오류:", error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    return { success: false, error: `본인인증 검증 중 오류가 발생했습니다: ${errorMessage}` };
+  }
+}
+
+/**
  * 사용자의 성인 인증 상태와 보호필터 설정을 가져옵니다
  */
 export async function getUserSafeFilterStatus() {
@@ -12,24 +89,25 @@ export async function getUserSafeFilterStatus() {
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   if (!user || authError) {
     // 비로그인 사용자는 항상 보호필터 ON
-    return { isAuthenticated: false, isAdult: false, safeFilterEnabled: true };
+    return { isAuthenticated: false, isAdult: false, safeFilterEnabled: true, ageVerificationCompleted: false };
   }
 
   const { data: userData, error } = await supabase
     .from("users")
-    .select("is_adult, safe_filter_enabled")
+    .select("is_adult, safe_filter_enabled, age_verification_completed")
     .eq("id", user.id)
     .single();
 
   if (error || !userData) {
     console.error("Failed to fetch user safe filter status:", error);
-    return { isAuthenticated: true, isAdult: false, safeFilterEnabled: true };
+    return { isAuthenticated: true, isAdult: false, safeFilterEnabled: true, ageVerificationCompleted: false };
   }
 
   return {
     isAuthenticated: true,
     isAdult: userData.is_adult ?? false,
     safeFilterEnabled: userData.safe_filter_enabled ?? true,
+    ageVerificationCompleted: userData.age_verification_completed ?? false,
   };
 }
 
@@ -48,7 +126,7 @@ export async function toggleSafeFilter() {
   // 현재 상태 확인
   const { data: currentData, error: fetchError } = await supabase
     .from("users")
-    .select("is_adult, safe_filter_enabled")
+    .select("is_adult, safe_filter_enabled, age_verification_completed")
     .eq("id", user.id)
     .single();
 
@@ -56,11 +134,23 @@ export async function toggleSafeFilter() {
     throw new Error("사용자 정보를 가져올 수 없습니다.");
   }
 
-  // 성인 인증이 안 되어 있으면 보호필터를 끌 수 없음
+  console.log("toggleSafeFilter - 현재 사용자 데이터:", currentData);
+
+  // 현재 보호필터 상태
   const currentSafeFilter = currentData.safe_filter_enabled ?? true;
   const wantsToDisable = currentSafeFilter === true; // 현재 ON이고 OFF로 바꾸려는 경우
   
-  if (!currentData.is_adult && wantsToDisable) {
+  console.log("toggleSafeFilter - 보호필터 상태:", {
+    currentSafeFilter,
+    wantsToDisable,
+    ageVerificationCompleted: currentData.age_verification_completed
+  });
+  
+  // 본인인증을 완료하지 않은 사용자는 보호필터를 끌 수 없음
+  if (!currentData.age_verification_completed && wantsToDisable) {
+    console.log("toggleSafeFilter - 본인인증 미완료로 보호필터 해제 불가");
+    console.log("toggleSafeFilter - age_verification_completed 값:", currentData.age_verification_completed);
+    console.log("toggleSafeFilter - wantsToDisable 값:", wantsToDisable);
     return {
       success: false,
       requiresVerification: true,
@@ -68,8 +158,13 @@ export async function toggleSafeFilter() {
     };
   }
 
-  // 성인 인증이 없으면 무조건 보호필터 ON
-  const newStatus = currentData.is_adult ? !currentSafeFilter : true;
+  // 본인인증을 완료한 사용자만 보호필터 토글 가능
+  const newStatus = currentData.age_verification_completed ? !currentSafeFilter : true;
+  console.log("toggleSafeFilter - newStatus 계산:", {
+    ageVerificationCompleted: currentData.age_verification_completed,
+    currentSafeFilter,
+    newStatus
+  });
   const { error: updateError } = await supabase
     .from("users")
     .update({ safe_filter_enabled: newStatus })
@@ -101,14 +196,18 @@ export async function completeAgeVerification(impUid: string) {
     throw new Error("로그인이 필요합니다.");
   }
 
-  // TODO: PortOne API를 통해 실제 인증 결과 검증
-  // 여기서는 실제 PortOne API 호출 로직이 필요합니다
+  // PortOne API를 통해 실제 인증 결과 검증
+  const verificationResult = await verifyPortOnePayment(impUid);
+  if (!verificationResult.success) {
+    throw new Error(verificationResult.error || "본인인증 검증에 실패했습니다.");
+  }
   
   // 트랜잭션으로 처리
   const { error: updateError } = await supabase
     .from("users")
     .update({ 
       is_adult: true,
+      age_verification_completed: true,
       safe_filter_enabled: false // 성인 인증 후 보호필터 자동 해제
     })
     .eq("id", user.id);
