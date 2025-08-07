@@ -103,6 +103,9 @@ export default function SideBar() {
               <Link href="/" className="hover:text-gray-600 transition-colors">
                 언어 관리
               </Link>
+              <Link href="/mypage/history" className="hover:text-gray-600 transition-colors">
+                토큰 구매/사용 내역
+              </Link>
             </div>
 
             <div className="text-sm flex flex-col py-6 border-b px-3 gap-5">

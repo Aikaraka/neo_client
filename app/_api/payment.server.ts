@@ -146,7 +146,25 @@ export async function processAndGrantToken(
       throw new Error(`데이터베이스 업데이트에 실패했습니다: ${updateError.message}`)
     }
 
-    // TODO: 결제 성공 내역을 별도 테이블에 기록하는 로직 추가
+    // 결제 성공 내역을 payment_history 테이블에 기록
+    const { error: historyError } = await supabase
+      .from("payment_history")
+      .insert({
+        user_id: userId,
+        amount: amount.total,
+        tokens_charged: grantedToken,
+        provider: "portone", // 실제 사용하는 PG사 이름으로 변경 가능
+      });
+
+    if (historyError) {
+      // 중요: 결제와 토큰 지급은 성공했으므로, 내역 기록 실패가 전체 트랜잭션을 롤백해서는 안 됩니다.
+      // 에러를 로깅하고 관리자에게 알림을 보내는 것이 좋습니다.
+      console.error("CRITICAL: Payment history recording failed!", {
+        userId,
+        paymentId,
+        error: historyError,
+      });
+    }
     
     return { success: true, message: "결제가 성공적으로 완료되었으며, 토큰이 지급되었습니다." }
   } catch (dbError) {

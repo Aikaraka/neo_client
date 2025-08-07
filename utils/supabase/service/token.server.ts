@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient, createServiceRoleClient } from "@/utils/supabase/server";
 import { AuthError } from "@supabase/supabase-js";
 
 export async function getUserToken() {
@@ -25,6 +25,7 @@ export async function getUserToken() {
 
 export async function claimDailyFreeTokens() {
   const supabase = await createClient();
+  const admin = await createServiceRoleClient();
   const {
     data: { user },
     error,
@@ -52,6 +53,18 @@ export async function claimDailyFreeTokens() {
       .single();
 
     if (insertError) throw new Error("토큰 생성에 실패했습니다.");
+
+    // 무료 지급 내역 기록 (서비스 권한으로 RLS 우회)
+    const { error: historyError } = await admin.from("payment_history").insert({
+      user_id: user.id,
+      amount: 0,
+      tokens_charged: 5,
+      provider: "free",
+    });
+    if (historyError) {
+      console.error("[free-token] payment_history insert 실패", historyError);
+    }
+
     return { success: true, message: "무료 토큰 5개가 지급되었습니다!", newTokens: 5 };
   }
 
@@ -85,6 +98,17 @@ export async function claimDailyFreeTokens() {
     .eq("user_id", user.id);
 
   if (updateError) throw new Error("무료 토큰 지급에 실패했습니다.");
+
+  // 무료 지급 내역 기록 (서비스 권한으로 RLS 우회)
+  const { error: historyError2 } = await admin.from("payment_history").insert({
+    user_id: user.id,
+    amount: 0,
+    tokens_charged: 5,
+    provider: "free",
+  });
+  if (historyError2) {
+    console.error("[free-token] payment_history insert 실패", historyError2);
+  }
 
   return { success: true, message: "무료 토큰 5개가 지급되었습니다!", newTokens: newTokenBalance };
 }
