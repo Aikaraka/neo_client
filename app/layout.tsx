@@ -44,8 +44,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
+  genre,
 }: Readonly<{
   children: React.ReactNode;
+  genre: React.ReactNode;
 }>) {
   return (
     <html lang="ko" className={cn(NanumSquareNeo.variable, "bg-foreground/5")}>
@@ -65,6 +67,7 @@ export default function RootLayout({
                 </AuthProvider>
               </ResponsiveWrapper>
             </main>
+            {genre}
             <Toaster />
           </LoadingProvider>
         </div>
