@@ -1,5 +1,5 @@
 "use client";
-import NotFound from "@/app/[...404]/page";
+import NotFound from "@/app/not-found";
 import { getSearchResult } from "@/app/search/[keyword]/_api/searchResult.server";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";

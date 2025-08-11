@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
-import { createClient } from "@/utils/supabase/server";
 
 const protectedRoutes = [
   "/dashboard",
@@ -14,9 +13,8 @@ const adminRoutes = ["/admin"];
 const authRoutes = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
-  // 세션 업데이트 처리
-  const { supabaseResponse, user } = await updateSession(request);
-  const supabase = await createClient();
+  // 세션 업데이트 처리 및 supabase 인스턴스 가져오기
+  const { supabaseResponse, user, supabase } = await updateSession(request);
   const { pathname } = request.nextUrl;
 
   if (user) {

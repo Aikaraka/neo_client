@@ -1,6 +1,6 @@
 "use client";
 
-import NotFound from "@/app/[...404]/page";
+import NotFound from "@/app/not-found";
 import { getMyNovelList } from "@/app/library/_api/novels";
 import NovelGridView from "@/app/library/_components/novelGridView";
 import NovelListView from "@/app/library/_components/novelListView";

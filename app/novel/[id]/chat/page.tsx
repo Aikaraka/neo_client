@@ -4,7 +4,7 @@ import { StoryProvider, useStoryContext } from "@/app/novel/[id]/chat/_component
 import ProgressRate from "@/app/novel/[id]/chat/_components/ProgressRate";
 import { StoryContent } from "@/app/novel/[id]/chat/_components/StoryContent";
 import { ChatInput } from "@/app/novel/[id]/chat/_components/ChatInput";
-import NotFound from "@/app/[...404]/page";
+import NotFound from "@/app/not-found";
 import { useState, useEffect, useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
