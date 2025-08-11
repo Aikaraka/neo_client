@@ -50,8 +50,7 @@ export function useSignupForm() {
         title: "인증 메일 발송",
         description: "가입하신 이메일 주소를 확인하여 인증을 완료해주세요.",
       });
-      // 폼 초기화
-      form.reset();
+      // 폼 초기화는 EmailSent 확인 버튼에서 수행
     },
     onError: (error: Error) => {
       console.error("Signup error occurred:", error);

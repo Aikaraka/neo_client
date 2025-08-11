@@ -8,7 +8,7 @@ import { useFormContext } from "react-hook-form";
 import { useEffect } from "react";
 
 export default function EmailSent() {
-  const { getValues } = useFormContext<SignupFormType>();
+  const { getValues, reset } = useFormContext<SignupFormType>();
   const { email } = getValues();
   const router = useRouter();
 
@@ -42,14 +42,17 @@ export default function EmailSent() {
         보냈습니다.
       </h1>
       <p>
-        <span className="text-primary">{email}</span>로 보낸 메일로 인증하고
-        <br />
-        가입을 완료해보세요.
+        <span className="text-primary">{email}</span> <br />
+        메일로 인증 후 가입을 완료해주세요 !
       </p>
       <Button
         type="button"
-        className="w-full p-6 text-lg"
-        onClick={() => router.push("/")}
+        variant="default"
+        className="w-full p-6 text-lg transition-opacity hover:opacity-80 hover:bg-primary"
+        onClick={() => {
+          reset();
+          router.push("/");
+        }}
       >
         확인
       </Button>
