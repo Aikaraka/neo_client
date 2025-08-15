@@ -115,37 +115,49 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       console.log(`[StoryProvider] processNovel 호출 시작: novelId=${novelId}, text=${text}`);
       const stream = await processNovel(session, novelId, text);
       console.log(`[StoryProvider] processNovel 응답 받음:`, stream);
+      console.log(`[StoryProvider] stream.body 타입:`, typeof stream?.body);
+      console.log(`[StoryProvider] stream.body:`, stream?.body);
 
       if (!stream?.body) {
         console.error(`[StoryProvider] ReadableStream 없음:`, stream);
         throw new Error("ReadableStream not supported.");
       }
 
+      console.log(`[StoryProvider] SSE 스트림 읽기 시작`);
       const reader = stream.body.getReader();
       const decoder = new TextDecoder("utf-8");
       let done = false;
       let buffer = "";
       let accumulatedText = "";
+      console.log(`[StoryProvider] Reader 생성됨:`, reader);
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
         done = readerDone;
+        console.log('[StoryProvider] Reader 상태:', { done, valueLength: value?.length || 0 });
+        
         const chunkValue = decoder.decode(value || new Uint8Array(), {
           stream: !done,
         });
+        console.log('[StoryProvider] 디코딩된 청크:', chunkValue);
         buffer += chunkValue;
 
         const lines = buffer.split("\n\n");
         buffer = lines.pop() || "";
+        console.log('[StoryProvider] 파싱된 라인들:', lines);
 
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const dataStr = line.substring(6).trim();
-            if (dataStr === "[DONE]") {
-              break;
-            }
+                      if (line.startsWith("data: ")) {
+              const dataStr = line.substring(6).trim();
+              console.log('[StoryProvider] SSE 데이터 수신:', dataStr);
+              
+              if (dataStr === "[DONE]") {
+                console.log('[StoryProvider] 스트리밍 완료 신호 수신');
+                break;
+              }
 
-            const data = JSON.parse(dataStr);
+              const data = JSON.parse(dataStr);
+              console.log('[StoryProvider] 파싱된 데이터:', data);
 
             if (data.type === "story") {
               // <E> 토큰 필터링 (완전한 토큰과 불완전한 토큰 모두 제거)
@@ -163,15 +175,22 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
                 });
               }
               
-              accumulatedText += filteredContent;
-              setMessages((prev) => {
-                const newMsgs = [...prev];
-                const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
-                if (lastAiIdx !== -1) {
-                  newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText, story_number: data.story_number, user_input: data.user_input };
-                }
-                return newMsgs;
-              });
+              // 문자 단위로 실시간 타이핑 효과 구현
+              for (const char of filteredContent) {
+                accumulatedText += char;
+                setMessages((prev) => {
+                  const newMsgs = [...prev];
+                  const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
+                  if (lastAiIdx !== -1) {
+                    newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText, story_number: data.story_number, user_input: data.user_input };
+                  }
+                  return newMsgs;
+                });
+                // 각 문자마다 지연 (타이핑 효과)
+                await new Promise(resolve => setTimeout(resolve, 30));
+              }
+              
+
             } else if (data.type === "progress") {
               setProgressRate(data.progress_rate);
             } else if (data.type === "error") {
