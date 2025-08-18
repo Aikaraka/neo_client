@@ -48,9 +48,9 @@ export async function getRecommendedNovels() {
   const { data, error } = await query;
 
   if (error)
-    throw new Error("추천 소설 정보를 가져오던 중 오류가 발생했습니다.");
+    throw new Error("추천 세계관 정보를 가져오던 중 오류가 발생했습니다.");
   if (!data || data.length === 0) {
-    console.log("선택된 추천 소설이 없습니다. 공개된 최신 소설을 가져옵니다.");
+    console.log("선택된 추천 세계관이 없습니다. 공개된 최신 세계관을 가져옵니다.");
 
     const recentNovels = await getRecentNovels();
     return recentNovels;
@@ -96,7 +96,7 @@ export async function getNovels() {
   );
 
   if (allTimeError) {
-    throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");
+    throw new Error("세계관 정보를 가져오던 중 오류가 발생했습니다.");
   }
 
   // 보호필터가 켜져 있으면 성인 콘텐츠 필터링
@@ -139,7 +139,7 @@ export async function getRecentNovels() {
   const { data, error } = await query;
   
   if (error)
-    throw new Error("최신 소설 정보를 가져오던 중 오류가 발생했습니다.");
+    throw new Error("최신 세계관 정보를 가져오던 중 오류가 발생했습니다.");
   return data;
 }
 
@@ -163,7 +163,7 @@ export async function getNovelsByCategory(category: Category) {
   
   if (error) {
     console.log(error);
-    throw new Error("카테고리별 소설 정보를 가져오던 중 오류가 발생했습니다.");
+    throw new Error("카테고리별 세계관 정보를 가져오던 중 오류가 발생했습니다.");
   }
   return data;
 }

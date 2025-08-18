@@ -39,7 +39,7 @@ export function BackgroundForm() {
           <textarea
             value={background.start}
             onChange={(e) => setValue("background.start", e.target.value)}
-            placeholder="여러분이 만든 소설의 첫 장면은 어떻게 시작하시길 원하는지 적어주세요!"
+            placeholder="여러분이 만든 세계관의 첫 장면은 어떻게 시작하시길 원하는지 적어주세요!"
             className="w-full border p-2"
             rows={4}
           />

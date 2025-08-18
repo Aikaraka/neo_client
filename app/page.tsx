@@ -10,10 +10,12 @@ import {
 import MainHeader from "@/app/_components/MainHeader";
 import Footer from "@/components/layout/Footer";
 import HomePageClient from "@/app/_components/HomePageClient";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 
 export default async function Home() {
   return (
     <>
+      <OnboardingModal />
       <HomePageClient>
         <div
           className="flex w-full bg-background relative"
@@ -36,7 +38,7 @@ export default async function Home() {
                       height={20}
                       className="h-5 md:h-6 w-auto mr-2"
                     />
-                    장르별 소설 추천
+                    장르별 세계관 추천
                   </h2>
                   <div className="relative overflow-visible">
                     {/* 모바일에서는 NovelList, 데스크톱에서는 Carousel */}
@@ -82,7 +84,7 @@ export default async function Home() {
                       height={20}
                       className="h-5 md:h-6 w-auto mr-2"
                     />
-                    실시간 TOP 5 소설
+                    실시간 TOP 5 세계관
                   </h2>
                   <div className="relative overflow-visible">
                     {/* 모바일에서는 NovelList, 데스크톱에서는 Carousel */}

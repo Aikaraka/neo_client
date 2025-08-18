@@ -98,7 +98,7 @@ export function NovelDetailModal({
         )}
 
         <DialogTitle>
-          <VisuallyHidden>소설 상세 정보</VisuallyHidden>
+          <VisuallyHidden>세계관 상세 정보</VisuallyHidden>
         </DialogTitle>
 
         {/* 스크롤 영역 */}
@@ -108,7 +108,7 @@ export function NovelDetailModal({
             <div className="relative w-44 h-60 md:w-56 md:h-80 mx-auto rounded-xl overflow-hidden mb-4 border-2 border-white/80">
               <Image
                 src={novel.image_url || "https://i.imgur.com/D1fNsoW.png"}
-                alt={novel.title ?? "소설 표지"}
+                alt={novel.title ?? "세계관 표지"}
                 fill
                 className="object-cover"
                 priority
@@ -141,9 +141,9 @@ export function NovelDetailModal({
               <section className="flex flex-col gap-2">
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                   <BookOpen className="w-5 h-5" />
-                  소설 줄거리
+                  세계관 줄거리
                 </h2>
-                <div className="bg-background rounded-lg p-4 text-sm text-muted-foreground leading-relaxed border-2 border-[#D3CFE8]">
+                <div className="bg-background rounded-lg p-4 text-sm text-muted-foreground leading-relaxed border-2 border-[#D3CFE8] whitespace-pre-wrap">
                   {novel.plot || "줄거리 정보가 없습니다."}
                 </div>
               </section>
@@ -165,7 +165,7 @@ export function NovelDetailModal({
                            <p className="font-semibold text-primary my-1">
                              당신이 플레이 할 주인공
                            </p>
-                           <p className="text-muted-foreground">{protagonist.description}</p>
+                           <p className="text-muted-foreground whitespace-pre-wrap">{protagonist.description}</p>
                          </div>
                        )}
                        {otherCharacters.map((c, i) => (
@@ -173,7 +173,7 @@ export function NovelDetailModal({
                            <p className="font-semibold text-foreground">
                              {c.name} ({c.age})
                            </p>
-                           <p className="text-muted-foreground">{c.description}</p>
+                           <p className="text-muted-foreground whitespace-pre-wrap">{c.description}</p>
                          </div>
                        ))}
                      </>

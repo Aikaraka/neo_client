@@ -1,4 +1,4 @@
-//관리자용 소설 상세 모달
+//관리자용 세계관 상세 모달
 import {
   Dialog,
   DialogContent,
@@ -56,7 +56,7 @@ export function NovelDetailsModal({
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <DialogTitle>{novel?.title || "로딩 중..."}</DialogTitle>
-          <DialogDescription>소설 상세 정보</DialogDescription>
+          <DialogDescription>세계관 상세 정보</DialogDescription>
         </DialogHeader>
         {isLoading ? (
           <div className="py-8 text-center">로딩 중...</div>

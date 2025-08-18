@@ -1,12 +1,13 @@
 import { APIBuilder } from "@/api/apiBuilder";
 import { createClient } from "@/utils/supabase/server";
 
-// 임시로 localhost 사용 (연결 문제 해결을 위해)
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// 서버 액션/라우트 핸들러 환경에서의 안전한 기본값
+const SERVER_API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-console.log("🔧 API URL 설정:", API_URL);
+// eslint-disable-next-line no-console
+console.log("🔧 API URL 설정 (server):", SERVER_API_URL);
 
-export const novelAiServerForServer = new APIBuilder(API_URL)
+export const novelAiServerForServer = new APIBuilder(SERVER_API_URL)
   .withCredentials(true)
   .headers({
     "Content-type": "application/json",

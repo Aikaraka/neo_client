@@ -12,7 +12,7 @@ export function PlotForm({ plot, setPlot }: PlotFormProps) {
       <textarea
         value={plot}
         onChange={(e) => setPlot(e.target.value)}
-        placeholder="소설의 전체적인 줄거리를 입력해주세요..."
+        placeholder="세계관의 전체적인 줄거리를 입력해주세요..."
         className="w-full p-3 border rounded-lg"
         rows={8}
       />

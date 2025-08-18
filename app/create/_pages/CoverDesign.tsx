@@ -62,7 +62,7 @@ export default function CoverDesign() {
           type="submit"
           className="w-full bg-neo text-white py-3 rounded-lg p-6"
         >
-          소설 생성하기
+          세계관 생성하기
         </Button>
       </div>
     </div>

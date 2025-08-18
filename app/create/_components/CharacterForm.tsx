@@ -243,7 +243,9 @@ export function CharacterForm() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-semibold">캐릭터 설명</label>
-                  <Input
+                  <textarea
+                    className="w-full p-3 border rounded-lg resize-none"
+                    rows={3}
                     value={character.description}
                     onChange={(e) =>
                       updateCharacter(index, {
@@ -269,7 +271,7 @@ export function CharacterForm() {
                 </div>
                 <div className="flex w-full flex-wrap gap-2">
                   <div className="w-[20%] break-words">{character.name}</div>
-                  <p className="w-[70%] break-words">{character.description}</p>
+                  <p className="w-[70%] break-words whitespace-pre-wrap">{character.description}</p>
                 </div>
                 <div className="flex gap-4 items-center absolute top-2 right-2">
                   <AiAssistButton

@@ -19,7 +19,7 @@ export async function getNovelDetail(novelId: string) {
 
   if (novelNotFound) {
     console.error("Novel not found error:", novelNotFound);
-    throw new Error("해당 id에 일치하는 소설이 없습니다.");
+    throw new Error("해당 id에 일치하는 세계관이 없습니다.");
   }
 
   return novel;

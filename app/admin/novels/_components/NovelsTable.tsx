@@ -62,7 +62,7 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
   const ITEMS_PER_PAGE = 10;
   const totalPages = Math.ceil(totalNovels / ITEMS_PER_PAGE);
 
-  // 소설 목록 가져오기
+  // 세계관 목록 가져오기
   const fetchNovels = async (page: number, search: string = "") => {
     setIsLoading(true);
     try {
@@ -77,7 +77,7 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
       console.error("Failed to fetch novels:", error);
       toast({
         title: "오류",
-        description: "소설 목록을 불러오는 데 실패했습니다.",
+        description: "세계관 목록을 불러오는 데 실패했습니다.",
         variant: "destructive",
       });
     } finally {
@@ -162,7 +162,7 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
       await deleteNovelAsAdmin(deleteTargetId);
       toast({ 
         title: "삭제 완료", 
-        description: "소설이 성공적으로 삭제되었습니다." 
+        description: "세계관이 성공적으로 삭제되었습니다." 
       });
       setDeleteTargetId("");
       
@@ -172,7 +172,7 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
       console.error("Failed to delete novel:", error);
       toast({ 
         title: "삭제 실패", 
-        description: error instanceof Error ? error.message : "소설 삭제 중 오류가 발생했습니다.", 
+        description: error instanceof Error ? error.message : "세계관 삭제 중 오류가 발생했습니다.", 
         variant: "destructive" 
       });
     } finally {
@@ -272,7 +272,7 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <p className="text-lg font-semibold">
-            총 {totalNovels.toLocaleString()}개의 소설
+            총 {totalNovels.toLocaleString()}개의 세계관
           </p>
           <div className="text-sm text-gray-500">
             (페이지 {currentPage} / {totalPages})
@@ -282,7 +282,7 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
         <div className="relative w-72">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
-            placeholder="소설 제목 또는 작성자로 검색..."
+            placeholder="세계관 제목 또는 작성자로 검색..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -317,7 +317,7 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
             ) : novels.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="h-32 text-center">
-                  {searchTerm ? "검색 결과가 없습니다." : "소설이 없습니다."}
+                  {searchTerm ? "검색 결과가 없습니다." : "세계관이 없습니다."}
                 </TableCell>
               </TableRow>
             ) : (
@@ -401,7 +401,7 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
         switch={() => setDeleteTargetId("")}
         onConfirm={handleDeleteNovel}
       >
-        해당 소설을 삭제하시겠습니까?
+        해당 세계관을 삭제하시겠습니까?
       </Modal>
       
       {/* 삭제 중 로딩 모달 */}

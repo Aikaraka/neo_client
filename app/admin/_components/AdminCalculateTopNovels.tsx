@@ -50,11 +50,11 @@ export default function AdminCalculateTopNovels({ onCalculationComplete }: Admin
   return (
     <>
       <h2 className="text-xl font-semibold mb-4">
-        인기 소설 랭킹 계산 및 저장
+        인기 세계관 랭킹 계산 및 저장
       </h2>
       <p className="text-gray-600 mb-4">
-        현재 채팅 통계를 기반으로 인기 소설 랭킹을 계산하고 저장합니다. 이
-        기능은 메인 페이지에 표시되는 인기 소설 목록을 업데이트합니다.
+        현재 채팅 통계를 기반으로 인기 세계관 랭킹을 계산하고 저장합니다. 이
+        기능은 메인 페이지에 표시되는 인기 세계관 목록을 업데이트합니다.
       </p>
 
       <button
@@ -62,12 +62,12 @@ export default function AdminCalculateTopNovels({ onCalculationComplete }: Admin
         disabled={isProcessing}
         className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded disabled:bg-gray-400 mb-6"
       >
-        {isProcessing ? "계산 중..." : "인기 소설 랭킹 계산 및 저장"}
+        {isProcessing ? "계산 중..." : "인기 세계관 랭킹 계산 및 저장"}
       </button>
 
       {isProcessing && (
         <div className="mt-4 p-3 bg-blue-100 rounded mb-4">
-          <p className="text-blue-700">인기 소설 랭킹을 계산하고 저장하고 있습니다. 잠시만 기다려주세요...</p>
+          <p className="text-blue-700">인기 세계관 랭킹을 계산하고 저장하고 있습니다. 잠시만 기다려주세요...</p>
         </div>
       )}
 

@@ -45,8 +45,8 @@ export function useStoryContext() {
   return context;
 }
 
-const TOAST_GEN_NOVEL_ERROR_TITLE = "소설 생성 오류";
-const TOAST_GEN_NOVEL_ERROR_DESCRIPTION = "소설 생성중 오류가 발생했습니다.";
+const TOAST_GEN_NOVEL_ERROR_TITLE = "세계관 생성 오류";
+const TOAST_GEN_NOVEL_ERROR_DESCRIPTION = "세계관 생성중 오류가 발생했습니다.";
 const TOAST_UNDO_NOVEL_SUCCESS_TITLE = "소설 되돌리기";
 const TOAST_UNDO_NOVEL_SUCCESS_DESCRIPTION = "소설을 되돌렸습니다.";
 const TOAST_UNDO_NOVEL_ERROR_TITLE = "소설 되돌리기 오류";
@@ -73,19 +73,32 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   } = useQuery({
     queryKey: ["initStory", novelId],
     queryFn: async () => {
-      const initSetting = await initStory(novelId);
-      const restoredMessages: Message[] = [];
-      for (const s of initSetting.initial_stories.slice().reverse()) {
-        if (typeof s.user_input !== "undefined") restoredMessages.push({ type: 'user', content: s.user_input, story_number: s.story_number, user_input: s.user_input });
-        if (s.content) restoredMessages.push({ type: 'ai', content: s.content, story_number: s.story_number, user_input: s.user_input });
+      try {
+        const initSetting = await initStory(novelId);
+        const restoredMessages: Message[] = [];
+        for (const s of initSetting.initial_stories.slice().reverse()) {
+          if (typeof s.user_input !== "undefined") restoredMessages.push({ type: 'user', content: s.user_input, story_number: s.story_number, user_input: s.user_input });
+          if (s.content) restoredMessages.push({ type: 'ai', content: s.content, story_number: s.story_number, user_input: s.user_input });
+        }
+        console.log('[initStory] restoredMessages:', restoredMessages);
+        setMessages(restoredMessages);
+        setScrollType("instant");
+        setProgressRate(initSetting.progress_rate);
+        setCurrPage(initSetting.oldest_story_number);
+        setHasMoreStories(initSetting.has_more_stories);
+        return initSetting;
+      } catch (error) {
+        console.error(`[StoryProvider] initStory 실패:`, error);
+        // 세션 관련 에러인 경우 더 명확한 에러 메시지 제공
+        if (error instanceof Error && error.message.includes("세션")) {
+          toast({
+            title: "로그인이 필요합니다",
+            description: "세계관에 진입하려면 로그인이 필요합니다.",
+            variant: "destructive",
+          });
+        }
+        throw error;
       }
-      console.log('[initStory] restoredMessages:', restoredMessages);
-      setMessages(restoredMessages);
-      setScrollType("instant");
-      setProgressRate(initSetting.progress_rate);
-      setCurrPage(initSetting.oldest_story_number);
-      setHasMoreStories(initSetting.has_more_stories);
-      return initSetting;
     },
   });
 
@@ -94,6 +107,17 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
 
   const sendNovelProcessMessage = async (auto = false, input = "") => {
     if (isMessageSending) return;
+    
+    // 세션 검증 추가
+    if (!session?.user?.id) {
+      toast({
+        title: "인증 오류",
+        description: "세션이 만료되었습니다. 다시 로그인해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setScrollType("smooth");
     try {
       setIsMessageSending(true);
@@ -115,37 +139,49 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       console.log(`[StoryProvider] processNovel 호출 시작: novelId=${novelId}, text=${text}`);
       const stream = await processNovel(session, novelId, text);
       console.log(`[StoryProvider] processNovel 응답 받음:`, stream);
+      console.log(`[StoryProvider] stream.body 타입:`, typeof stream?.body);
+      console.log(`[StoryProvider] stream.body:`, stream?.body);
 
       if (!stream?.body) {
         console.error(`[StoryProvider] ReadableStream 없음:`, stream);
         throw new Error("ReadableStream not supported.");
       }
 
+      console.log(`[StoryProvider] SSE 스트림 읽기 시작`);
       const reader = stream.body.getReader();
       const decoder = new TextDecoder("utf-8");
       let done = false;
       let buffer = "";
       let accumulatedText = "";
+      console.log(`[StoryProvider] Reader 생성됨:`, reader);
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
         done = readerDone;
+        console.log('[StoryProvider] Reader 상태:', { done, valueLength: value?.length || 0 });
+        
         const chunkValue = decoder.decode(value || new Uint8Array(), {
           stream: !done,
         });
+        console.log('[StoryProvider] 디코딩된 청크:', chunkValue);
         buffer += chunkValue;
 
         const lines = buffer.split("\n\n");
         buffer = lines.pop() || "";
+        console.log('[StoryProvider] 파싱된 라인들:', lines);
 
         for (const line of lines) {
-          if (line.startsWith("data: ")) {
-            const dataStr = line.substring(6).trim();
-            if (dataStr === "[DONE]") {
-              break;
-            }
+                      if (line.startsWith("data: ")) {
+              const dataStr = line.substring(6).trim();
+              console.log('[StoryProvider] SSE 데이터 수신:', dataStr);
+              
+              if (dataStr === "[DONE]") {
+                console.log('[StoryProvider] 스트리밍 완료 신호 수신');
+                break;
+              }
 
-            const data = JSON.parse(dataStr);
+              const data = JSON.parse(dataStr);
+              console.log('[StoryProvider] 파싱된 데이터:', data);
 
             if (data.type === "story") {
               // <E> 토큰 필터링 (완전한 토큰과 불완전한 토큰 모두 제거)
@@ -163,15 +199,22 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
                 });
               }
               
-              accumulatedText += filteredContent;
-              setMessages((prev) => {
-                const newMsgs = [...prev];
-                const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
-                if (lastAiIdx !== -1) {
-                  newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText, story_number: data.story_number, user_input: data.user_input };
-                }
-                return newMsgs;
-              });
+              // 문자 단위로 실시간 타이핑 효과 구현
+              for (const char of filteredContent) {
+                accumulatedText += char;
+                setMessages((prev) => {
+                  const newMsgs = [...prev];
+                  const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
+                  if (lastAiIdx !== -1) {
+                    newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText, story_number: data.story_number, user_input: data.user_input };
+                  }
+                  return newMsgs;
+                });
+                // 각 문자마다 지연 (타이핑 효과)
+                await new Promise(resolve => setTimeout(resolve, 30));
+              }
+              
+
             } else if (data.type === "progress") {
               setProgressRate(data.progress_rate);
             } else if (data.type === "error") {

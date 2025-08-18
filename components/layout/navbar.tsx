@@ -33,7 +33,7 @@ const navItems = {
     disabled: false,
   },
   "/create": {
-    label: "소설 제작",
+    label: "세계관\n 제작",
     icon: PencilLine,
     activeIcon: Plus,
     disabled: false,
@@ -120,7 +120,7 @@ function NavItem({
       </div>
       
       <span className={cn(
-        "relative mt-1 font-medium transition-all duration-300",
+        "relative mt-1 font-medium transition-all duration-300 whitespace-pre-line text-center leading-tight",
         textSize,
         isActive 
           ? "text-purple-600 font-semibold" 

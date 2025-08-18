@@ -8,6 +8,7 @@ const protectedRoutes = [
   "/mypage",
   "/storage",
   "/create",
+  "/novel", // 세계관 진입 시 로그인 필수
 ];
 const adminRoutes = ["/admin"];
 const authRoutes = ["/login", "/signup"];

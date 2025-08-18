@@ -6,7 +6,7 @@ import Image from "next/image";
 
 type RankingType = "daily" | "weekly" | "monthly" | "all_time";
 
-// 소설 랭킹 타입 정의
+// 세계관 랭킹 타입 정의
 interface NovelRanking {
   novel_id: string;
   title: string;
@@ -131,8 +131,8 @@ export default function AdminViewRankings({ refreshKey }: AdminViewRankingsProps
 
   return (
     <>
-      <h2 className="text-xl font-semibold mb-4">인기 소설 랭킹 조회</h2>
-      <p className="text-gray-600 mb-4">저장된 인기 소설 랭킹을 조회합니다.</p>
+      <h2 className="text-xl font-semibold mb-4">인기 세계관 랭킹 조회</h2>
+      <p className="text-gray-600 mb-4">저장된 인기 세계관 랭킹을 조회합니다.</p>
 
       <div className="flex flex-wrap gap-4 mb-6">
         <div>
@@ -202,7 +202,7 @@ export default function AdminViewRankings({ refreshKey }: AdminViewRankingsProps
                   순위
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  소설
+                  세계관
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   채팅 수

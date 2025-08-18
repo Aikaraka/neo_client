@@ -83,7 +83,7 @@ export default function SearchResultPage() {
 
   if (isError) return <NotFound />;
 
-  // 필터 적용된 소설 목록
+  // 필터 적용된 세계관 목록
   const filteredNovels = novelList?.filter(novel => {
     if (selectedFilters.length === 0) return true;
     return selectedFilters.some(filter => novel.mood?.includes(filter));
@@ -377,7 +377,7 @@ export default function SearchResultPage() {
                   </div>
                   <p className="text-xl text-gray-700 mb-3 font-bold">
                     {selectedFilters.length > 0 
-                      ? "필터와 일치하는 소설이 없어요"
+                      ? "필터와 일치하는 세계관이 없어요"
                       : `&ldquo;${decodedKeyword}&rdquo; 검색 결과가 없어요`
                     }
                   </p>

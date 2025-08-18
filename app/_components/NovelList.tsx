@@ -32,7 +32,7 @@ export function NovelListEmpty() {
         <div className="w-[150px] h-[150px] rounded-t-lg content-center place-items-center">
           <Rabbit width={50} height={50} className="opacity-15" />
         </div>
-        <div className="p-2">등록된 소설이 없습니다.</div>
+        <div className="p-2">등록된 세계관이 없습니다.</div>
       </CardContent>
     </Card>
   );
@@ -42,7 +42,7 @@ export function NovelListErrorFallback() {
   return (
     <div className="w-full flex flex-col justify-center h-28 items-center gap-4">
       <Unplug width={50} height={50} className="opacity-15" />
-      <p className="opacity-20">소설 목록을 가져오지 못했습니다.</p>
+      <p className="opacity-20">세계관 목록을 가져오지 못했습니다.</p>
     </div>
   );
 }

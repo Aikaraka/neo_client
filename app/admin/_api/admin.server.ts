@@ -81,11 +81,11 @@ export async function updateTopNovelViews() {
   }
 }
 
-// 인기 소설 계산 및 저장 함수
+// 인기 세계관 계산 및 저장 함수
 export async function calculateAndSaveRankings() {
   const supabase = await createClient();
 
-  // 소설 랭킹 타입 정의
+  // 세계관 랭킹 타입 정의
   interface NovelRanking {
     novel_id: string;
     title: string;
@@ -111,45 +111,45 @@ export async function calculateAndSaveRankings() {
   const monthlyLabel = `${year}년 ${month}월`;
   const allTimeLabel = "all_time";
 
-  // 일별 인기 소설 계산
+  // 일별 인기 세계관 계산
   const { data: dailyTopNovels, error: dailyError } = await supabase.rpc(
     "get_daily_top_novels_by_chat",
     { top_count: 10 }
   );
 
   if (dailyError) {
-    console.error("일별 인기 소설 계산 오류:", dailyError);
-    throw new Error("일별 인기 소설 계산 중 오류가 발생했습니다.");
+    console.error("일별 인기 세계관 계산 오류:", dailyError);
+    throw new Error("일별 인기 세계관 계산 중 오류가 발생했습니다.");
   }
 
-  // 주별 인기 소설 계산
+  // 주별 인기 세계관 계산
   const { data: weeklyTopNovels, error: weeklyError } = await supabase.rpc(
     "get_weekly_top_novels_by_chat",
     { top_count: 10 }
   );
 
   if (weeklyError) {
-    throw new Error("주별 인기 소설 계산 중 오류가 발생했습니다.");
+    throw new Error("주별 인기 세계관 계산 중 오류가 발생했습니다.");
   }
 
-  // 월별 인기 소설 계산
+  // 월별 인기 세계관 계산
   const { data: monthlyTopNovels, error: monthlyError } = await supabase.rpc(
     "get_monthly_top_novels_by_chat",
     { top_count: 10 }
   );
 
   if (monthlyError) {
-    throw new Error("월별 인기 소설 계산 중 오류가 발생했습니다.");
+    throw new Error("월별 인기 세계관 계산 중 오류가 발생했습니다.");
   }
 
-  // 전체 인기 소설 계산
+  // 전체 인기 세계관 계산
   const { data: allTimeTopNovels, error: allTimeError } = await supabase.rpc(
     "get_top_novels_by_chat",
     { top_count: 10 }
   );
 
   if (allTimeError) {
-    throw new Error("전체 인기 소설 계산 중 오류가 발생했습니다.");
+    throw new Error("전체 인기 세계관 계산 중 오류가 발생했습니다.");
   }
 
   // 기존 랭킹 삭제 (같은 기간 라벨의 랭킹)
@@ -271,7 +271,7 @@ export async function calculateAndSaveRankings() {
 
   return {
     success: true,
-    message: "인기 소설 랭킹이 성공적으로 계산되고 저장되었습니다.",
+    message: "인기 세계관 랭킹이 성공적으로 계산되고 저장되었습니다.",
     dailyLabel,
     weeklyLabel,
     monthlyLabel,
@@ -283,7 +283,7 @@ export async function calculateAndSaveRankings() {
 }
 
 // ====================================================================
-// 콘텐츠 관리 (소설 목록)
+// 콘텐츠 관리 (세계관 목록)
 // ====================================================================
 
 interface GetNovelsParams {
@@ -427,7 +427,7 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
 
   if (error) {
     console.error("Error fetching novels for admin:", error);
-    throw new Error("소설 목록을 가져오는 중 오류가 발생했습니다.");
+    throw new Error("세계관 목록을 가져오는 중 오류가 발생했습니다.");
   }
   
   // 데이터 구조를 사용하기 쉽게 가공
@@ -478,14 +478,14 @@ export async function getNovelDetailsForAdmin(novelId: string) {
 
   if (error) {
     console.error('Error fetching novel details for admin:', error);
-    throw new Error('소설 상세 정보를 가져오는 데 실패했습니다.');
+    throw new Error('세계관 상세 정보를 가져오는 데 실패했습니다.');
   }
 
   // characters는 jsonb 배열일 수 있으므로 그대로 반환
   return data;
 }
 
-// 어드민 전용 소설 삭제 함수
+// 어드민 전용 세계관 삭제 함수
 export async function deleteNovelAsAdmin(novelId: string) {
   console.log(`[deleteNovelAsAdmin] 삭제 시작: novelId=${novelId}`);
   const supabase = await createClient();
@@ -529,8 +529,8 @@ export async function deleteNovelAsAdmin(novelId: string) {
       statusText: rankingsResponse.statusText
     });
 
-    // 3. 삭제 전에 소설이 존재하는지 확인
-    console.log(`[deleteNovelAsAdmin] 삭제할 소설 확인 중`);
+    // 3. 삭제 전에 세계관이 존재하는지 확인
+    console.log(`[deleteNovelAsAdmin] 삭제할 세계관 확인 중`);
     const { data: novelToDelete, error: checkError } = await supabase
       .from("novels")
       .select("id, title, user_id")
@@ -538,12 +538,12 @@ export async function deleteNovelAsAdmin(novelId: string) {
       .single();
 
     if (checkError || !novelToDelete) {
-      console.error(`[deleteNovelAsAdmin] 소설을 찾을 수 없음:`, checkError);
-      throw new Error(`소설을 찾을 수 없습니다: ${novelId}`);
+      console.error(`[deleteNovelAsAdmin] 세계관을 찾을 수 없음:`, checkError);
+      throw new Error(`세계관을 찾을 수 없습니다: ${novelId}`);
     }
-    console.log(`[deleteNovelAsAdmin] 삭제할 소설 찾음:`, novelToDelete);
+    console.log(`[deleteNovelAsAdmin] 삭제할 세계관 찾음:`, novelToDelete);
 
-    // 4. 마지막으로 소설 자체를 삭제
+    // 4. 마지막으로 세계관 자체를 삭제
     console.log(`[deleteNovelAsAdmin] novels 테이블에서 삭제 시도`);
     const deleteResponse = await supabase
       .from("novels")
@@ -565,7 +565,7 @@ export async function deleteNovelAsAdmin(novelId: string) {
         hint: deleteResponse.error.hint,
         code: deleteResponse.error.code
       });
-      throw new Error(`소설 삭제 중 오류가 발생했습니다: ${deleteResponse.error.message}`);
+      throw new Error(`세계관 삭제 중 오류가 발생했습니다: ${deleteResponse.error.message}`);
     }
 
     // 5. 관련 페이지 캐시 무효화
@@ -574,7 +574,7 @@ export async function deleteNovelAsAdmin(novelId: string) {
     revalidatePath("/");
 
     console.log(`[deleteNovelAsAdmin] 모든 작업 완료`);
-    return { success: true, message: "소설이 성공적으로 삭제되었습니다." };
+    return { success: true, message: "세계관이 성공적으로 삭제되었습니다." };
   } catch (error) {
     console.error("[deleteNovelAsAdmin] Unexpected error:", error);
     throw error;

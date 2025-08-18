@@ -37,7 +37,7 @@ export default function StoragePage() {
               <div className="flex gap-2 items-center">
                 <Inbox />
                 <span className="text-2xl font-bold">
-                  {isMobile ? "세계관 보관함" : "소설 보관함"}
+                  {isMobile ? "세계관 보관함" : "세계관 보관함"}
                 </span>
               </div>
               {/* 데스크톱에서만 레이아웃 버튼 표시 */}
@@ -171,7 +171,7 @@ export default function StoragePage() {
                 type="text"
                 className="flex-1 bg-secondary py-2 px-4 rounded-full"
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="소설 제목으로 검색..."
+                placeholder="세계관 제목으로 검색..."
               />
               <Search className="self-center" />
             </div>

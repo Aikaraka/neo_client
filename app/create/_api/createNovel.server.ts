@@ -44,6 +44,6 @@ export async function createNovel(novel: z.infer<typeof createNovelSchema>) {
     .select()
     .single();
 
-  if (insertError) throw new Error("소설 업로드 중 오류가 발생했습니다.");
+  if (insertError) throw new Error("세계관 업로드 중 오류가 발생했습니다.");
   return data.id;
 }

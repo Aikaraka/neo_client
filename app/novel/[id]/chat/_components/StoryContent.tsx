@@ -117,7 +117,7 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
     >
       <div ref={interSectionRef} style={{ height: 1 }} />
       <div
-        className={`bg-primary p-4 text-white rounded-xl`}
+        className={`bg-purple-100 p-4 text-gray-800 rounded-xl whitespace-pre-wrap`}
         style={{ fontFamily }}
       >
         {background?.start ?? "여러분들의 소설을 시작해보세요."}

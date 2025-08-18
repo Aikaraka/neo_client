@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/hooks/use-toast";
+import { useCoverGenerationCount } from "@/hooks/useCoverGenerationCount";
 import { useMutation } from "@tanstack/react-query";
 import { Sparkles } from "lucide-react";
 import Image from "next/image";
@@ -17,6 +18,8 @@ export default function CoverImageGenerator() {
   const { getValues } = useFormContext<CreateNovelForm>();
   const { changeImage } = useCoverImageContext();
   const { toast } = useToast();
+  const { decreaseCount, hasRemaining } = useCoverGenerationCount();
+  
   const { data, isPending, mutate } = useMutation({
     mutationFn: generateImage,
     onError: () => {
@@ -28,6 +31,9 @@ export default function CoverImageGenerator() {
       setAiImageModal(false);
     },
     onSuccess: (result) => {
+      // 표지 생성 성공 시 횟수 차감
+      decreaseCount();
+      
       // 이미지 생성 성공 시 미리 변환 시작
       if (result?.urls) {
         preloadAndConvertImages(result.urls);
@@ -42,6 +48,15 @@ export default function CoverImageGenerator() {
   const [preloadProgress, setPreloadProgress] = useState(0);
 
   async function handleGenerateCoverImage() {
+    if (!hasRemaining) {
+      toast({
+        title: "표지 생성 횟수 초과",
+        description: "표지 생성은 최대 3번까지 가능합니다.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setAiImageModal(true);
     // 모달을 열 때 이전 선택 상태 초기화
     setSelectedImage(null);
@@ -182,9 +197,11 @@ export default function CoverImageGenerator() {
         type="button"
         className="w-full"
         onClick={handleGenerateCoverImage}
+        disabled={!hasRemaining}
       >
         <Sparkles />
-        소설 표지 ai 생성
+        세계관 표지 ai 생성
+        {!hasRemaining && <span className="ml-2 text-xs">(횟수 초과)</span>}
       </Button>
 
       <Modal
