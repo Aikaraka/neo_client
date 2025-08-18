@@ -57,7 +57,7 @@ function CreateNovelPageContent() {
   const { toast } = useToast();
   const { isPending, mutate } = useMutation({
     mutationFn: createNovel,
-    onSuccess: (novelId) => router.push(`/novel/${novelId}/detail`),
+    onSuccess: (novelId) => router.push(`/novel/${novelId}/chat`),
     onError: (error) =>
       toast({ title: SUBMIT_ERROR_TITLE, description: error.message }),
   });
