@@ -10,7 +10,7 @@ interface NovelDeleteModalContextType {
   targetNovelId: string;
   setDeleteTargetNovelId: (id: string) => void;
 }
-const TOAST_DELETE_NOVEL_ERROR_TITLE = "소설 삭제 오류";
+const TOAST_DELETE_NOVEL_ERROR_TITLE = "세계관 삭제 오류";
 const novelDeleteModalContext =
   createContext<NovelDeleteModalContextType | null>(null);
 
@@ -42,7 +42,7 @@ function NovelDeleteModalProvider({ children }: { children: React.ReactNode }) {
         switch={() => setTargetNovelId("")}
         onConfirm={() => handleDeleteNovel(targetNovelId)}
       >
-        해당 소설을 삭제하시겠습니까?
+        해당 세계관을 삭제하시겠습니까?
       </Modal>
       <LoadingModal visible={deletePending} />
     </novelDeleteModalContext.Provider>

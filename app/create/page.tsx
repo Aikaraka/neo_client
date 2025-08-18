@@ -28,7 +28,7 @@ const PageComponent: Record<number, React.FC> = {
   1: BackgroundSetting,
 };
 
-const SUBMIT_ERROR_TITLE = "소설 생성 실패";
+const SUBMIT_ERROR_TITLE = "세계관 생성 실패";
 
 // page.tsx 내부의 로직을 담는 컴포넌트 (컨텍스트 사용 위함)
 function CreateNovelPageContent() {
@@ -108,8 +108,8 @@ function CreateNovelPageContent() {
         });
       }
     } catch (error) {
-      console.error("소설 생성 중 오류:", error);
-      let description = "소설 생성 중 오류가 발생했습니다.";
+      console.error("세계관 생성 중 오류:", error);
+      let description = "세계관 생성 중 오류가 발생했습니다.";
       if (error instanceof Error) {
         description = error.message;
       }
@@ -129,7 +129,7 @@ function CreateNovelPageContent() {
         <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
           <Header
             prevPageButton={false}
-            title="나만의 소설 만들기"
+            title="나만의 세계관 만들기"
             icon={<PencilLine />}
           >
             {prevButtonVisible && (

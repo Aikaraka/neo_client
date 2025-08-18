@@ -29,7 +29,7 @@ export default function Search() {
         className="bg-accent w-full justify-between px-5 flex rounded-full text-muted-foreground"
         onClick={() => setOpenSearchContent(true)}
       >
-        <span className="text-sm">마음에 드는 소설을 검색해보세요 !</span>
+        <span className="text-sm">마음에 드는 세계관을 검색해보세요 !</span>
         <Image
           src="/search.svg"
           alt="Search Icon"

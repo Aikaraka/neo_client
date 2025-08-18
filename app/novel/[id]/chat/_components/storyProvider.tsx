@@ -45,8 +45,8 @@ export function useStoryContext() {
   return context;
 }
 
-const TOAST_GEN_NOVEL_ERROR_TITLE = "소설 생성 오류";
-const TOAST_GEN_NOVEL_ERROR_DESCRIPTION = "소설 생성중 오류가 발생했습니다.";
+const TOAST_GEN_NOVEL_ERROR_TITLE = "세계관 생성 오류";
+const TOAST_GEN_NOVEL_ERROR_DESCRIPTION = "세계관 생성중 오류가 발생했습니다.";
 const TOAST_UNDO_NOVEL_SUCCESS_TITLE = "소설 되돌리기";
 const TOAST_UNDO_NOVEL_SUCCESS_DESCRIPTION = "소설을 되돌렸습니다.";
 const TOAST_UNDO_NOVEL_ERROR_TITLE = "소설 되돌리기 오류";
@@ -73,19 +73,32 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   } = useQuery({
     queryKey: ["initStory", novelId],
     queryFn: async () => {
-      const initSetting = await initStory(novelId);
-      const restoredMessages: Message[] = [];
-      for (const s of initSetting.initial_stories.slice().reverse()) {
-        if (typeof s.user_input !== "undefined") restoredMessages.push({ type: 'user', content: s.user_input, story_number: s.story_number, user_input: s.user_input });
-        if (s.content) restoredMessages.push({ type: 'ai', content: s.content, story_number: s.story_number, user_input: s.user_input });
+      try {
+        const initSetting = await initStory(novelId);
+        const restoredMessages: Message[] = [];
+        for (const s of initSetting.initial_stories.slice().reverse()) {
+          if (typeof s.user_input !== "undefined") restoredMessages.push({ type: 'user', content: s.user_input, story_number: s.story_number, user_input: s.user_input });
+          if (s.content) restoredMessages.push({ type: 'ai', content: s.content, story_number: s.story_number, user_input: s.user_input });
+        }
+        console.log('[initStory] restoredMessages:', restoredMessages);
+        setMessages(restoredMessages);
+        setScrollType("instant");
+        setProgressRate(initSetting.progress_rate);
+        setCurrPage(initSetting.oldest_story_number);
+        setHasMoreStories(initSetting.has_more_stories);
+        return initSetting;
+      } catch (error) {
+        console.error(`[StoryProvider] initStory 실패:`, error);
+        // 세션 관련 에러인 경우 더 명확한 에러 메시지 제공
+        if (error instanceof Error && error.message.includes("세션")) {
+          toast({
+            title: "로그인이 필요합니다",
+            description: "세계관에 진입하려면 로그인이 필요합니다.",
+            variant: "destructive",
+          });
+        }
+        throw error;
       }
-      console.log('[initStory] restoredMessages:', restoredMessages);
-      setMessages(restoredMessages);
-      setScrollType("instant");
-      setProgressRate(initSetting.progress_rate);
-      setCurrPage(initSetting.oldest_story_number);
-      setHasMoreStories(initSetting.has_more_stories);
-      return initSetting;
     },
   });
 
@@ -94,6 +107,17 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
 
   const sendNovelProcessMessage = async (auto = false, input = "") => {
     if (isMessageSending) return;
+    
+    // 세션 검증 추가
+    if (!session?.user?.id) {
+      toast({
+        title: "인증 오류",
+        description: "세션이 만료되었습니다. 다시 로그인해주세요.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setScrollType("smooth");
     try {
       setIsMessageSending(true);

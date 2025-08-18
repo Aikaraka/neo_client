@@ -42,7 +42,7 @@ export default async function Page() {
           </section>
           <section className="py-5 text-center">
             <p className="text-gray-600">
-              당신이 창작한 소설들을 편리하게 관리하고, &ldquo;스토리&rdquo;의
+              당신이 창작한 세계관들을 편리하게 관리하고, &ldquo;스토리&rdquo;의
             </p>
             <p className="text-gray-600">
               새로운 &ldquo;인생&rdquo;을 감상해보세요.

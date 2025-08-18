@@ -30,7 +30,7 @@ const navItems = {
     disabled: false,
   },
   "/create": {
-    label: "소설 제작",
+    label: "세계관 제작",
     icon: PencilLine,
     activeIcon: Plus,
     disabled: false,

@@ -9,6 +9,7 @@ import SuspenseBoundary from "@/components/common/suspenseBoundary";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicator";
 import { NovelModalProvider } from "@/contexts/NovelModalContext";
+import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/toaster";
 
@@ -61,7 +62,9 @@ export default function RootLayout({
                 <AuthProvider>
                   <QueryProvider>
                     <NovelModalProvider>
-                      <SuspenseBoundary>{children}</SuspenseBoundary>
+                      <OnboardingProvider>
+                        <SuspenseBoundary>{children}</SuspenseBoundary>
+                      </OnboardingProvider>
                     </NovelModalProvider>
                   </QueryProvider>
                 </AuthProvider>

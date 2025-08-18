@@ -18,7 +18,7 @@ export default function CoverImageGenerator() {
   const { getValues } = useFormContext<CreateNovelForm>();
   const { changeImage } = useCoverImageContext();
   const { toast } = useToast();
-  const { remainingCount, decreaseCount, hasRemaining } = useCoverGenerationCount();
+  const { decreaseCount, hasRemaining } = useCoverGenerationCount();
   
   const { data, isPending, mutate } = useMutation({
     mutationFn: generateImage,
@@ -200,7 +200,7 @@ export default function CoverImageGenerator() {
         disabled={!hasRemaining}
       >
         <Sparkles />
-        소설 표지 ai 생성
+        세계관 표지 ai 생성
         {!hasRemaining && <span className="ml-2 text-xs">(횟수 초과)</span>}
       </Button>
 

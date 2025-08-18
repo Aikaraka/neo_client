@@ -8,7 +8,7 @@ export default function AdminDashboardPage() {
           <p className="text-3xl font-bold">1,234</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-2">총 소설 수</h2>
+          <h2 className="text-xl font-semibold mb-2">총 세계관 수</h2>
           <p className="text-3xl font-bold">567</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
@@ -16,7 +16,7 @@ export default function AdminDashboardPage() {
           <p className="text-3xl font-bold">8</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
-          <h2 className="text-xl font-semibold mb-2">새로운 소설</h2>
+          <h2 className="text-xl font-semibold mb-2">새로운 세계관</h2>
           <p className="text-3xl font-bold">3</p>
         </div>
       </div>

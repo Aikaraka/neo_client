@@ -90,7 +90,7 @@ export default async function GenrePage({
     
     return (
       <div className="w-full max-w-[1160px] relative p-4">
-        {/* 장르별 소설 추천 헤더 */}
+        {/* 장르별 세계관 추천 헤더 */}
         <section className="relative">
           <h2 className="text-[22px] font-semibold mb-4 flex items-center">
             <Image
@@ -100,7 +100,7 @@ export default async function GenrePage({
               height={20}
               className="h-5 md:h-6 w-auto mr-2"
             />
-            장르별 소설 추천
+            장르별 세계관 추천
           </h2>
           
           {/* 장르 버튼들 */}
@@ -147,6 +147,6 @@ export default async function GenrePage({
       </div>
     );
   } catch {
-    return <div>장르별 소설을 불러오는데 실패했습니다.</div>;
+    return <div>장르별 세계관을 불러오는데 실패했습니다.</div>;
   }
 }

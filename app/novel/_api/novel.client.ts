@@ -7,6 +7,6 @@ export async function getNovel(novelId: string) {
     .select("*")
     .eq("id", novelId)
     .single();
-  if (error) throw new Error("소설 정보를 가져오던 중 오류가 발생했습니다.");
+  if (error) throw new Error("세계관 정보를 가져오던 중 오류가 발생했습니다.");
   return data;
 }

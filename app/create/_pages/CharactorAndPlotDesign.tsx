@@ -274,7 +274,7 @@ export default function CharactorAndPlotDesign() {
     <div className="w-full p-4 pb-20 md:pb-4">
       {/* ... (rest of the form sections remain the same) ... */}
       <section className="mb-8 flex flex-col gap-4">
-        <h2 className="text-xl font-semibold">소설 제목</h2>
+        <h2 className="text-xl font-semibold">세계관 제목</h2>
         <div className="relative">
           <Input
             type="text"
@@ -296,7 +296,7 @@ export default function CharactorAndPlotDesign() {
             rows={6}
             value={plot}
             onChange={(e) => setValue("plot", e.target.value)}
-            placeholder="소설의 전체적인 줄거리를 입력해주세요..."
+            placeholder="세계관의 전체적인 줄거리를 입력해주세요..."
           />
           <AiAssistButton
             targetField="plot"

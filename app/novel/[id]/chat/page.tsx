@@ -32,7 +32,31 @@ function ChatPageContent() {
   const darkColors = ["#3C3C3C", "#000000", "#2B3531"];
   const isDark = darkColors.includes(bgColor);
 
-  if (initError) return <NotFound />;
+  if (initError) {
+    // 세션 관련 에러인 경우 로그인 안내 페이지 표시
+    const errorMessage = (initError as unknown as Error)?.message || String(initError);
+    if (errorMessage.includes("세션")) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-screen p-8">
+          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              로그인이 필요합니다
+            </h2>
+            <p className="text-gray-600 mb-6">
+              세계관에 진입하려면 로그인이 필요합니다.
+            </p>
+            <a 
+              href="/login" 
+              className="inline-block bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              로그인하기
+            </a>
+          </div>
+        </div>
+      );
+    }
+    return <NotFound />;
+  }
   return (
     <div
       className="flex flex-col w-full h-screen overflow-hidden"

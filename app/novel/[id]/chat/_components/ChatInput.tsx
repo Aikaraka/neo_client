@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { AutoChat, PaperPlane } from "@/public/novel/chat";
 import { FormEventHandler, KeyboardEvent, useRef } from "react";
 import { UndoIcon } from "lucide-react";
+import Image from "next/image";
 
 // Helper function to handle asterisk click
 const handleAsteriskClick = (textarea: HTMLTextAreaElement | null) => {
@@ -51,9 +52,11 @@ export function ChatInput() {
   return (
     <div className="w-full bg-transparent p-2">
       <div className="flex items-center gap-3 w-full bg-[#F5F5F5] rounded-xl p-2">
-        <img
+        <Image
           src="/novel/chat/astroid.svg"
           alt="astroid"
+          width={24}
+          height={24}
           className="w-5 h-5 md:w-6 md:h-6 cursor-pointer"
           onClick={() => handleAsteriskClick(textareaRef.current)}
         />
