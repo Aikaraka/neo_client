@@ -30,6 +30,7 @@ export async function postAIAssist(
   if (sessionError || !session) {
     throw new Error("인증 정보를 찾을 수 없습니다.");
   }
+
   const req = {
     targetField: request.targetField,
     formData: request.formData,
@@ -40,13 +41,16 @@ export async function postAIAssist(
 
   console.log('Request Data:', req);
 
-  const response = (
-    await novelAiServerForServer.post("/input-pumping", req, {
+  try {
+    const response = await novelAiServerForServer.post("/input-pumping", req, {
       headers: {
         Authorization: `Bearer ${session.access_token}`,
       },
-    })
-  ).json();
-
-  return response;
+    });
+    
+    return response.json();
+  } catch (error) {
+    console.error('AI Assist 요청 실패:', error);
+    throw new Error("AI 어시스트 요청 중 오류가 발생했습니다.");
+  }
 }

@@ -20,32 +20,49 @@ novelAiServerForServer.use.response = async (response, requestFunction) => {
 
     console.warn("401 Unauthorized - Refreshing token...");
 
-    const { data, error } = await supabase.auth.refreshSession();
-    if (error || !data.session) throw new Error("세션 갱신 실패");
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error || !data.session) {
+        console.error("세션 갱신 실패:", error);
+        throw new Error("세션 갱신 실패");
+      }
 
-    const newAccessToken = data.session.access_token;
-    novelAiServerForServer.headers = {
-      ...novelAiServerForServer.headers,
-      Authorization: `Bearer ${newAccessToken}`,
-    };
-    console.log("토큰 갱신 성공, 재시도");
+      const newAccessToken = data.session.access_token;
+      novelAiServerForServer.headers = {
+        ...novelAiServerForServer.headers,
+        Authorization: `Bearer ${newAccessToken}`,
+      };
+      console.log("토큰 갱신 성공, 재시도");
 
-    return requestFunction();
+      return requestFunction();
+    } catch (refreshError) {
+      console.error("토큰 갱신 중 오류:", refreshError);
+      throw new Error("인증 토큰 갱신에 실패했습니다.");
+    }
   }
   return response;
 };
 
 novelAiServerForServer.use.request = async (options) => {
-  const supabase = await createClient();
-  const { data, error } = await supabase.auth.getSession();
-  console.log("novelAIServer.use.request", data, error);
-  if (error || !data.session) {
-    throw new Error("세션이 없습니다.");
+  try {
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error || !data.session) {
+      console.error("세션 조회 실패:", error);
+      throw new Error("세션이 없습니다.");
+    }
+    
+    const accessToken = data.session.access_token;
+    options.headers = {
+      ...options.headers,
+      Authorization: `Bearer ${accessToken}`,
+    };
+    
+    console.log("요청 헤더 설정 완료");
+    return options;
+  } catch (error) {
+    console.error("요청 설정 중 오류:", error);
+    throw error;
   }
-  const accessToken = data.session.access_token;
-  options.headers = {
-    ...options.headers,
-    Authorization: `Bearer ${accessToken}`,
-  };
-  return options;
 };
