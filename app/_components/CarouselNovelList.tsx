@@ -7,7 +7,10 @@ import { Tables } from "@/utils/supabase/types/database.types";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Image from "next/image";
 import React from "react";
-import { useNovelModalContext } from "@/contexts/NovelModalContext";
+import { useNovelModal } from "@/hooks/useNovelModal";
+import { useQuery } from "@tanstack/react-query";
+import { getNovelsByView, getRecommendedNovels } from "@/app/_api/novelList.server";
+import { Novel } from "@/types/novel";
 
 interface CarouselNovelListProps {
   novelList: Tables<"novels">[];
@@ -18,7 +21,7 @@ export function CarouselNovelList({
   novelList,
   rows = 1,
 }: CarouselNovelListProps) {
-  const { openModal } = useNovelModalContext();
+  const { openModal } = useNovelModal();
   const isMobile = useIsMobile();
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -34,7 +37,6 @@ export function CarouselNovelList({
         const currentVisibleCount = isMobileView ? 3 : 5;
         const currentGap = isMobileView ? 8 : 20;
 
-        // 전체 컨테이너 너비를 사용하여 아이템 너비 계산
         const contentWidth = containerRef.current.clientWidth;
 
         if (contentWidth > 0) {
@@ -181,5 +183,43 @@ export function CarouselNovelList({
         </div>
       </div>
     </div>
+  );
+}
+
+export function TopNovelListCarousel() {
+  const { data: novels, isPending } = useQuery<Novel[]>({
+    queryKey: ["top-novels"],
+    queryFn: getNovelsByView,
+  });
+
+  if (isPending) {
+    return <div className="flex justify-center items-center h-full">Loading...</div>;
+  }
+
+  if (!novels || novels.length === 0) {
+    return <div className="flex justify-center items-center h-full">No top novels available.</div>;
+  }
+
+  return (
+    <CarouselNovelList novelList={novels as unknown as Tables<"novels">[]} />
+  );
+}
+
+export function RecommendedNovelListCarousel() {
+  const { data: novels, isPending } = useQuery<Novel[]>({
+    queryKey: ["recommended-novels"],
+    queryFn: getRecommendedNovels,
+  });
+
+  if (isPending) {
+    return <div className="flex justify-center items-center h-full">Loading...</div>;
+  }
+
+  if (!novels || novels.length === 0) {
+    return <div className="flex justify-center items-center h-full">No recommended novels available.</div>;
+  }
+
+  return (
+    <CarouselNovelList novelList={novels as unknown as Tables<"novels">[]} />
   );
 }

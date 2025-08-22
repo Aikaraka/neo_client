@@ -5,17 +5,12 @@ import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { getNovelDetail } from "@/app/_api/novel.server";
 import { User2, BookOpen, Users } from "lucide-react";
-
-interface NovelDetailModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  novelId: string | null;
-}
+import { useNovelModal } from "@/hooks/useNovelModal"; // Zustand 스토어 import
 
 /* ---------- Zod 스키마 ---------- */
 const RelationshipSchema = z.object({
@@ -36,24 +31,58 @@ const CharacterArraySchema = z.array(CharacterSchema);
 type Character = z.infer<typeof CharacterSchema>;
 /* -------------------------------- */
 
-export function NovelDetailModal({
-  isOpen,
-  onClose,
-  novelId,
-}: NovelDetailModalProps) {
-  const { data: novel } = useQuery({
-    queryKey: ["novel-detail", novelId],
-    queryFn: () => getNovelDetail(novelId!),
-    enabled: !!novelId && isOpen,
+export function NovelDetailModal() {
+  const { isModalOpen, selectedNovelId, closeModal } = useNovelModal();
+
+  const { data: novel, isPending } = useQuery({
+    queryKey: ["novel-detail", selectedNovelId],
+    queryFn: () => getNovelDetail(selectedNovelId!),
+    enabled: !!selectedNovelId && isModalOpen,
   });
 
   useEffect(() => {
-    const onEsc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
-    if (isOpen) document.addEventListener("keydown", onEsc);
+    const onEsc = (e: KeyboardEvent) => e.key === "Escape" && closeModal();
+    if (isModalOpen) document.addEventListener("keydown", onEsc);
     return () => document.removeEventListener("keydown", onEsc);
-  }, [isOpen, onClose]);
+  }, [isModalOpen, closeModal]);
 
-  if (!isOpen || !novel) return null;
+  if (!isModalOpen || !selectedNovelId) return null;
+  
+  // 스켈레톤 UI (전략 3) - 맛보기 적용
+  if (isPending) {
+    return (
+       <Dialog open={isModalOpen} onOpenChange={closeModal}>
+        <DialogContent
+         style={{
+          position: "fixed",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          margin: 0,
+          zIndex: 50,
+        }}
+         className="relative max-w-3xl w-full max-h-[80vh] bg-background/80 backdrop-blur-xl text-foreground rounded-2xl p-0 flex flex-col overflow-hidden [&>button]:z-[9999]">
+           {/* 접근성 해결: Title과 Description 추가 */}
+           <DialogTitle>
+              <VisuallyHidden>세계관 상세 정보 로딩 중</VisuallyHidden>
+           </DialogTitle>
+           <DialogDescription>
+              <VisuallyHidden>선택한 세계관의 상세 정보를 불러오고 있습니다.</VisuallyHidden>
+           </DialogDescription>
+           <div className="w-full h-full p-8 animate-pulse">
+              <div className="w-56 h-80 mx-auto rounded-xl bg-muted mb-4"></div>
+              <div className="h-8 w-3/4 mx-auto rounded bg-muted mb-2"></div>
+              <div className="h-4 w-1/2 mx-auto rounded bg-muted mb-4"></div>
+              <div className="h-4 w-1/4 mx-auto rounded bg-muted mb-6"></div>
+              <div className="h-24 w-full rounded bg-muted mb-4"></div>
+              <div className="h-32 w-full rounded bg-muted"></div>
+           </div>
+        </DialogContent>
+       </Dialog>
+    )
+  }
+
+  if (!novel) return null;
 
   /* characters 파싱 */
   let characters: Character[] = [];
@@ -72,7 +101,7 @@ export function NovelDetailModal({
       : novel.users?.nickname ?? "익명의 작가";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isModalOpen} onOpenChange={closeModal}>
       <DialogContent
         style={{
           position: "fixed",
@@ -100,6 +129,10 @@ export function NovelDetailModal({
         <DialogTitle>
           <VisuallyHidden>세계관 상세 정보</VisuallyHidden>
         </DialogTitle>
+        {/* 접근성 해결: Description 추가 */}
+        <DialogDescription>
+          <VisuallyHidden>{novel.title} 세계관의 줄거리, 등장인물 등 상세 정보를 확인할 수 있습니다.</VisuallyHidden>
+        </DialogDescription>
 
         {/* 스크롤 영역 */}
         <div className="relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">

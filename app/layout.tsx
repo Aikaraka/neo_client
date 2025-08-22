@@ -8,10 +8,10 @@ import ResponsiveWrapper from "@/components/common/responsiveWrapper";
 import SuspenseBoundary from "@/components/common/suspenseBoundary";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicator";
-import { NovelModalProvider } from "@/contexts/NovelModalContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/toaster";
+import { NovelDetailModal } from "@/components/common/NovelDetailModal"; // 모달 import
 
 const NanumSquareNeo = localFont({
   src: [
@@ -61,17 +61,17 @@ export default function RootLayout({
               <ResponsiveWrapper>
                 <AuthProvider>
                   <QueryProvider>
-                    <NovelModalProvider>
-                      <OnboardingProvider>
-                        <SuspenseBoundary>{children}</SuspenseBoundary>
-                      </OnboardingProvider>
-                    </NovelModalProvider>
+                    <OnboardingProvider>
+                      <SuspenseBoundary>{children}</SuspenseBoundary>
+                    </OnboardingProvider>
+                    <NovelDetailModal /> {/* 올바른 위치로 이동 */}
                   </QueryProvider>
                 </AuthProvider>
               </ResponsiveWrapper>
             </main>
             {genre}
             <Toaster />
+            {/* <NovelDetailModal />  <- 기존 위치 삭제 */}
           </LoadingProvider>
         </div>
       </body>
