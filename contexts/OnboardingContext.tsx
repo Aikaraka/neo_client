@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback, useMemo } from "react";
 import { OnboardingContextType } from "@/components/onboarding/types";
 import { onboardingStorage } from "@/utils/onboarding/storage";
 import { onboardingSteps } from "@/utils/onboarding/steps";
@@ -14,63 +14,73 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   const totalSteps = onboardingSteps.length;
 
-  // 초기화: 완료 상태 확인 및 자동 오픈
   useEffect(() => {
     const completed = onboardingStorage.isCompleted();
     setIsCompleted(completed);
     
-    // 완료되지 않은 경우 즉시 오픈
     if (!completed) {
       setIsOpen(true);
     }
   }, []);
 
-  const openOnboarding = () => {
+  const openOnboarding = useCallback(() => {
     setIsOpen(true);
     setCurrentStep(0);
-  };
+  }, []);
 
-  const closeOnboarding = () => {
+  const closeOnboarding = useCallback(() => {
     setIsOpen(false);
-  };
+  }, []);
 
-  const goToNextStep = () => {
+  const goToNextStep = useCallback(() => {
     if (currentStep < totalSteps - 1) {
       setCurrentStep(prev => prev + 1);
     }
-  };
+  }, [currentStep, totalSteps]);
 
-  const goToPreviousStep = () => {
+  const goToPreviousStep = useCallback(() => {
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
     }
-  };
+  }, [currentStep]);
 
-  const completeOnboarding = () => {
+  const completeOnboarding = useCallback(() => {
     onboardingStorage.markAsCompleted();
     setIsCompleted(true);
     setIsOpen(false);
-  };
+  }, []);
 
-  const canGoNext = currentStep < totalSteps - 1;
-  const canGoPrevious = currentStep > 0;
+  const canGoNext = useMemo(() => currentStep < totalSteps - 1, [currentStep, totalSteps]);
+  const canGoPrevious = useMemo(() => currentStep > 0, [currentStep]);
+
+  const value = useMemo(() => ({
+    isOpen,
+    currentStep,
+    totalSteps,
+    isCompleted,
+    openOnboarding,
+    closeOnboarding,
+    goToNextStep,
+    goToPreviousStep,
+    completeOnboarding,
+    canGoNext,
+    canGoPrevious,
+  }), [
+    isOpen,
+    currentStep,
+    totalSteps,
+    isCompleted,
+    openOnboarding,
+    closeOnboarding,
+    goToNextStep,
+    goToPreviousStep,
+    completeOnboarding,
+    canGoNext,
+    canGoPrevious,
+  ]);
 
   return (
-    <OnboardingContext.Provider
-      value={{
-        isOpen,
-        currentStep,
-        totalSteps,
-        isCompleted,
-        openOnboarding,
-        closeOnboarding,
-        goToNextStep,
-        goToPreviousStep,
-        completeOnboarding,
-        canGoNext,
-        canGoPrevious,
-      }}
-    >
+    <OnboardingContext.Provider value={value}>
       {children}
     </OnboardingContext.Provider>
   );

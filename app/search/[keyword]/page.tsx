@@ -15,7 +15,6 @@ import { useState, useEffect, useRef } from "react";
 import { Filter, X, Sparkles, Search as SearchIcon } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNovelModal } from "@/hooks/useNovelModal";
-import { NovelDetailModal } from "@/components/common/NovelDetailModal";
 
 // 정의된 키워드 목록 (필터 옵션용)
 const FILTER_KEYWORDS = [
@@ -59,8 +58,6 @@ export default function SearchResultPage() {
     queryFn: () => getSearchResult(keyword),
     queryKey: ["search", keyword],
   });
-
-  const { isModalOpen, selectedNovelId, closeModal } = useNovelModal();
 
   // 검색 모달 외부 클릭 감지 (데스크톱에서만)
   useEffect(() => {
@@ -497,11 +494,6 @@ export default function SearchResultPage() {
           }
         `}</style>
       </div>
-      <NovelDetailModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        novelId={selectedNovelId}
-      />
     </Toaster>
   );
 }

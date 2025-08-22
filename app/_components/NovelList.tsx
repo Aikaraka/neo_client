@@ -22,7 +22,7 @@ interface ViewNovelDTO {
 export function NovelList({ novelList }: { novelList: Tables<"novels">[] }) {
   if (!novelList || !novelList.length) return <NovelListEmpty />;
 
-  return <NovelGrid novelList={novelList} />;
+  return <NovelGrid novels={novelList} />;
 }
 
 export function NovelListEmpty() {

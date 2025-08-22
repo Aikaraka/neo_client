@@ -1,27 +1,15 @@
-import { useState } from 'react';
+import { create } from 'zustand';
 
-export const useNovelModal = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedNovelId, setSelectedNovelId] = useState<string | null>(null);
+interface NovelModalState {
+  isModalOpen: boolean;
+  selectedNovelId: string | null;
+  openModal: (novelId: string) => void;
+  closeModal: () => void;
+}
 
-  const openModal = (novelId: string) => {
-    console.log('🔵 openModal called with novelId:', novelId);
-    setSelectedNovelId(novelId);
-    setIsModalOpen(true);
-    console.log('🔵 Modal state after opening:', { isModalOpen: true, selectedNovelId: novelId });
-  };
-
-  const closeModal = () => {
-    console.log('🔴 closeModal called');
-    setIsModalOpen(false);
-    setSelectedNovelId(null);
-    console.log('🔴 Modal state after closing:', { isModalOpen: false, selectedNovelId: null });
-  };
-
-  return {
-    isModalOpen,
-    selectedNovelId,
-    openModal,
-    closeModal,
-  };
-}; 
+export const useNovelModal = create<NovelModalState>((set) => ({
+  isModalOpen: false,
+  selectedNovelId: null,
+  openModal: (novelId) => set({ isModalOpen: true, selectedNovelId: novelId }),
+  closeModal: () => set({ isModalOpen: false, selectedNovelId: null }),
+})); 

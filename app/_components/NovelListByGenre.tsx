@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Book, BookShelf } from "@/components/ui/book";
 import React from "react";
 import { useNovelModal } from "@/hooks/useNovelModal";
+import { ScrollArea, ScrollBar } from "@/components/layout/scroll-area";
 
 const genre: Category[] = ["로맨스", "이세계", "회귀", "헌터", "무협"];
 const genreToUrl: Record<string, string> = {
@@ -38,36 +39,41 @@ export function NovelListByGenreSelector({
 
   return (
     <div>
-      <div className="flex gap-2 mb-5 flex-wrap">
-        <Button
-          key="신작"
-          type="button"
-          variant={filter === "신작" ? "default" : "outline"}
-          className={`rounded-full ${
-            filter !== "신작" 
-              ? "bg-white text-gray-800 border-gray-300 hover:bg-gray-50" 
-              : ""
-          }`}
-          onClick={() => setFilter("신작")}
-        >
-          신작
-        </Button>
-        {genre.map((g) => (
-          <Link key={`genre-${g}`} href={`/genre/${genreToUrl[g]}`}>
-            <Button
-              type="button"
-              variant={filter === g ? "default" : "outline"}
-              className={`rounded-full ${
-                filter !== g 
-                  ? "bg-white text-gray-800 border-gray-300 hover:bg-gray-50" 
-                  : ""
-              }`}
-            >
-              {g}
-            </Button>
-          </Link>
-        ))}
-      </div>
+      <ScrollArea className="w-full whitespace-nowrap">
+        <div className="flex gap-2 mb-5">
+          <Button
+            key="신작"
+            type="button"
+            size="sm"
+            variant={filter === "신작" ? "default" : "outline"}
+            className={`rounded-full ${
+              filter !== "신작" 
+                ? "bg-white text-gray-800 border-gray-300 hover:bg-gray-50" 
+                : ""
+            }`}
+            onClick={() => setFilter("신작")}
+          >
+            신작
+          </Button>
+          {genre.map((g) => (
+            <Link key={`genre-${g}`} href={`/genre/${genreToUrl[g]}`}>
+              <Button
+                type="button"
+                size="sm"
+                variant={filter === g ? "default" : "outline"}
+                className={`rounded-full ${
+                  filter !== g 
+                    ? "bg-white text-gray-800 border-gray-300 hover:bg-gray-50" 
+                    : ""
+                }`}
+              >
+                {g}
+              </Button>
+            </Link>
+          ))}
+        </div>
+        <ScrollBar orientation="horizontal" className="hidden" />
+      </ScrollArea>
       
       {/* 두 줄 레이아웃 */}
       <div className="relative">
@@ -113,8 +119,8 @@ export function NovelListByGenreSelector({
                   <Book 
                     className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
                     style={{
-                      width: "clamp(150px, 18vw, 180px)",
-                      height: "clamp(200px, calc(18vw * 1.33), 240px)"
+                      width: "clamp(100px, 30vw, 150px)",
+                      height: "clamp(133px, calc(30vw * 1.33), 200px)"
                     }}
                   >
                     <Image
@@ -165,8 +171,8 @@ export function NovelListByGenreSelector({
                     <Book 
                       className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
                       style={{
-                        width: "clamp(150px, 18vw, 180px)",
-                        height: "clamp(200px, calc(18vw * 1.33), 240px)"
+                        width: "clamp(100px, 30vw, 150px)",
+                        height: "clamp(133px, calc(30vw * 1.33), 200px)"
                       }}
                     >
                       <Image
