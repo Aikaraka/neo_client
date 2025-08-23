@@ -44,12 +44,22 @@ export default function AiAssistButton({
             characterIndex !== undefined &&
             currentCharacters[characterIndex] &&
             relationshipIndex !== undefined &&
-            currentCharacters[characterIndex].relationships[relationshipIndex]
+            relationshipIndex < currentCharacters.length
           ) {
-            currentCharacters[characterIndex].relationships[
-              relationshipIndex
-            ].relationship = content as string;
-            setValue("characters", currentCharacters);
+            // relationshipIndex는 대상 캐릭터의 인덱스
+            const targetCharacterName = currentCharacters[relationshipIndex].name;
+            
+            // 현재 캐릭터의 relationships 배열에서 대상 캐릭터와의 관계를 찾음
+            const relationshipIndexInArray = currentCharacters[characterIndex].relationships.findIndex(
+              rel => rel.targetName === targetCharacterName
+            );
+            
+            if (relationshipIndexInArray !== -1) {
+              currentCharacters[characterIndex].relationships[
+                relationshipIndexInArray
+              ].relationship = content as string;
+              setValue("characters", currentCharacters);
+            }
           }
           return;
       }
