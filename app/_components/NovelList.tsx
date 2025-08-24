@@ -4,12 +4,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   getNovelsByView,
   getRecommendedNovels,
+  getNovelsForGenreList,
 } from "@/app/_api/novelList.server";
 import { Rabbit, Unplug } from "lucide-react";
 import { Tables } from "@/utils/supabase/types/database.types";
 import { NovelListByGenreSelector } from "@/app/_components/NovelListByGenre";
 import { CarouselNovelListByGenreSelector } from "@/app/_components/CarouselNovelListByGenre";
-import { createClient } from "@/utils/supabase/server";
 import { NovelGrid } from "./NovelGrid";
 
 // RPC 또는 뷰에서 내려오는 상위 소설 항목의 최소 타입 정의
@@ -140,19 +140,9 @@ export async function TopNovelListCarousel() {
 
 export async function NovelListByGenre() {
   try {
-    // NovelListByGenreCarousel과 동일한 로직 사용
-    const supabase = await createClient();
-    const { data: recentNovels, error } = await supabase
-      .from("novels")
-      .select("*")
-      .order("created_at", { ascending: false }) // 최신순으로 정렬
-      .limit(100); // 장르 필터링을 위해 넉넉하게 100개 로드
-
-    if (error) {
-      throw error;
-    }
-
-    return <NovelListByGenreSelector novelList={recentNovels || []} />;
+    // "사서"에게 장르 목록에 필요한 소설을 요청합니다.
+    const novelList = await getNovelsForGenreList();
+    return <NovelListByGenreSelector novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
   }
@@ -160,23 +150,10 @@ export async function NovelListByGenre() {
 
 export async function NovelListByGenreCarousel() {
   try {
-    // 1. DB에 한 번만 요청하여 최신 소설 100개를 가져옵니다.
-    //    (20개 이상으로 넉넉하게 가져와서 장르별 필터링에 대비합니다)
-    const supabase = await createClient();
-    const { data: recentNovels, error } = await supabase
-      .from("novels")
-      .select("*")
-      .order("created_at", { ascending: false }) // 최신순으로 정렬
-      .limit(100); // 장르 필터링을 위해 넉넉하게 100개 로드
-
-    if (error) {
-      throw error; // 에러가 발생하면 catch 블록으로 보냅니다.
-    }
-
-    // 2. 이 데이터를 CarouselNovelListByGenreSelector에 전달합니다.
-    //    이전 답변에서 제안한 activeFilter prop도 추가하면 좋습니다.
-    return <CarouselNovelListByGenreSelector novelList={recentNovels || []} />;
-  } catch(err) {
+    // "사서"에게 장르 목록에 필요한 소설을 요청합니다.
+    const novelList = await getNovelsForGenreList();
+    return <CarouselNovelListByGenreSelector novelList={novelList} />;
+  } catch (err) {
     console.error("Error fetching novels for genre carousel:", err);
     return <NovelListErrorFallback />;
   }

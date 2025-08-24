@@ -2,7 +2,6 @@
 
 import Search from "@/app/_components/Search";
 import TokenBadge from "@/components/common/tokenBadge";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { HelpCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -17,143 +16,23 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { NotificationBell } from "@/components/ui/notification";
 import { useState, useEffect } from "react";
-import { getUserSafeFilterStatus, toggleSafeFilter } from "@/app/_api/safeFilter.server";
+import {
+  getUserSafeFilterStatus,
+  toggleSafeFilter,
+} from "@/app/_api/safeFilter.server";
 import { useToast } from "@/hooks/use-toast";
 
 export default function MainHeader() {
-  const isMobile = useIsMobile();
-
-  if (isMobile) return <MainHeaderMobile />;
-  else return <MainHeaderDesktop />;
-}
-
-function MainHeaderMobile() {
   const user = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [safeFilterEnabled, setSafeFilterEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
-  // 초기 상태 로드
   useEffect(() => {
     const loadSafeFilterStatus = async () => {
-      if (user) {
-        const status = await getUserSafeFilterStatus();
-        setSafeFilterEnabled(status.safeFilterEnabled);
-      } else {
-        // 비로그인 유저는 항상 보호필터 ON
-        setSafeFilterEnabled(true);
-      }
-    };
-
-    loadSafeFilterStatus();
-  }, [user]);
-
-  const handleSafeFilterToggle = async (checked: boolean) => {
-    console.log("보호필터 토글 시도:", { checked, user: !!user });
-    
-    if (!user) {
-      // 비로그인 유저는 보호필터 해제 불가
-      if (!checked) {
-        toast({
-          title: "로그인 필요",
-          description: "보호필터를 해제하려면 로그인이 필요합니다.",
-        });
-        return;
-      }
-      return;
-    }
-
-    // 보호필터를 끄려고 하는 경우 (checked가 false)
-    if (!checked) {
-      console.log("보호필터 끄기 시도");
-      setIsLoading(true);
-      const currentStatus = await getUserSafeFilterStatus();
-      setIsLoading(false);
-      
-      console.log("현재 상태:", currentStatus);
-      console.log("ageVerificationCompleted 값:", currentStatus.ageVerificationCompleted);
-
-      // 본인인증이 완료되지 않았으면
-      if (!currentStatus.ageVerificationCompleted) {
-        console.log("본인인증 필요 - 리다이렉트");
-        // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
-        setSafeFilterEnabled(true);
-
-        toast({
-          title: "본인인증 필요",
-          description: "보호필터를 해제하려면 본인인증이 필요합니다.",
-        });
-
-        // 본인인증 페이지로 이동
-        router.push("/verify-age");
-        return;
-      }
-    }
-
-    // 성인 인증이 되어 있거나, 보호필터를 켜는 경우
-    console.log("서버에 토글 요청");
-    setIsLoading(true);
-    const result = await toggleSafeFilter();
-    setIsLoading(false);
-
-    console.log("서버 응답:", result);
-
-    // 상태 업데이트 성공
-    setSafeFilterEnabled(result.safeFilterEnabled);
-    toast({
-      title: result.safeFilterEnabled ? "보호필터 켜짐" : "보호필터 꺼짐",
-      description: result.safeFilterEnabled
-        ? "선정적인 콘텐츠가 차단됩니다."
-        : "모든 콘텐츠를 볼 수 있습니다.",
-    });
-    router.refresh();
-  };
-
-  return (
-    <header className="sticky top-0 z-50 w-full bg-background pb-4">
-      <div className="w-full max-w-[1160px] mx-auto flex h-14 items-center justify-end px-4 gap-3">
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <div className="flex items-center gap-1">
-            <Switch 
-              id="safe-filter-mobile" 
-              checked={safeFilterEnabled}
-              onCheckedChange={handleSafeFilterToggle}
-              disabled={isLoading}
-              className="scale-90"
-            />
-            <Label htmlFor="safe-filter-mobile" className="text-xs text-gray-600">
-              보호필터
-            </Label>
-          </div>
-          <TokenBadge />
-          {user && <NotificationBell />}
-        </div>
-      </div>
-      <div className="px-4 pt-2">
-        <Search />
-      </div>
-    </header>
-  );
-}
-
-function MainHeaderDesktop() {
-  const user = useUser();
-  const router = useRouter();
-  const { toast } = useToast();
-  const [safeFilterEnabled, setSafeFilterEnabled] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-
-  // 초기 상태 로드
-  useEffect(() => {
-    const loadSafeFilterStatus = async () => {
-      if (user) {
-        const status = await getUserSafeFilterStatus();
-        setSafeFilterEnabled(status.safeFilterEnabled);
-      } else {
-        // 비로그인 유저는 항상 보호필터 ON
-        setSafeFilterEnabled(true);
-      }
+      const status = await getUserSafeFilterStatus();
+      setSafeFilterEnabled(status.safeFilterEnabled);
     };
 
     loadSafeFilterStatus();
@@ -168,131 +47,117 @@ function MainHeaderDesktop() {
 
   const handleSafeFilterToggle = async (checked: boolean) => {
     if (!user) {
-      // 비로그인 유저는 보호필터 해제 불가
       if (!checked) {
         toast({
           title: "로그인 필요",
           description: "보호필터를 해제하려면 로그인이 필요합니다.",
         });
-        return;
+        // 토글을 원래 상태로 되돌립니다.
+        setSafeFilterEnabled(true);
       }
       return;
     }
 
-    // 보호필터를 끄려고 하는 경우 (checked가 false)
+    // 보호필터를 끄려고 할 때 (checked가 false일 때) 본인인증 여부 확인
     if (!checked) {
       setIsLoading(true);
       const currentStatus = await getUserSafeFilterStatus();
       setIsLoading(false);
 
-      console.log("데스크톱 - 현재 상태:", currentStatus);
-      console.log("데스크톱 - ageVerificationCompleted 값:", currentStatus.ageVerificationCompleted);
-
-      // 본인인증이 완료되지 않았으면
       if (!currentStatus.ageVerificationCompleted) {
-        console.log("데스크톱 - 본인인증 필요 - 리다이렉트");
-        // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
-        setSafeFilterEnabled(true);
-
         toast({
           title: "본인인증 필요",
           description: "보호필터를 해제하려면 본인인증이 필요합니다.",
         });
-
-        // 본인인증 페이지로 이동
         router.push("/verify-age");
+        // 토글을 원래 상태(ON)로 유지
+        setSafeFilterEnabled(true); 
         return;
       }
     }
 
-    // 성인 인증이 되어 있거나, 보호필터를 켜는 경우
+    // 서버에 토글 요청
     setIsLoading(true);
     const result = await toggleSafeFilter();
     setIsLoading(false);
 
-    // 디버깅: 서버 응답 확인
-    console.log("toggleSafeFilter 응답:", result);
-    console.log("requiresVerification:", result.requiresVerification);
-    console.log("success:", result.success);
-    console.log("safeFilterEnabled:", result.safeFilterEnabled);
-
-    // 서버에서 본인인증이 필요하다고 응답한 경우
-    if (result.requiresVerification) {
-      console.log("본인인증 필요 - 리다이렉트");
-      // UI 상태를 원래대로 되돌림 (보호필터 ON 유지)
-      setSafeFilterEnabled(true);
-
+    if (result.success) {
+      setSafeFilterEnabled(result.safeFilterEnabled);
       toast({
-        title: "본인인증 필요",
-        description: "보호필터를 해제하려면 본인인증이 필요합니다.",
+        title: result.safeFilterEnabled ? "보호필터 켜짐" : "보호필터 꺼짐",
+        description: result.safeFilterEnabled
+          ? "선정적인 콘텐츠가 차단됩니다."
+          : "모든 콘텐츠를 볼 수 있습니다.",
       });
-
-      // 본인인증 페이지로 이동
-      router.push("/verify-age");
-      return;
+      router.refresh();
+    } else if (result.requiresVerification) {
+        toast({
+          title: "본인인증 필요",
+          description: "보호필터를 해제하려면 본인인증이 필요합니다.",
+        });
+        router.push("/verify-age");
+        setSafeFilterEnabled(true);
     }
-
-    // 상태 업데이트 성공
-    setSafeFilterEnabled(result.safeFilterEnabled);
-    toast({
-      title: result.safeFilterEnabled ? "보호필터 켜짐" : "보호필터 꺼짐",
-      description: result.safeFilterEnabled 
-        ? "선정적인 콘텐츠가 차단됩니다." 
-        : "모든 콘텐츠를 볼 수 있습니다.",
-    });
-    router.refresh();
   };
 
   return (
-    <header className="w-full bg-background p-4">
-      <div className="w-full max-w-[1160px] mx-auto px-4 flex items-start justify-end">
-
-        {/* Right Section: Controls and Search */}
-        <div className="flex flex-col items-end space-y-2">
-          {/* Top Row: User Controls */}
-          <div className="flex items-center  space-x-4">
-            <div className="flex items-center space-x-1.5">
-              <Switch 
-                id="safe-filter" 
-                checked={safeFilterEnabled}
-                onCheckedChange={handleSafeFilterToggle}
-                disabled={isLoading}
-              />
-              <Label htmlFor="safe-filter" className="text-xs text-gray-600">
-                보호필터
-              </Label>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button>
-                      <HelpCircle className="w-3.5 h-3.5 text-gray-500" />
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>
-                      보호 필터를 키면 선정적인 컨텐츠를 차단할 수 있어요.
-                    </p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+    <header className="sticky top-0 z-50 w-full bg-background pb-4 md:p-4">
+      <div className="w-full max-w-[1160px] mx-auto flex flex-col md:flex-row md:items-start md:justify-end">
+        {/* --- 우측 컨트롤 영역 (모바일/데스크톱 공통) --- */}
+        {/* 모바일에서는 flex-row, 데스크톱에서는 flex-col items-end */}
+        <div className="flex flex-col items-end">
+            {/* 상단 행: 사용자 컨트롤 */}
+            <div className="flex items-center justify-end w-full h-14 px-4 md:px-0 gap-3 md:space-x-4">
+                <div className="flex items-center gap-1 md:space-x-1.5">
+                    <Switch
+                        id="safe-filter"
+                        checked={safeFilterEnabled}
+                        onCheckedChange={handleSafeFilterToggle}
+                        disabled={isLoading}
+                        className="scale-90 md:scale-100"
+                    />
+                    <Label htmlFor="safe-filter" className="text-xs text-gray-600">
+                        보호필터
+                    </Label>
+                    {/* 데스크톱 전용 툴팁 */}
+                    <div className="hidden md:block">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <button>
+                                        <HelpCircle className="w-3.5 h-3.5 text-gray-500" />
+                                    </button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>보호 필터를 키면 선정적인 컨텐츠를 차단할 수 있어요.</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    </div>
+                </div>
+                <TokenBadge />
+                {user && (
+                    <>
+                        <NotificationBell />
+                        {/* 데스크톱 전용 로그아웃 버튼 */}
+                        <button
+                            onClick={handleLogout}
+                            className="hidden md:block text-xs font-medium text-gray-500 hover:text-gray-800"
+                        >
+                            로그아웃
+                        </button>
+                    </>
+                )}
             </div>
-            <TokenBadge />
-            {user && (
-              <>
-                <NotificationBell />
-                <button
-                  onClick={handleLogout}
-                  className="text-xs font-medium text-gray-500 hover:text-gray-800"
-                >
-                  로그아웃
-                </button>
-              </>
-            )}
-          </div>
-          {/* Bottom Row: Search Bar */}
-          <div className="w-[480px]">
-            <Search />
-          </div>
+             {/* 하단 행: 검색 바 (데스크톱 only in this position) */}
+            <div className="hidden md:block w-[480px]">
+                <Search />
+            </div>
+        </div>
+        
+        {/* --- 검색창 (모바일 전용 위치) --- */}
+        <div className="px-4 pt-2 md:hidden">
+          <Search />
         </div>
       </div>
     </header>

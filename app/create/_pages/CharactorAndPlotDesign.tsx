@@ -32,7 +32,6 @@ export default function CharactorAndPlotDesign() {
   } = useFormContext<CreateNovelForm>();
 
   const [isCapturing, setIsCapturing] = useState(false);
-  const [debugCapturedImage, setDebugCapturedImage] = useState<string | null>(null); // For displaying the captured image
 
   const plot = watch("plot");
   const title = watch("title");
@@ -210,8 +209,6 @@ export default function CharactorAndPlotDesign() {
   const handleNext = async () => {
     if (isCapturing) return;
 
-    setDebugCapturedImage(null); 
-
     if (!imageSrc) {
       toast({
         title: TOAST_IMAGE_REQUIRED_TITLE,
@@ -237,7 +234,6 @@ export default function CharactorAndPlotDesign() {
       }
       
       setCapturedImageDataUrl(imageDataUrl);
-      setDebugCapturedImage(imageDataUrl); // 디버깅 시 캡처된 이미지 표시
 
       const result = await Promise.all([
         trigger("title"),
@@ -312,6 +308,9 @@ export default function CharactorAndPlotDesign() {
       </section>
       <section className="mb-8 relative">
         <h2 className="text-xl font-semibold mb-4">캐릭터 관계</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          이 관계 설정은 독자에게 보이지 않으며, 작가님만 알 수 있는 숨은 설정입니다.
+        </p>
         <RelationshipForm />
       </section>
       <button
@@ -322,17 +321,6 @@ export default function CharactorAndPlotDesign() {
       >
         {isCoverBgImageLoaded ? "다음 단계로" : "표지 이미지 로딩 중..."}
       </button>
-
-      {/* Debug Image Display Section */}
-      {debugCapturedImage && (
-        <div className="mt-4 p-4 border border-dashed border-red-500">
-          <h3 className="text-lg font-semibold text-red-500">디버그: 캡처된 이미지 미리보기</h3>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={debugCapturedImage} alt="Debug - Captured Cover Snapshot" style={{ border: '2px solid red', width: '210px', height: '270px', objectFit: 'contain' }} />
-          <p className="text-sm text-gray-600 mt-2">이 이미지가 실제 캡처된 결과입니다. 배경 이미지가 누락되었는지 확인해주세요.</p>
-        </div>
-      )}
-
     </div>
   );
 }

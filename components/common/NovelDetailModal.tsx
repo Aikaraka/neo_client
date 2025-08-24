@@ -226,6 +226,10 @@ export function NovelDetailModal() {
           <Button
             size="lg"
             className="gradient-btn absolute bottom-4 left-1/2 -translate-x-1/2 w-[12rem] rounded-full text-primary-foreground font-bold py-3 text-base z-50 flex items-center justify-between px-2"
+            onClick={() => {
+              // 페이지 전환 시 모달 닫기
+              setTimeout(() => closeModal(), 100);
+            }}
           >
             <span>세계관 진입하기</span>
             <Image src="/arrow_right.png" alt="arrow-right" width={20} height={20} />

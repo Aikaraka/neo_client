@@ -212,7 +212,7 @@ export function RelationshipForm() {
                 <div className="flex items-center gap-3">
                   <AiAssistButton
                     targetField="relationships"
-                    relationshipIndex={relIndex}
+                    relationshipIndex={char2Index}
                     characterIndex={char1Index}
                   />
                   <button

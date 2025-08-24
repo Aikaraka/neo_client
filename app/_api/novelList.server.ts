@@ -79,11 +79,20 @@ export async function getNovels() {
         .in("id", novelIds);
       
       if (novels) {
-        const adultNovelIds = novels
-          .filter((n) => (n.settings as NovelSettings)?.hasAdultContent === true)
-          .map((n) => n.id);
-        
-        return (dailyRankings as RankingRow[]).filter((r) => !adultNovelIds.includes(r.novel_id));
+        const excludedNovelIds = novels
+          .filter(n => {
+            const settings = n.settings as NovelSettings
+            // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠 필터링
+            return (
+              (safeFilterEnabled && settings?.hasAdultContent === true) ||
+              settings?.isPublic !== true
+            )
+          })
+          .map(n => n.id)
+
+        return (dailyRankings as RankingRow[]).filter(
+          r => !excludedNovelIds.includes(r.novel_id)
+        )
       }
     }
     return dailyRankings;
@@ -108,11 +117,20 @@ export async function getNovels() {
       .in("id", novelIds);
     
     if (novels) {
-      const adultNovelIds = novels
-        .filter((n) => (n.settings as NovelSettings)?.hasAdultContent === true)
-        .map((n) => n.id);
-      
-      return (allTimeRankings as RankingRow[]).filter((r) => !adultNovelIds.includes(r.novel_id));
+      const excludedNovelIds = novels
+        .filter(n => {
+          const settings = n.settings as NovelSettings
+          // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠 필터링
+          return (
+            (safeFilterEnabled && settings?.hasAdultContent === true) ||
+            settings?.isPublic !== true
+          )
+        })
+        .map(n => n.id)
+
+      return (allTimeRankings as RankingRow[]).filter(
+        r => !excludedNovelIds.includes(r.novel_id)
+      )
     }
   }
 
@@ -141,6 +159,34 @@ export async function getRecentNovels() {
   if (error)
     throw new Error("최신 세계관 정보를 가져오던 중 오류가 발생했습니다.");
   return data;
+}
+
+export async function getNovelsForGenreList() {
+  const supabase = await createClient();
+  const safeFilterEnabled = await getSafeFilterEnabled();
+
+  let query = supabase
+    .from("novels")
+    .select("*")
+    .filter("settings->isPublic", "eq", true)
+    .order("created_at", { ascending: false })
+    .limit(100);
+
+  // 보호필터가 켜져 있으면 성인 콘텐츠 제외
+  if (safeFilterEnabled) {
+    query = query.or(
+      "settings->hasAdultContent.is.null,settings->hasAdultContent.eq.false"
+    );
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching novels for genre list:", error);
+    throw new Error("장르별 세계관 목록을 가져오던 중 오류가 발생했습니다.");
+  }
+
+  return data || [];
 }
 
 export async function getNovelsByCategory(category: Category) {
@@ -191,11 +237,20 @@ export async function getNovelsByView() {
         .in("id", novelIds);
       
       if (novels) {
-        const adultNovelIds = novels
-          .filter((n) => (n.settings as NovelSettings)?.hasAdultContent === true)
-          .map((n) => n.id);
-        
-        return (dailyRankings as RankingRow[]).filter((r) => !adultNovelIds.includes(r.novel_id));
+        const excludedNovelIds = novels
+          .filter(n => {
+            const settings = n.settings as NovelSettings
+            // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠 필터링
+            return (
+              (safeFilterEnabled && settings?.hasAdultContent === true) ||
+              settings?.isPublic !== true
+            )
+          })
+          .map(n => n.id)
+
+        return (dailyRankings as RankingRow[]).filter(
+          r => !excludedNovelIds.includes(r.novel_id)
+        )
       }
     }
     return dailyRankings;
@@ -217,11 +272,20 @@ export async function getNovelsByView() {
       .in("id", novelIds);
     
     if (novels) {
-      const adultNovelIds = novels
-        .filter((n) => (n.settings as NovelSettings)?.hasAdultContent === true)
-        .map((n) => n.id);
-      
-        return (allTimeRankings as RankingRow[]).filter((r) => !adultNovelIds.includes(r.novel_id));
+      const excludedNovelIds = novels
+        .filter(n => {
+          const settings = n.settings as NovelSettings
+          // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠 필터링
+          return (
+            (safeFilterEnabled && settings?.hasAdultContent === true) ||
+            settings?.isPublic !== true
+          )
+        })
+        .map(n => n.id)
+
+      return (allTimeRankings as RankingRow[]).filter(
+        r => !excludedNovelIds.includes(r.novel_id)
+      )
     }
   }
   
