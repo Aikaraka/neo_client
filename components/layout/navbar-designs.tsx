@@ -421,15 +421,16 @@ function FloatingMaterialNavItem({
   const NavIcon = isActive ? activeIcon : icon;
 
   return disabled ? (
-    <div className="flex flex-col items-center justify-center relative p-2 cursor-not-allowed opacity-50">
-      <NavIcon className="h-6 w-6" />
-      <span className="text-[10px] mt-1">{label}</span>
+    <div className="w-16 flex flex-col items-center justify-center relative p-2 cursor-not-allowed opacity-50">
+      <NavIcon className="h-5 w-5" />
+      <span className="text-[10px] mt-0.5">{label}</span>
     </div>
   ) : (
     <Link
       href={path}
       className={cn(
-        "group relative flex flex-col items-center justify-center px-3 py-2.5 rounded-2xl transition-all duration-300 overflow-hidden",
+        // 고정 너비를 부여하고, 내부 정렬을 위해 px 제거
+        "w-16 group relative flex flex-col items-center justify-center py-2 rounded-2xl transition-all duration-300 overflow-hidden",
         // 모바일에서는 active만 사용 (터치 시)
         "active:bg-purple-100/70 active:scale-95",
         isActive && "bg-purple-50/90 shadow-md"
@@ -438,7 +439,8 @@ function FloatingMaterialNavItem({
       {/* 머티리얼 스타일 상단 인디케이터 */}
       {isActive && (
         <motion.div
-          className="absolute top-1 left-1/2 transform -translate-x-1/2 w-7 h-1 bg-purple-400 rounded-full"
+          // 인디케이터 크기와 위치 미세 조정
+          className="absolute top-1 left-1/2 transform -translate-x-1/2 w-6 h-[3px] bg-purple-400 rounded-full"
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}
           transition={{ 
@@ -451,14 +453,17 @@ function FloatingMaterialNavItem({
       )}
       
       <NavIcon className={cn(
-        "h-6 w-6 transition-all duration-300 relative z-10",
+        // 아이콘 크기 h-6 w-6 -> h-5 w-5 로 조정
+        "h-5 w-5 transition-all duration-300 relative z-10",
         isActive 
-          ? "text-purple-500 scale-110" 
+          // 활성화 시 scale 효과 제거
+          ? "text-purple-500" 
           : "text-gray-500"
       )} />
       
       <span className={cn(
-        "text-[10px] mt-1 font-medium transition-all duration-300 relative z-10",
+        // 텍스트와 아이콘 간격 mt-1 -> mt-0.5 로 조정
+        "text-[10px] mt-0.5 font-medium transition-all duration-300 relative z-10",
         isActive 
           ? "text-purple-500 font-semibold" 
           : "text-gray-500"
@@ -476,17 +481,19 @@ export const NavBarFloatingMaterial = forwardRef<HTMLDivElement>((props, ref) =>
 
   return (
     <div className={cn(
-      "fixed bottom-0 left-0 right-0 z-30 transition-all duration-300 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]",
+      // 전체 컨테이너 패딩 p-3 -> p-2 로 조정
+      "fixed bottom-0 left-0 right-0 z-30 transition-all duration-300 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]",
       !isVisible && "translate-y-full",
       // Safari elastic 효과를 위한 will-change
       "will-change-transform"
     )}>
       <nav className={cn(
-        "bg-white/95 backdrop-blur-xl rounded-3xl shadow-[0_8px_32px_rgba(0,0,0,0.15)] max-w-sm mx-auto border border-gray-200/50",
+        // 최대 너비를 max-w-sm -> max-w-xs 로 줄임
+        "bg-white/95 backdrop-blur-xl rounded-3xl shadow-[0_8px_24px_rgba(0,0,0,0.1)] max-w-xs mx-auto border border-gray-200/50",
         // Safari에서 더 부드러운 렌더링
         "transform-gpu"
       )}>
-        <div className="flex justify-around items-center px-3" ref={ref}>
+        <div className="flex justify-evenly items-center" ref={ref}>
           {Object.entries(navItems).map(
             ([path, { label, icon, activeIcon, disabled }]) => (
               <FloatingMaterialNavItem

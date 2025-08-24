@@ -145,14 +145,6 @@ export function OnboardingModal() {
             />
           </div>
         </GlassBrowserFrame>
-
-        {/* 모바일 스와이프 힌트 */}
-        <div className="
-          md:hidden mt-4 text-center
-          text-gray-500 text-xs
-        ">
-          ← 스와이프하여 이동 →
-        </div>
       </div>
 
 

@@ -1,9 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname } from "next/navigation";
-import { NavBarDesktop, NavBarMobile } from "../layout/navbar";
+import { NavBarDesktop } from "../layout/navbar";
 // 다양한 디자인 옵션들 import
 import { 
   NavBarFloating, 
@@ -31,7 +30,7 @@ const getNavBarComponent = (design: string) => {
     case "floating-material":
       return NavBarFloatingMaterial;
     default:
-      return NavBarMobile;
+      return NavBarFloatingMaterial; 
   }
 };
 
@@ -40,38 +39,34 @@ export default function ResponsiveWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  const isMobile = useIsMobile();
   const pathname = usePathname();
   const isChatPage = pathname.includes("/chat");
-
-  // 선택된 네비게이션 바 컴포넌트
   const SelectedNavBar = getNavBarComponent(NAVBAR_DESIGN);
 
   return (
-    <div className="relative min-h-screen">
-      {/* --- Sidebar --- */}
-      <div
-        className={cn(
-          "fixed top-0 left-0 h-full z-50 transition-transform duration-300 ease-in-out",
-          isMobile ? "-translate-x-full" : "translate-x-0"
-        )}
-      >
+    <div className="min-h-screen md:relative">
+      {/* --- Sidebar (Desktop Only) --- */}
+      <div className="hidden md:block fixed top-0 left-0 h-full z-50">
         <NavBarDesktop />
       </div>
 
       {/* --- Main Content --- */}
       <main
         className={cn(
-          "transition-all duration-300 ease-in-out w-full",
-          isMobile ? "pl-0" : "pl-[80px]",
-          isMobile && !isChatPage ? "pb-mobile-nav" : "pb-0"
+          "w-full",
+          "md:pl-[80px]", 
+          !isChatPage && "pb-mobile-nav" 
         )}
       >
         {children}
       </main>
 
       {/* --- Mobile Bottom Navigation --- */}
-      {isMobile && !isChatPage && <SelectedNavBar />}
+      {!isChatPage && (
+        <div className="md:hidden">
+          <SelectedNavBar />
+        </div>
+      )}
     </div>
   );
 }
