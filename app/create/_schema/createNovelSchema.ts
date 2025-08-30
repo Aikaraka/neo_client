@@ -14,6 +14,8 @@ export const CharacterSchema = z.object({
   role: z.enum(["protagonist", "supporting"]),
   isConfirmed: z.boolean(),
   isEditing: z.boolean(),
+  asset_url: z.string().url().optional(),
+  image_file: z.instanceof(File).optional(), // 임시 이미지 파일
 });
 
 export const createNovelSchema = z.object({

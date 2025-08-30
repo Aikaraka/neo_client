@@ -3,6 +3,7 @@
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { splitChatParagraphs } from "@/utils/splitChatParagraphs";
+import Image from "next/image";
 
 interface StoryContentProps {
   fontSize: number;
@@ -20,6 +21,8 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
     useStoryContext();
   const interSectionRef = useRef<HTMLDivElement>(null);
   
+  console.log("[StoryContent] Messages received:", messages);
+
   // 폰트 매핑
   const getFontFamily = (fontName: string) => {
     switch (fontName) {
@@ -150,9 +153,19 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
             </div>
           );
         } else if (msg.type === "ai") {
-          const paragraphs = splitChatParagraphs(msg.content);
+          const paragraphs = splitChatParagraphs(msg.content)
           return (
             <div key={i}>
+              {msg.image_url && (
+                <div className="relative w-full aspect-video mb-4">
+                  <Image
+                    src={msg.image_url}
+                    alt={`Story image ${i}`}
+                    fill={true}
+                    className="rounded-lg object-contain"
+                  />
+                </div>
+              )}
               {paragraphs.map((p, j) => (
                 <p
                   key={j}

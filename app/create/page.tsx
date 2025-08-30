@@ -17,7 +17,7 @@ import { useMutation } from "@tanstack/react-query";
 import { ChevronLeft, PencilLine } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { useForm } from "react-hook-form";
+import { FieldErrors, useForm } from "react-hook-form";
 import { z } from "zod";
 import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server";
 import { dataURLToWebP } from "@/utils/image";
@@ -62,11 +62,27 @@ function CreateNovelPageContent() {
       toast({ title: SUBMIT_ERROR_TITLE, description: error.message }),
   });
 
+  // Zod 유효성 검사 실패 시 호출될 함수
+  const onInvalid = (errors: FieldErrors<z.infer<typeof createNovelSchema>>) => {
+    console.error("Form validation failed:", errors);
+    // 가장 첫번째 에러 메시지를 사용자에게 보여줍니다.
+    const firstError = Object.values(errors)[0];
+    // 필드 이름이 아닌 실제 에러 메시지를 찾기 위한 추가적인 탐색
+    let message = "입력 내용을 다시 확인해주세요.";
+    if (typeof firstError === 'object' && firstError !== null && 'message' in firstError) {
+      message = firstError.message as string;
+    }
+
+    toast({
+      title: "입력 값 오류",
+      description: message,
+      variant: "destructive",
+    });
+  };
+
   const onSubmit = async (data: z.infer<typeof createNovelSchema>) => {
     try {
-      // 폰트가 모두 로드될 때까지 기다립니다. (캡처는 CharactorAndPlotDesign에서 이미 수행)
-      // await document.fonts.ready; // 이 부분은 최종 제출 시점이므로 캡처와 직접적 관련 X, 필요시 유지
-
+      // 이 함수는 handleSubmit에 의해 유효성 검사를 통과한 경우에만 호출됩니다.
       if (!capturedImageDataUrl) {
         toast({
           title: SUBMIT_ERROR_TITLE,
@@ -76,37 +92,25 @@ function CreateNovelPageContent() {
         return;
       }
 
-      // CharactorAndPlotDesign에서 이미 캡처된 imageDataUrl 사용
-      // const editorElement = document.getElementById("cover-image-editor"); -- 삭제
-      // if (!editorElement) { -- 삭제
-      //   toast({ -- 삭제
-      //     title: SUBMIT_ERROR_TITLE, -- 삭제
-      //     description: "표지 편집기 요소를 찾을 수 없습니다.", -- 삭제
-      //     variant: "destructive", -- 삭제
-      //   }); -- 삭제
-      //   return; -- 삭제
-      // } -- 삭제
-
-      // const imageDataUrl = await htmlToImage.toPng( -- 삭제
-      //   editorElement, -- 삭제
-      //   { width: 210, height: 270 } -- 삭제
-      // ); -- 삭제
-      
-      // WebP로 변환 (품질 0.9로 고화질 유지)
       const imageFile = await dataURLToWebP(capturedImageDataUrl, "coverImage", 0.9);
       const coverImageUrl = await saveImageFileToStorage(imageFile);
 
-      const isValid = await form.trigger();
-      if (isValid) {
-        mutate({ ...data, cover_image_url: coverImageUrl });
-      } else {
-        console.log("Form validation failed:", form.formState.errors);
-        toast({
-          title: "입력 값 오류",
-          description: "입력 내용을 다시 확인해주세요.",
-          variant: "destructive",
-        });
-      }
+      const updatedCharacters = await Promise.all(
+        data.characters.map(async (character) => {
+          if (character.image_file instanceof File) {
+            const imageUrl = await saveImageFileToStorage(character.image_file);
+            return {
+              ...character,
+              asset_url: imageUrl,
+              image_file: undefined,
+            };
+          }
+          return character;
+        })
+      );
+      
+      mutate({ ...data, characters: updatedCharacters, cover_image_url: coverImageUrl });
+
     } catch (error) {
       console.error("세계관 생성 중 오류:", error);
       let description = "세계관 생성 중 오류가 발생했습니다.";
@@ -126,7 +130,7 @@ function CreateNovelPageContent() {
   return (
     <React.Fragment>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="h-full flex flex-col">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="h-full flex flex-col">
           <Header
             prevPageButton={false}
             title="나만의 세계관 만들기"

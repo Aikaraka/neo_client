@@ -92,6 +92,16 @@ export function NovelDetailModal() {
     characters = [];
   }
 
+  const getCharacterDetails = (character: Character) => {
+    const details = [character.age];
+    if (character.gender === "MALE") {
+      details.push("남");
+    } else if (character.gender === "FEMALE") {
+      details.push("여");
+    }
+    return `(${details.filter(Boolean).join(", ")})`;
+  };
+
   const protagonist = characters.find(c => c.role === 'protagonist');
   const otherCharacters = characters.filter(c => c.role !== 'protagonist');
 
@@ -193,7 +203,7 @@ export function NovelDetailModal() {
                        {protagonist && (
                          <div className="text-sm">
                            <p className="font-semibold text-foreground">
-                             {protagonist.name} ({protagonist.age})
+                             {protagonist.name} {getCharacterDetails(protagonist)}
                            </p>
                            <p className="font-semibold text-primary my-1">
                              당신이 플레이 할 주인공
@@ -204,7 +214,7 @@ export function NovelDetailModal() {
                        {otherCharacters.map((c, i) => (
                          <div key={i} className="text-sm">
                            <p className="font-semibold text-foreground">
-                             {c.name} ({c.age})
+                             {c.name} {getCharacterDetails(c)}
                            </p>
                            <p className="text-muted-foreground whitespace-pre-wrap">{c.description}</p>
                          </div>

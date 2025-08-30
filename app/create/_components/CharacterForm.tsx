@@ -1,6 +1,7 @@
 "use client";
 
 import { Character, Gender } from "@/types/novel";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Pencil, Plus } from "lucide-react";
@@ -9,10 +10,14 @@ import { useFormContext } from "react-hook-form";
 import { CreateNovelForm } from "@/app/create/_schema/createNovelSchema";
 import { Label } from "@/components/ui/label";
 import AiAssistButton from "@/app/create/_components/aiAssist";
+import { ImageAssetUpload } from "./ImageAssetUpload";
+// import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server"; // 최종 제출로 로직 이동
 
 interface ExtendedCharacter extends Character {
   isConfirmed: boolean;
   isEditing: boolean;
+  asset_url?: string;
+  image_file?: File; // 이미지 파일 임시 저장을 위한 필드
 }
 
 const TOAST_TITLE_CHARACTER_ERROR = "캐릭터 생성 오류";
@@ -36,6 +41,7 @@ export function CharacterForm() {
         isEditing: true,
         gender: "NONE",
         age: 1,
+        asset_url: "",
       },
     ]);
   };
@@ -136,6 +142,25 @@ export function CharacterForm() {
                     <X className="w-4 h-4" />
                   </Button>
                 </div>
+                <ImageAssetUpload
+                  initialImageUrl={character.asset_url}
+                  onImageUpload={async (file) => {
+                    // 이제 파일을 바로 업로드하지 않고, 폼 상태에 저장합니다.
+                    // 미리보기를 위해 파일로부터 Data URL 생성
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      updateCharacter(index, {
+                        image_file: file,
+                        asset_url: reader.result as string, // 미리보기용 URL 업데이트
+                      });
+                      toast({
+                        title: "이미지 준비 완료",
+                        description: "캐릭터 이미지가 임시 저장되었습니다. 최종 제출 시 업로드됩니다.",
+                      });
+                    };
+                    reader.readAsDataURL(file);
+                  }}
+                />
                 <div className="space-y-2 flex justify-between items-center">
                   <div className="flex flex-col gap-2">
                     <Label className="font-semibold">성별</Label>
@@ -265,13 +290,29 @@ export function CharacterForm() {
                 </Button>
               </div>
             ) : (
-              <div className="p-4 relative border-b flex flex-col gap-2">
-                <div className="text-sm font-bold">
-                  {character.role === "protagonist" ? "주인공" : "등장인물"}
-                </div>
-                <div className="flex w-full flex-wrap gap-2">
-                  <div className="w-[20%] break-words">{character.name}</div>
-                  <p className="w-[70%] break-words whitespace-pre-wrap">{character.description}</p>
+              <div className="p-4 relative border-b flex flex-row gap-4 items-start">
+                {character.asset_url && (
+                  <div className="relative w-20 h-20">
+                    <Image
+                      src={character.asset_url}
+                      alt={character.name}
+                      fill
+                      className="object-cover rounded-md"
+                    />
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="text-sm font-bold mb-1">
+                    {character.role === "protagonist" ? "주인공" : "등장인물"}
+                  </div>
+                  <div className="flex w-full flex-wrap gap-2">
+                    <div className="w-[20%] break-words font-semibold">
+                      {character.name}
+                    </div>
+                    <p className="w-[70%] break-words whitespace-pre-wrap">
+                      {character.description}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex gap-4 items-center absolute top-2 right-2">
                   <AiAssistButton

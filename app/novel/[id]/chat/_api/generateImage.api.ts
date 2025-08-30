@@ -1,29 +1,23 @@
 import { novelAIServer } from "@/app/novel/_api"
 import { Session } from "@supabase/supabase-js"
 
-export async function processNovel(
+export async function generateImage(
   session: Session,
   novelId: string,
-  text: string,
-  shouldGenerateImage: boolean,
-): Promise<Response> {
+): Promise<{ success: boolean; image_url: string }> {
   if (!session) throw new Error("세션이 없습니다.")
 
   const response = await novelAIServer.post(
-    "/process-novel",
+    "/generate-story-images",
     {
       user_id: session.user.id,
       novel_id: novelId,
-      input: text,
-      should_generate_image: shouldGenerateImage,
     },
     {
       headers: { Authorization: `Bearer ${session.access_token}` },
     },
   )
 
-  if (!response.body) {
-    throw new Error("ReadableStream not supported.")
-  }
-  return response
+  const data = await response.json();
+  return data;
 }

@@ -11,13 +11,20 @@ import {
 import { getPreviousStories } from "@/app/novel/[id]/chat/_api/prevStory.api";
 import { processNovel } from "@/app/novel/[id]/chat/_api/process.api";
 import { undoLastStory } from "@/app/novel/[id]/chat/_api/undo.api";
+import { generateImage } from "@/app/novel/[id]/chat/_api/generateImage.api";
 import { LoadingModal } from "@/components/ui/modal";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
 
-export type Message = { type: 'user' | 'ai', content: string, story_number?: number, user_input?: string };
+export type Message = {
+  type: "user" | "ai"
+  content: string
+  story_number?: number
+  user_input?: string
+  image_url?: string
+}
 
 type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   messages: Message[];
@@ -33,6 +40,8 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   hasMoreStories: boolean;
   scrollType: ScrollBehavior | "none";
   prevFetching: boolean;
+  archivedImages: string[];
+  isGeneratingImage: boolean;
 };
 
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
@@ -64,6 +73,9 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     "instant"
   );
   const [prevFetching, setPrevFetching] = useState(false);
+  const [archivedImages, setArchivedImages] = useState<string[]>([]);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [generatedProgressMilestones, setGeneratedProgressMilestones] = useState<Set<number>>(new Set());
 
   const {
     data: initialData,
@@ -77,11 +89,24 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         const initSetting = await initStory(novelId);
         const restoredMessages: Message[] = [];
         for (const s of initSetting.initial_stories.slice().reverse()) {
-          if (typeof s.user_input !== "undefined") restoredMessages.push({ type: 'user', content: s.user_input, story_number: s.story_number, user_input: s.user_input });
-          if (s.content) restoredMessages.push({ type: 'ai', content: s.content, story_number: s.story_number, user_input: s.user_input });
+          if (typeof s.user_input !== "undefined")
+            restoredMessages.push({
+              type: "user",
+              content: s.user_input,
+              story_number: s.story_number,
+              user_input: s.user_input,
+            })
+          if (s.content)
+            restoredMessages.push({
+              type: "ai",
+              content: s.content,
+              story_number: s.story_number,
+              user_input: s.user_input,
+              image_url: s.image_url, // Add image_url from initial stories
+            })
         }
-        console.log('[initStory] restoredMessages:', restoredMessages);
-        setMessages(restoredMessages);
+        console.log("[initStory] restoredMessages:", restoredMessages)
+        setMessages(restoredMessages)
         setScrollType("instant");
         setProgressRate(initSetting.progress_rate);
         setCurrPage(initSetting.oldest_story_number);
@@ -118,6 +143,9 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       return;
     }
     
+    const aiMessageCount = messages.filter((msg) => msg.type === "ai").length
+    const shouldGenerateImage = (aiMessageCount + 1) % 1 === 0
+
     setScrollType("smooth");
     try {
       setIsMessageSending(true);
@@ -133,11 +161,11 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       setMessages((prev) => [
         ...prev,
         { type: 'user' as const, content: text, story_number: currentStoryNumber, user_input: text },
-        { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text }
+        { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text },
       ]);
 
-      console.log(`[StoryProvider] processNovel 호출 시작: novelId=${novelId}, text=${text}`);
-      const stream = await processNovel(session, novelId, text);
+      console.log(`[StoryProvider] processNovel 호출 시작: novelId=${novelId}, text=${text}, shouldGenerateImage=${shouldGenerateImage}`)
+      const stream = await processNovel(session, novelId, text, shouldGenerateImage);
       console.log(`[StoryProvider] processNovel 응답 받음:`, stream);
       console.log(`[StoryProvider] stream.body 타입:`, typeof stream?.body);
       console.log(`[StoryProvider] stream.body:`, stream?.body);
@@ -153,6 +181,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       let done = false;
       let buffer = "";
       let accumulatedText = "";
+      let imageUrl = "";
       console.log(`[StoryProvider] Reader 생성됨:`, reader);
 
       while (!done) {
@@ -206,7 +235,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
                   const newMsgs = [...prev];
                   const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
                   if (lastAiIdx !== -1) {
-                    newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText, story_number: data.story_number, user_input: data.user_input };
+                    newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText, story_number: data.story_number, user_input: data.user_input, image_url: imageUrl };
                   }
                   return newMsgs;
                 });
@@ -215,8 +244,38 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
               }
               
 
+            } else if (data.type === "image") {
+              imageUrl = data.image_url;
+              console.log('[StoryProvider] 이미지 URL 수신:', imageUrl);
+              // 즉시 상태를 업데이트하여 이미지 렌더링
+              setMessages((prev) => {
+                const newMsgs = [...prev];
+                const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
+                if (lastAiIdx !== -1) {
+                  // 기존 content는 유지하면서 image_url만 추가/업데이트
+                  newMsgs[lastAiIdx] = { ...newMsgs[lastAiIdx], image_url: imageUrl };
+                }
+                return newMsgs;
+              });
             } else if (data.type === "progress") {
               setProgressRate(data.progress_rate);
+              
+              // 진행률 마일스톤 체크 및 이미지 생성
+              const currentProgress = data.progress_rate;
+              const milestones = [20, 40, 60, 80, 100];
+              
+              for (const milestone of milestones) {
+                if (currentProgress >= milestone && !generatedProgressMilestones.has(milestone)) {
+                  console.log(`[StoryProvider] 진행률 ${milestone}% 도달, 이미지 생성 시작`);
+                  
+                  // 마일스톤 기록
+                  setGeneratedProgressMilestones(prev => new Set([...prev, milestone]));
+                  
+                  // 이미지 생성 (비동기로 실행하여 스토리 진행을 방해하지 않음)
+                  generateImageForProgress(milestone);
+                  break; // 한 번에 하나의 마일스톤만 처리
+                }
+              }
             } else if (data.type === "error") {
               toast({
                 variant: "destructive",
@@ -239,6 +298,50 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       });
     } finally {
       setIsMessageSending(false);
+    }
+  };
+
+  const generateImageForProgress = async (milestone: number) => {
+    if (!session) {
+      console.log('[StoryProvider] 세션이 없어 이미지 생성을 건너뜁니다.');
+      return;
+    }
+
+    try {
+      setIsGeneratingImage(true);
+      console.log(`[StoryProvider] 진행률 ${milestone}% 이미지 생성 시작`);
+      
+      const result = await generateImage(session, novelId);
+      
+      if (result.success && result.image_url) {
+        console.log(`[StoryProvider] 진행률 ${milestone}% 이미지 생성 성공:`, result.image_url);
+        
+        // 보관함에 이미지 추가
+        setArchivedImages(prev => [...prev, result.image_url]);
+        
+        toast({
+          title: "이미지 생성 완료",
+          description: `진행률 ${milestone}% 도달! 새로운 이미지가 보관함에 추가되었습니다.`,
+        });
+      } else {
+        console.error(`[StoryProvider] 진행률 ${milestone}% 이미지 생성 실패:`, result);
+        
+        toast({
+          variant: "destructive",
+          title: "이미지 생성 실패",
+          description: "이미지 생성 중 오류가 발생했습니다.",
+        });
+      }
+    } catch (error) {
+      console.error(`[StoryProvider] 진행률 ${milestone}% 이미지 생성 오류:`, error);
+      
+      toast({
+        variant: "destructive", 
+        title: "이미지 생성 오류",
+        description: "이미지 생성 중 오류가 발생했습니다.",
+      });
+    } finally {
+      setIsGeneratingImage(false);
     }
   };
 
@@ -286,8 +389,21 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       );
       const prevMessages: Message[] = [];
       for (const s of sortedStories) {
-        if (typeof s.user_input !== "undefined") prevMessages.push({ type: 'user', content: s.user_input, story_number: s.story_number, user_input: s.user_input });
-        if (s.content) prevMessages.push({ type: 'ai', content: s.content, story_number: s.story_number, user_input: s.user_input });
+        if (typeof s.user_input !== "undefined")
+          prevMessages.push({
+            type: "user",
+            content: s.user_input,
+            story_number: s.story_number,
+            user_input: s.user_input,
+          })
+        if (s.content)
+          prevMessages.push({
+            type: "ai",
+            content: s.content,
+            story_number: s.story_number,
+            user_input: s.user_input,
+            image_url: s.image_url, // Add image_url from previous stories
+          })
       }
       console.log('[fetchMoreStories] prevMessages:', prevMessages);
       setMessages((prev) => [...prevMessages, ...prev]);
@@ -328,6 +444,8 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         scrollType,
         initPending,
         prevFetching,
+        archivedImages,
+        isGeneratingImage,
       }}
     >
       {children}

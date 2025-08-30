@@ -37,6 +37,7 @@ export interface StoryItem {
   content: string;
   user_input?: string;
   story_number: number;
+  image_url?: string;
 }
 
 /**

@@ -203,6 +203,10 @@ export default function CoverImageGenerator() {
         세계관 표지 ai 생성
         {!hasRemaining && <span className="ml-2 text-xs">(횟수 초과)</span>}
       </Button>
+      <p className="mt-2 text-center text-xs text-muted-foreground">
+        줄거리나 등장인물 작성 후 표지 생성 버튼을 누르면 그에 맞는 이미지를
+        받아볼 수 있어요!
+      </p>
 
       <Modal
         open={aiImageModal}
