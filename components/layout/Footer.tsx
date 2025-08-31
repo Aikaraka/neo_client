@@ -22,7 +22,7 @@ const Footer = () => {
               <span>사업자등록번호: 702-11-02885</span>
               <br className="sm:hidden" />
               <span className="mx-2 text-gray-300 hidden sm:inline">|</span>
-              <span>통신판매업신고번호</span>
+              <span>통신판매업신고번호: 2025-서울서대문-0766</span>
             </p>
             <p>주소: 서울시 서대문구 성산로 18길 49</p>
             <p>
