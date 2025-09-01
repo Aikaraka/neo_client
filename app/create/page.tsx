@@ -64,18 +64,78 @@ function CreateNovelPageContent() {
 
   // Zod 유효성 검사 실패 시 호출될 함수
   const onInvalid = (errors: FieldErrors<z.infer<typeof createNovelSchema>>) => {
-    console.error("Form validation failed:", errors);
-    // 가장 첫번째 에러 메시지를 사용자에게 보여줍니다.
-    const firstError = Object.values(errors)[0];
-    // 필드 이름이 아닌 실제 에러 메시지를 찾기 위한 추가적인 탐색
-    let message = "입력 내용을 다시 확인해주세요.";
-    if (typeof firstError === 'object' && firstError !== null && 'message' in firstError) {
-      message = firstError.message as string;
+    // 디버깅용 로그 (정확한 오류 파악을 위해 다시 활성화)
+    console.log("Form validation failed:", errors);
+    
+    // 디버깅: 현재 폼 데이터 확인
+    const currentFormData = form.getValues();
+    console.log("Current form data:", currentFormData);
+    
+    // 실제로 오류가 없는 경우 (빈 객체), 다른 문제일 가능성이 높음
+    if (Object.keys(errors).length === 0) {
+      console.warn("onInvalid called but no validation errors found. This might be a form submission issue.");
+      toast({
+        title: "폼 제출 오류",
+        description: "알 수 없는 오류가 발생했습니다. 페이지를 새로고침 후 다시 시도해주세요.",
+        variant: "destructive",
+      });
+      return;
     }
 
+    const errorMessages = Object.entries(errors).map(([, error]) => {
+      // 직접적인 오류 메시지 (e.g., title, plot, mood)
+      if (error && typeof error === "object" && "message" in error) {
+        return error.message;
+      }
+      
+      // 중첩된 객체 (e.g., background.start) 핸들링
+      if (error && typeof error === "object" && !("message" in error) && !Array.isArray(error)) {
+        const nestedErrors = Object.entries(error)
+          .map(([, nestedError]) => {
+            if (nestedError && typeof nestedError === "object" && "message" in nestedError) {
+              return nestedError.message;
+            }
+            return null;
+          })
+          .filter(Boolean);
+        return nestedErrors.join(", ");
+      }
+      
+      // 배열 (e.g., characters) 핸들링
+      if (Array.isArray(error)) {
+        const arrayErrors = error
+          .map((item) => {
+            if (item && typeof item === "object") {
+              const itemErrors = Object.entries(item)
+                .map(
+                  ([, value]) =>
+                    value &&
+                    typeof value === "object" &&
+                    "message" in value &&
+                    value.message
+                )
+                .filter(Boolean);
+              return itemErrors.join(", ");
+            }
+            return null;
+          })
+          .filter(Boolean);
+        return arrayErrors.join("\n");
+      }
+      return null;
+    });
+
+    const combinedMessage = errorMessages.filter(Boolean).join("\n");
+
     toast({
-      title: "입력 값 오류",
-      description: message,
+      title: "입력 값에 오류가 있습니다",
+      description: (
+        <div className="text-left">
+          {combinedMessage.split('\n').map((msg, i) => (
+            <p key={i}>{msg}</p>
+          ))}
+        </div>
+      ),
       variant: "destructive",
     });
   };

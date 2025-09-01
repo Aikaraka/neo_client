@@ -42,7 +42,7 @@ const popularKeywords = [
 ];
 
 export function MoodSelector() {
-  const { setValue, watch, formState } = useFormContext<CreateNovelForm>();
+  const { setValue, watch } = useFormContext<CreateNovelForm>();
   const mood = watch("mood");
   const [activeCategory, setActiveCategory] = useState<string>("인기");
   const [showAll, setShowAll] = useState(false);
@@ -170,7 +170,6 @@ export function MoodSelector() {
         )}
       </div>
       
-      <p className="text-destructive">{formState.errors.mood?.message}</p>
     </div>
   );
 }

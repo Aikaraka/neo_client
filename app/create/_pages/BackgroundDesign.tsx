@@ -63,15 +63,8 @@ export default function BackgroundSetting() {
         </div>
 
         <Button
-          type="button"
+          type="submit"
           className="w-full bg-neo text-white py-3 rounded-lg p-6"
-          onClick={() => {
-            // 명시적으로 폼 제출을 트리거
-            const form = document.querySelector('form');
-            if (form) {
-              form.requestSubmit();
-            }
-          }}
         >
           세계관 생성하기
         </Button>

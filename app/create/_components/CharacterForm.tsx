@@ -24,7 +24,7 @@ const TOAST_TITLE_CHARACTER_ERROR = "캐릭터 생성 오류";
 const numberRegex = /^[0-9]+$/;
 
 export function CharacterForm() {
-  const { setValue, watch, formState } = useFormContext<CreateNovelForm>();
+  const { setValue, watch } = useFormContext<CreateNovelForm>();
   const characters = watch("characters");
 
   const { toast } = useToast();
@@ -41,7 +41,7 @@ export function CharacterForm() {
         isEditing: true,
         gender: "NONE",
         age: 1,
-        asset_url: "",
+        asset_url: undefined,
       },
     ]);
   };
@@ -332,9 +332,6 @@ export function CharacterForm() {
             )}
           </div>
         ))}
-        <p className="text-destructive">
-          {formState.errors.characters?.message}
-        </p>
       </div>
     </>
   );

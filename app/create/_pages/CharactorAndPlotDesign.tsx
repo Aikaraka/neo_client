@@ -12,8 +12,6 @@ import { useFormContext } from "react-hook-form";
 import { useCoverImageContext } from "@/app/create/_components/coverImageEditor/CoverImageProvider";
 import { useState } from "react";
 
-const TOAST_ERROR_TITLE = "양식 오류";
-const TOAST_ERROR_DESCRIPTION = "형식에 맞게 설정해주세요!";
 const TOAST_IMAGE_REQUIRED_TITLE = "표지 이미지 필요";
 const TOAST_IMAGE_REQUIRED_DESCRIPTION = "표지 이미지를 업로드하거나 AI로 생성해주세요.";
 const TOAST_IMAGE_CAPTURE_ERROR_TITLE = "이미지 처리 오류";
@@ -218,6 +216,42 @@ export default function CharactorAndPlotDesign() {
       return;
     }
 
+    const result = await trigger(["title", "plot", "characters"]);
+    if (!result) {
+      const messages = [];
+      if (errors.title?.message) {
+        messages.push(`- 제목: ${errors.title.message}`);
+      }
+      if (errors.plot?.message) {
+        messages.push(`- 줄거리: ${errors.plot.message}`);
+      }
+      if (errors.characters?.message) {
+        messages.push(`- 캐릭터: ${errors.characters.message}`);
+      } else if (Array.isArray(errors.characters)) {
+        errors.characters.forEach((charError, index) => {
+          if (charError?.name?.message) {
+            messages.push(`- 캐릭터 ${index + 1} 이름: ${charError.name.message}`);
+          }
+          if (charError?.description?.message) {
+            messages.push(`- 캐릭터 ${index + 1} 설명: ${charError.description.message}`);
+          }
+        });
+      }
+
+      toast({
+        title: "입력 양식을 확인해주세요",
+        description: (
+          <div className="text-left">
+            {messages.map((msg, i) => (
+              <p key={i}>{msg}</p>
+            ))}
+          </div>
+        ),
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsCapturing(true);
     
     try {
@@ -235,21 +269,6 @@ export default function CharactorAndPlotDesign() {
       
       setCapturedImageDataUrl(imageDataUrl);
 
-      const result = await Promise.all([
-        trigger("title"),
-        trigger("plot"),
-        trigger("characters"),
-      ]);
-      const formValidity = result.every((v) => v);
-      
-      if (!formValidity) {
-        toast({
-          title: TOAST_ERROR_TITLE,
-          description: TOAST_ERROR_DESCRIPTION,
-          variant: "destructive",
-        });
-        return;
-      }
       nextPage();
 
     } catch (error: unknown) {
@@ -278,7 +297,6 @@ export default function CharactorAndPlotDesign() {
             value={title}
             {...register("title")}
           />
-          <p className="text-destructive">{errors.title?.message}</p>
         </div>
         <div className="flex flex-col gap-6">
           <CoverImageEditor />
@@ -299,12 +317,10 @@ export default function CharactorAndPlotDesign() {
             className="absolute bottom-2 right-1 bg-white border"
           />
         </div>
-        <p className="text-destructive">{errors.plot?.message}</p>
       </section>
       <section className="mb-8 relative">
         <h2 className="text-xl font-semibold mb-4">주요 등장인물</h2>
         <CharacterForm />
-        <p>{errors.characters?.[0]?.message}</p>
       </section>
       <section className="mb-8 relative">
         <h2 className="text-xl font-semibold mb-4">캐릭터 관계</h2>

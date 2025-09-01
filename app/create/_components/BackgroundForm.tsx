@@ -9,7 +9,7 @@ import AiAssistButton from "@/app/create/_components/aiAssist";
 export function BackgroundForm() {
   const [showAddLocation, setShowAddLocation] = useState(false);
   const [newLocation, setNewLocation] = useState("");
-  const { setValue, watch, formState } = useFormContext<CreateNovelForm>();
+  const { setValue, watch } = useFormContext<CreateNovelForm>();
   const background = watch("background");
 
   const handleAddLocation = () => {
@@ -48,9 +48,6 @@ export function BackgroundForm() {
             className="absolute bottom-2 right-2 z-10 bg-white border"
           />
         </div>
-        <p className="text-destructive">
-          {formState.errors.background?.start?.message}
-        </p>
       </div>
 
       <div className="space-y-4">

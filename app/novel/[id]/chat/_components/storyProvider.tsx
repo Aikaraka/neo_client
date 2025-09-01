@@ -16,7 +16,7 @@ import { LoadingModal } from "@/components/ui/modal";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 export type Message = {
   type: "user" | "ai"
@@ -63,6 +63,7 @@ const TOAST_UDNO_NOVEL_ERROR_DECRIPTION = "더 되돌릴 소설이 없습니다.
 
 export function StoryProvider({ children }: { children: React.ReactNode }) {
   const { id: novelId } = useParams<{ id: string }>();
+  const router = useRouter();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [progressRate, setProgressRate] = useState(0);
@@ -288,14 +289,28 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       console.error(`[StoryProvider] processNovel 오류:`, error);
-      console.error(`[StoryProvider] 오류 타입:`, typeof error);
-      console.error(`[StoryProvider] 오류 메시지:`, error instanceof Error ? error.message : String(error));
       
-      toast({
-        variant: "destructive",
-        title: TOAST_GEN_NOVEL_ERROR_TITLE,
-        description: TOAST_GEN_NOVEL_ERROR_DESCRIPTION,
-      });
+      if (error instanceof Error && error.message.includes('TOKEN_INSUFFICIENT')) {
+        toast({
+          variant: "destructive",
+          title: "조각이 다 떨어졌어요!",
+          description: "더 많은 소설을 보려면 조각을 충전해주세요.",
+          action: (
+            <button
+              onClick={() => router.push('/store')}
+              className="bg-white text-red-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
+            >
+              조각 충전하기
+            </button>
+          ),
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: TOAST_GEN_NOVEL_ERROR_TITLE,
+          description: TOAST_GEN_NOVEL_ERROR_DESCRIPTION,
+        });
+      }
     } finally {
       setIsMessageSending(false);
     }
@@ -321,7 +336,13 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         
         toast({
           title: "이미지 생성 완료",
-          description: `진행률 ${milestone}% 도달! 새로운 이미지가 보관함에 추가되었습니다.`,
+          description: (
+            <div>
+              진행률 {milestone}% 도달!
+              <br />
+              새로운 이미지가 보관함에 추가되었습니다.
+            </div>
+          ),
         });
       } else {
         console.error(`[StoryProvider] 진행률 ${milestone}% 이미지 생성 실패:`, result);

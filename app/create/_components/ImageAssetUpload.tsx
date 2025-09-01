@@ -127,7 +127,7 @@ export function ImageAssetUpload({
         />
       </div>
       <p className="text-xs text-gray-500">
-        캐릭터의 외형을 나타내는 이미지를 업로드하세요.
+        캐릭터 에셋을 등록하지 않은 인물은 자동 이미지 생성시 제대로 출력되지 않을 수 있습니다.
       </p>
     </div>
   )

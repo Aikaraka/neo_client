@@ -25,6 +25,7 @@ const CharacterSchema = z.object({
   gender: z.string(),
   description: z.string(),
   relationships: z.array(RelationshipSchema).optional(),
+  asset_url: z.string().optional(),
 });
 
 const CharacterArraySchema = z.array(CharacterSchema);
@@ -197,26 +198,56 @@ export function NovelDetailModal() {
                   <Users className="w-5 h-5" />
                   캐릭터 서사
                 </h2>
-                <div className="bg-background rounded-lg p-4 space-y-3 border-2 border-[#D3CFE8]">
+                <div className="bg-background rounded-lg p-4 space-y-4 border-2 border-[#D3CFE8]">
                    {protagonist || otherCharacters.length ? (
                      <>
                        {protagonist && (
-                         <div className="text-sm">
-                           <p className="font-semibold text-foreground">
-                             {protagonist.name} {getCharacterDetails(protagonist)}
-                           </p>
-                           <p className="font-semibold text-primary my-1">
-                             당신이 플레이 할 주인공
-                           </p>
-                           <p className="text-muted-foreground whitespace-pre-wrap">{protagonist.description}</p>
+                         <div className="text-sm flex gap-3">
+                           {protagonist.asset_url && (
+                             <div 
+                               className="relative flex-shrink-0 bg-gray-50 rounded-md border border-gray-200"
+                               style={{ width: '84px', height: '108px' }}
+                             >
+                               <Image
+                                 src={protagonist.asset_url}
+                                 alt={`${protagonist.name} 캐릭터 에셋`}
+                                 fill
+                                 className="object-contain rounded-md"
+                               />
+                             </div>
+                           )}
+                           <div className="flex-1">
+                             <p className="font-semibold text-foreground">
+                               {protagonist.name} {getCharacterDetails(protagonist)}
+                             </p>
+                             <p className="font-semibold text-primary my-1">
+                               당신이 플레이 할 주인공
+                             </p>
+                             <p className="text-muted-foreground whitespace-pre-wrap">{protagonist.description}</p>
+                           </div>
                          </div>
                        )}
                        {otherCharacters.map((c, i) => (
-                         <div key={i} className="text-sm">
-                           <p className="font-semibold text-foreground">
-                             {c.name} {getCharacterDetails(c)}
-                           </p>
-                           <p className="text-muted-foreground whitespace-pre-wrap">{c.description}</p>
+                         <div key={i} className="text-sm flex gap-3">
+                           {c.asset_url && (
+                             <div 
+                               className="relative flex-shrink-0 bg-gray-50 rounded-md border border-gray-200"
+                               style={{ width: '84px', height: '108px' }}
+                             >
+                               <Image
+                                 src={c.asset_url}
+                                 alt={`${c.name} 캐릭터 에셋`}
+                                 fill
+                                 className="object-contain rounded-md"
+                               />
+                             </div>
+                           )}
+                           <div className="flex-1">
+                             <p className="font-semibold text-foreground">
+                               {c.name} {getCharacterDetails(c)}
+                             </p>
+                             <p className="text-muted-foreground whitespace-pre-wrap">{c.description}</p>
+                           </div>
                          </div>
                        ))}
                      </>

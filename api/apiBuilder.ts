@@ -54,8 +54,17 @@ class API {
 
     const response = await fetchFunction();
     if (!response.ok) {
-      const erroMsg = await response.text();
-      throw new Error(erroMsg);
+      // 402 상태 코드에 대한 특별 처리
+      if (response.status === 402) {
+        const errorData = await response.json();
+        throw new Error(`TOKEN_INSUFFICIENT: ${errorData.error || "토큰이 부족합니다."}`);
+      }
+      
+      const errorText = await response.text();
+      // 다른 모든 HTTP 에러 처리
+      throw new Error(
+        `HTTP error ${response.status}: ${errorText || response.statusText}`,
+      );
     }
 
     const responseAfterMiddleWare = await this.use.response(
