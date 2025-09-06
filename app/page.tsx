@@ -12,6 +12,8 @@ import Footer from "@/components/layout/Footer";
 import HomePageClient from "@/app/_components/HomePageClient";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 
+export const revalidate = 86400; // 24시간 (60 * 60 * 24초) 동안 캐시
+
 export default async function Home() {
   return (
     <>

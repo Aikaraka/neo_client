@@ -73,6 +73,26 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    /*
+     * 인증이 필요한 경로만 미들웨어에서 처리하도록 설정합니다.
+     * - /admin/:path* : 관리자 페이지
+     * - /auth/setting : 프로필 초기 설정
+     * - /create : 소설 제작
+     * - /dashboard : 대시보드
+     * - /library : 보관함
+     * - /mypage/:path* : 마이페이지 (하위 경로 포함)
+     * - /novel/:id/chat : 소설 채팅
+     * - /store : 스토어
+     * - /verify-age : 성인 인증
+     */
+    "/admin/:path*",
+    "/auth/setting",
+    "/create",
+    "/dashboard",
+    "/library",
+    "/mypage/:path*",
+    "/novel/:path*/chat",
+    "/store",
+    "/verify-age",
   ],
 };

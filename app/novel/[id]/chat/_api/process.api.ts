@@ -1,4 +1,4 @@
-import { novelAIServer } from "@/app/novel/_api";
+import { streamingProxyClient } from "@/app/novel/_api/streamingProxyClient";
 import { Session } from "@supabase/supabase-js";
 
 export function processNovel(
@@ -12,9 +12,9 @@ export function processNovel(
 
   console.log(`[processNovel] API 호출 - user_id: ${session.user.id}, novel_id: ${novelId}`);
   
-  return novelAIServer.post("/process-input", {
+  return streamingProxyClient.post("/process-novel", {
     user_id: session.user.id,
     novel_id: novelId,
-    text: prompt,
+    input: prompt,
   });
 }
