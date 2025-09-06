@@ -54,7 +54,7 @@ async function verifyPayment(paymentId: string): Promise<VerificationResult> {
 }
 
 /**
- * 결제 정보를 최종 처리하고 사용자에게 토큰을 지급하는 서버 액션
+ * 결제 정보를 최종 처리하고 사용자에게 조각을 지급하는 서버 액션
  * @param paymentId - 결제 ID
  * @param requestedAmount - 사용자가 결제 요청 시 사용한 금액
  */
@@ -83,8 +83,8 @@ export async function processAndGrantToken(
     return { success: false, message: "결제 금액이 일치하지 않습니다." }
   }
 
-  // 3. 토큰 지급 로직
-  // 여기서는 금액에 따라 토큰을 결정합니다. 실제로는 DB나 다른 곳에서 상품 정보를 가져올 수 있습니다.
+  // 3. 조각 지급 로직
+  // 여기서는 금액에 따라 조각을 결정합니다. 실제로는 DB나 다른 곳에서 상품 정보를 가져올 수 있습니다.
   const getTokenByAmount = (total: number): number | null => {
     const products: { [key: number]: number } = {
       3000: 30,
@@ -114,11 +114,11 @@ export async function processAndGrantToken(
       .single()
 
     if (userError || !userData) {
-      throw new Error("토큰을 지급할 사용자를 찾을 수 없습니다.")
+      throw new Error("조각을 지급할 사용자를 찾을 수 없습니다.")
     }
     const userId = userData.id
 
-    // 2. user_id로 user_ai_token 테이블에서 현재 토큰 잔액 조회
+    // 2. user_id로 user_ai_token 테이블에서 현재 조각 잔액 조회
     const { data: tokenData, error: tokenError } = await supabase
       .from("user_ai_token")
       .select("remaining_tokens")
@@ -126,10 +126,10 @@ export async function processAndGrantToken(
       .single()
 
     if (tokenError && tokenError.code !== "PGRST116") { // 'PGRST116'은 row가 없는 경우
-      throw new Error("토큰 정보를 조회하는 중 오류가 발생했습니다.")
+      throw new Error("조각 정보를 조회하는 중 오류가 발생했습니다.")
     }
     
-    // 3. 토큰 잔액 업데이트 또는 새로 생성
+    // 3. 조각 잔액 업데이트 또는 새로 생성
     const currentTokens = tokenData?.remaining_tokens || 0
     const newBalance = currentTokens + grantedToken
 
@@ -157,7 +157,7 @@ export async function processAndGrantToken(
       });
 
     if (historyError) {
-      // 중요: 결제와 토큰 지급은 성공했으므로, 내역 기록 실패가 전체 트랜잭션을 롤백해서는 안 됩니다.
+      // 중요: 결제와 조각 지급은 성공했으므로, 내역 기록 실패가 전체 트랜잭션을 롤백해서는 안 됩니다.
       // 에러를 로깅하고 관리자에게 알림을 보내는 것이 좋습니다.
       console.error("CRITICAL: Payment history recording failed!", {
         userId,
@@ -166,13 +166,13 @@ export async function processAndGrantToken(
       });
     }
     
-    return { success: true, message: "결제가 성공적으로 완료되었으며, 토큰이 지급되었습니다." }
+    return { success: true, message: "결제가 성공적으로 완료되었으며, 조각이 지급되었습니다." }
   } catch (dbError) {
-    // TODO: 토큰 지급 실패 시 처리 (예: 재시도 큐, 관리자 알림)
+    // TODO: 조각 지급 실패 시 처리 (예: 재시도 큐, 관리자 알림)
     const errorMessage = dbError instanceof Error ? dbError.message : String(dbError)
     return {
       success: false,
-      message: `결제는 완료되었으나 토큰 지급에 실패했습니다. 관리자에게 문의해주세요. (사유: ${errorMessage})`,
+      message: `결제는 완료되었으나 조각 지급에 실패했습니다. 관리자에게 문의해주세요. (사유: ${errorMessage})`,
     }
   }
 }

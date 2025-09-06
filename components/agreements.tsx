@@ -19,7 +19,7 @@ export const TermsOfServiceAgreement = () => {
           <li className="mb-2">&quot;회원&quot;이라 함은 본 약관 및 회사의 <strong>[개인정보처리방침]</strong>에 동의하고 회사로부터 서비스 이용 자격을 부여받은 자를 의미합니다.</li>
           <li className="mb-2">&quot;계정(ID)&quot;이라 함은 회원의 식별과 서비스 이용을 위하여 회원이 사용하는 이메일 주소를 의미합니다.</li>
           <li className="mb-2">&quot;콘텐츠&quot;라 함은 회원이 서비스를 이용하는 과정에서 입력한 프롬프트, 설정값, 그리고 이를 통해 생성된 AI 생성물을 포함하여, 서비스 내에서 사용되는 모든 부호, 문자, 이미지, 스토리, 캐릭터 등 일체의 정보를 의미합니다.</li>
-          <li className="mb-2">&quot;토큰&quot;이라 함은 회원이 서비스 내 유료 기능을 이용하기 위해 구매하는 가상의 재화를 의미합니다.</li>
+          <li className="mb-2">&quot;조각&quot;이라 함은 회원이 서비스 내 유료 기능을 이용하기 위해 구매하는 가상의 재화를 의미합니다.</li>
         </ul>
         <h3 className="text-xl font-bold mt-6 mb-3 scroll-mt-20">제3조 (약관의 명시, 효력 및 변경)</h3>
         <p className="text-gray-700 mb-4">
@@ -57,7 +57,7 @@ export const TermsOfServiceAgreement = () => {
         </p>
         <ol className="list-decimal pl-6 text-gray-700 mb-4">
           <li className="mb-2">허위의 정보를 기재하거나, 타인의 명의를 도용한 경우</li>
-          <li className="mb-2">토큰 구매 대금을 납부하지 않거나 잘못 납부하여 확인이 불가능한 경우</li>
+          <li className="mb-2">조각 구매 대금을 납부하지 않거나 잘못 납부하여 확인이 불가능한 경우</li>
           <li className="mb-2">최근 3개월 내 본 약관 위반으로 이용제한 기록이 있거나 영구 이용제한을 받은 경우</li>
           <li className="mb-2">만 14세 미만인 경우</li>
           <li className="mb-2">기타 이 약관에 위반되거나 위법 또는 부당한 이용신청임이 확인된 경우</li>
@@ -79,7 +79,7 @@ export const TermsOfServiceAgreement = () => {
         </p>
         <ol className="list-decimal pl-6 text-gray-700 mb-4">
           <li className="mb-2">AI 소설 플랫폼 서비스</li>
-          <li className="mb-2">토큰 구매 및 사용 제도</li>
+          <li className="mb-2">조각 구매 및 사용 제도</li>
           <li className="mb-2">콘텐츠 등급에 따른 접근 제한 기능</li>
         </ol>
         <p className="text-gray-700 mb-4">
@@ -148,25 +148,25 @@ export const TermsOfServiceAgreement = () => {
           회사는 저작권법 제103조에 따라 복제·전송 중단 요청을 받은 경우, 즉시 해당 콘텐츠의 서비스 제공을 중단하거나 삭제하는 조치를 취할 수 있습니다.
         </p>
         <h2 className="text-2xl font-bold mt-8 mb-4">제5장 유료서비스 및 결제</h2>
-        <h3 className="text-xl font-bold mt-6 mb-3 scroll-mt-20">제14조 (토큰 및 결제)</h3>
+        <h3 className="text-xl font-bold mt-6 mb-3 scroll-mt-20">제14조 (조각 및 결제)</h3>
         <p className="text-gray-700 mb-4">
-          ① 회원은 서비스 내에서 토큰을 구매하여 유료 기능을 이용할 수 있습니다. 토큰의 가격 및 결제 조건은 서비스 내 별도 페이지에 고지합니다.
+          ① 회원은 서비스 내에서 조각을 구매하여 유료 기능을 이용할 수 있습니다. 조각의 가격 및 결제 조건은 서비스 내 별도 페이지에 고지합니다.
         </p>
         <p className="text-gray-700 mb-4">
-          ② 결제는 회사가 지정한 결제 제공업체를 통해 처리되며, 회사는 사전 공지 후 토큰 가격을 변경할 권리를 보유합니다.
+          ② 결제는 회사가 지정한 결제 제공업체를 통해 처리되며, 회사는 사전 공지 후 조각 가격을 변경할 권리를 보유합니다.
         </p>
         <h3 className="text-xl font-bold mt-6 mb-3 scroll-mt-20">제15조 (청약철회 및 환불)</h3>
         <p className="text-gray-700 mb-4">
-          ① 회원이 구매한 토큰을 전혀 사용하지 아니하였을 경우, 「전자상거래 등에서의 소비자보호에 관한 법률」에 따라 결제일로부터 7일 이내에 청약철회를 할 수 있습니다.
+          ① 회원이 구매한 조각을 전혀 사용하지 아니하였을 경우, 「전자상거래 등에서의 소비자보호에 관한 법률」에 따라 결제일로부터 7일 이내에 청약철회를 할 수 있습니다.
         </p>
         <p className="text-gray-700 mb-4">
-          ② 제10조 제1항에 따라 서비스에 대한 불만족으로 사용된 토큰은 환불이 불가능합니다. 단, 시스템의 중대한 하자로 인한 환불은 neoyourscene@gmail.com으로 문의 후 회사의 내부 절차에 따라 가능할 수 있습니다.
+          ② 제10조 제1항에 따라 서비스에 대한 불만족으로 사용된 조각은 환불이 불가능합니다. 단, 시스템의 중대한 하자로 인한 환불은 neoyourscene@gmail.com으로 문의 후 회사의 내부 절차에 따라 가능할 수 있습니다.
         </p>
         <p className="text-gray-700 mb-4">
-          ③ 서비스가 회사의 귀책사유로 완전히 중단될 경우, 중단 공지일 기준 3개월 이내에 결제된 건에 한하여 사용하지 않은 유료 토큰은 환불받을 수 있습니다.
+          ③ 서비스가 회사의 귀책사유로 완전히 중단될 경우, 중단 공지일 기준 3개월 이내에 결제된 건에 한하여 사용하지 않은 유료 조각은 환불받을 수 있습니다.
         </p>
         <p className="text-gray-700 mb-4">
-          ④ 유료 토큰은 구매일로부터 1년간 유효하며, 유효기간이 경과한 토큰은 자동 소멸되며 환불되지 않습니다.
+          ④ 유료 조각은 구매일로부터 1년간 유효하며, 유효기간이 경과한 조각은 자동 소멸되며 환불되지 않습니다.
         </p>
         <h2 className="text-2xl font-bold mt-8 mb-4">제6장 계약해지 및 이용제한</h2>
         <h3 className="text-xl font-bold mt-6 mb-3 scroll-mt-20">제16조 (이용제한 및 제재 조치)</h3>
@@ -251,7 +251,7 @@ export const MarketingAgreement = () => {
         회사는 본 약관에 따라 아래와 같은 항목을 수집하고, 명시된 목적 범위 내에서 이용합니다.
       </p>
       <ol className="list-decimal pl-6 text-gray-700 mb-4">
-        <li className="mb-2"><strong>수집 항목:</strong> 디바이스 식별자(ID), 푸시 알림 토큰, 앱 고유 식별정보, 이메일 주소, 전화번호, 서비스 이용 내역 및 활동 기록 등</li>
+        <li className="mb-2"><strong>수집 항목:</strong> 디바이스 식별자(ID), 푸시 알림 조각, 앱 고유 식별정보, 이메일 주소, 전화번호, 서비스 이용 내역 및 활동 기록 등</li>
         <li className="mb-2">
           <strong>이용 목적:</strong>
           <ul className="list-disc pl-6 mt-2">

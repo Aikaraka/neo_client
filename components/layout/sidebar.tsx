@@ -104,7 +104,7 @@ export default function SideBar() {
                 언어 관리
               </Link>
               <Link href="/mypage/history" className="hover:text-gray-600 transition-colors">
-                토큰 구매/사용 내역
+                조각 구매/사용 내역
               </Link>
             </div>
 

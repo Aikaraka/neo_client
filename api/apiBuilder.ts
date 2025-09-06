@@ -57,7 +57,7 @@ class API {
       // 402 상태 코드에 대한 특별 처리
       if (response.status === 402) {
         const errorData = await response.json();
-        throw new Error(`TOKEN_INSUFFICIENT: ${errorData.error || "토큰이 부족합니다."}`);
+        throw new Error(`TOKEN_INSUFFICIENT: ${errorData.error || "조각이 부족합니다."}`);
       }
       
       const errorText = await response.text();

@@ -436,21 +436,6 @@ function FloatingMaterialNavItem({
         isActive && "bg-purple-50/90 shadow-md"
       )}
     >
-      {/* 머티리얼 스타일 상단 인디케이터 */}
-      {isActive && (
-        <motion.div
-          // 인디케이터 크기와 위치 미세 조정
-          className="absolute top-1 left-1/2 transform -translate-x-1/2 w-6 h-[3px] bg-purple-400 rounded-full"
-          initial={{ scaleX: 0, opacity: 0 }}
-          animate={{ scaleX: 1, opacity: 1 }}
-          transition={{ 
-            duration: 0.4,
-            type: "spring",
-            stiffness: 300,
-            damping: 25
-          }}
-        />
-      )}
       
       <NavIcon className={cn(
         // 아이콘 크기 h-6 w-6 -> h-5 w-5 로 조정

@@ -42,8 +42,8 @@ export default function PurchaseCard({
     setIsProcessing(true)
 
     const orderName = originalTokens
-      ? `${formatNumber(originalTokens)}개${bonus ? ` (+${bonus}%)` : ""} 토큰`
-      : `${formatNumber(tokens)}개 토큰`
+      ? `${formatNumber(originalTokens)}개${bonus ? ` (+${bonus}%)` : ""} 조각`
+      : `${formatNumber(tokens)}개 조각`
 
     const result = await requestPayment({
       storeId: "store-9352e30f-52b7-42c5-8d98-052d88aeb3b5",

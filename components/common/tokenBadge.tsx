@@ -1,11 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { useUser } from "@/utils/supabase/authProvider";
 import { getUserToken } from "@/utils/supabase/service/token.server";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Plus } from "lucide-react";
 
 export default function TokenBadge() {
   const user = useUser();
@@ -30,19 +30,24 @@ function Token() {
     queryFn: getUserToken,
   });
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      className="relative bg-purple-500 hover:bg-purple-600 hover:!text-white text-white rounded-full p-2 h-6"
+    <div
       onClick={() => router.push("/store")}
+      className="flex items-center justify-between bg-white rounded-full p-1 h-8 w-auto min-w-[100px] cursor-pointer shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
     >
-      <Image
-        src="/header/diamond.svg"
-        alt="token icon"
-        height={10}
-        width={10}
-      />
-      {token ?? 0}
-    </Button>
+      <div className="flex items-center pl-1">
+        <Image
+          src="/piece.svg"
+          alt="조각 아이콘"
+          height={15}
+          width={15}
+        />
+        <span className="ml-1.5 text-sm font-bold text-gray-800">
+          {token ?? 0}
+        </span>
+      </div>
+      <button className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-purple-600 transition-colors mr-0.5">
+        <Plus size={16} />
+      </button>
+    </div>
   );
 }

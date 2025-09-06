@@ -122,22 +122,12 @@ function NavItem({
       <span className={cn(
         "relative mt-1 font-medium transition-all duration-300 whitespace-pre-line text-center leading-tight",
         textSize,
-        isActive 
-          ? "text-purple-600 font-semibold" 
+        isActive
+          ? "text-purple-600 font-semibold"
           : "text-gray-500 group-hover:text-gray-700"
       )}>
         {label}
       </span>
-      
-      {/* 활성 상태 점 표시 */}
-      {isActive && (
-        <motion.div
-          className="absolute -bottom-1 w-1 h-1 bg-purple-600 rounded-full"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 0.2 }}
-        />
-      )}
     </Link>
   );
 }
@@ -187,7 +177,7 @@ export const NavBarDesktop = forwardRef<HTMLDivElement>((props, ref) => {
       <Image src="/neo_emblem.svg" alt="NEO Logo" width={50} height={50} />
       <div className="container max-w-md">
         <div
-          className="flex flex-col items-center border-t py-4 relative gap-3"
+          className="flex flex-col items-center border-t py-4 relative gap-2"
           ref={ref}
         >
           {Object.entries(navItems).map(

@@ -9,7 +9,7 @@ const Footer = () => {
           {/* Policy Links */}
           <div className="flex justify-center sm:justify-start space-x-4">
             <Link href="/terms/service" className="hover:text-gray-800">이용약관</Link>
-            <Link href="/terms/privacy" className="hover:text-gray-800 font-semibold">개인정보처리방침</Link>
+            <Link href="/terms/privacy" className="hover:text-gray-800">개인정보처리방침</Link>
             <Link href="/terms/copyright" className="hover:text-gray-800">콘텐츠 심의 규정</Link>
           </div>
           

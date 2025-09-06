@@ -77,14 +77,14 @@ function PaymentHistoryList({ items }: { items: PaymentHistoryItem[] }) {
               <PlusCircle className="w-8 h-8 text-blue-500" />
               <div>
                 <p className="font-semibold">
-                  {item.provider === 'free' ? '매일 무료 토큰' : '토큰 충전'}
+                  {item.provider === 'free' ? '매일 무료 조각' : '조각 충전'}
                 </p>
                 <p className="text-sm text-gray-500">{formatDate(item.created_at)}</p>
               </div>
             </div>
             <div className="text-right">
               <p className="font-bold text-lg text-blue-500">
-                +{item.tokens_charged.toLocaleString()} 토큰
+                +{item.tokens_charged.toLocaleString()} 조각
               </p>
               {item.provider !== 'free' && (
                 <p className="text-sm text-gray-500">{item.amount.toLocaleString()}원</p>
@@ -115,7 +115,7 @@ function UsageHistoryList({ items }: { items: UsageHistoryItem[] }) {
               </div>
             </div>
             <p className="font-bold text-lg text-red-500">
-              -{item.tokens_used.toLocaleString()} 토큰
+              -{item.tokens_used.toLocaleString()} 조각
             </p>
           </CardContent>
         </Card>

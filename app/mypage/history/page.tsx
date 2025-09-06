@@ -23,7 +23,7 @@ export default async function HistoryPage({
         <div className="absolute left-0">
           <PrevPageButton />
         </div>
-        <h1 className="text-2xl font-bold text-center">토큰 이용내역</h1>
+        <h1 className="text-2xl font-bold text-center">조각 이용내역</h1>
       </div>
       <HistoryClient
         initialPayments={payment.items}

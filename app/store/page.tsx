@@ -36,13 +36,13 @@ export default function StorePage() {
             <div className="space-y-12">
               <div className="text-center">
                 <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-                  토큰 상점
+                  조각 상점
                 </h1>
                 <p className="mt-4 text-lg text-amber-400 font-bold">
                   🎉 신규 서비스 런칭 기념 서비스! 🎉
                 </p>
                 <p className="mt-2 text-lg text-gray-400">
-                  창작의 날개를 달아줄 토큰을 충전하세요!
+                  창작의 날개를 달아줄 조각을 충전하세요!
                 </p>
               </div>
 

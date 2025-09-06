@@ -36,7 +36,7 @@ export async function processNovel(
       // 에러 응답에서 JSON 데이터를 파싱합니다.
       const errorData = await (error.response as Response).json();
       // 토큰 부족을 식별할 수 있는 특정 메시지와 함께 새로운 에러를 던집니다.
-      throw new Error(`TOKEN_INSUFFICIENT: ${errorData.error || "토큰이 부족합니다."}`);
+      throw new Error(`TOKEN_INSUFFICIENT: ${errorData.error || "조각이 부족합니다."}`);
     }
     
     // 402 에러가 아닌 다른 모든 에러는 그대로 다시 던집니다.

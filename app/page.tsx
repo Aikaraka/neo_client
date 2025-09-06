@@ -10,6 +10,7 @@ import {
 import MainHeader from "@/app/_components/MainHeader";
 import Footer from "@/components/layout/Footer";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { MainBanner } from "@/app/_components/MainBanner";
 
 export default async function Home() {
   return (
@@ -26,6 +27,7 @@ export default async function Home() {
           {/* Main Content */}
           <main className="flex-1 w-full flex justify-center">
             <div className="w-full max-w-[1160px] relative p-4">
+              <MainBanner />
               {/* Genres Section */}
               <section className="relative">
                 <h2 className="text-lg md:text-[22px] font-semibold mb-4 flex items-center">

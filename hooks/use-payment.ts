@@ -67,7 +67,7 @@ export function usePayment() {
         return { success: false, message: response.message || "결제를 취소했습니다." }
       }
 
-      // 2. 결제 성공! 백엔드에 검증 및 토큰 지급 요청
+      // 2. 결제 성공! 백엔드에 검증 및 조각 지급 요청
       const verificationResult = await processAndGrantToken(
         paymentId,
         totalAmount,

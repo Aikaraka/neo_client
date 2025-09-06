@@ -32,12 +32,12 @@ novelAiServerForServer.use.response = async (response, requestFunction) => {
         ...novelAiServerForServer.headers,
         Authorization: `Bearer ${newAccessToken}`,
       };
-      console.log("토큰 갱신 성공, 재시도");
+      console.log("조각 갱신 성공, 재시도");
 
       return requestFunction();
     } catch (refreshError) {
-      console.error("토큰 갱신 중 오류:", refreshError);
-      throw new Error("인증 토큰 갱신에 실패했습니다.");
+      console.error("조각 갱신 중 오류:", refreshError);
+      throw new Error("인증 조각 갱신에 실패했습니다.");
     }
   }
   return response;
