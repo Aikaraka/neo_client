@@ -1,18 +1,16 @@
 import { APIBuilder } from "@/api/apiBuilder";
 import { createClient } from "@/utils/supabase/client";
 
-// 런타임에서 안전한 기본 API URL 계산 (클라이언트/서버 모두 지원)
-const RUNTIME_API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  (typeof window !== "undefined"
-    ? `${window.location.protocol}//${window.location.hostname}:8000`
-    : "http://localhost:8000");
+// .env.local 또는 Vercel 환경 변수에 설정된 값을 직접 사용합니다.
+// 불안정한 동적 URL 계산 로직을 제거하여 문제를 해결합니다.
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// 디버깅용 로그 (개발 시에만 유용)
+// 디버깅용 로그
 // eslint-disable-next-line no-console
-console.log("🔧 API URL 설정 (client):", RUNTIME_API_URL);
+console.log("🔧 API URL 설정:", API_URL);
 
-export const novelAIServer = new APIBuilder(RUNTIME_API_URL)
+
+export const novelAIServer = new APIBuilder(API_URL)
   .withCredentials(true)
   .headers({
     "Content-type": "application/json",

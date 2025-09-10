@@ -1,4 +1,4 @@
-import { streamingProxyClient } from "@/app/novel/_api/streamingProxyClient";
+import { novelAIServer } from "@/app/novel/_api";
 import { createClient } from "@/utils/supabase/client";
 
 interface StoryItem {
@@ -30,11 +30,14 @@ export async function initStory(novelId: string): Promise<InitStoryResponse> {
   if (sessionError || !session) throw new Error("세션 오류가 발생했습니다.");
 
   const initialData = await (
-    await streamingProxyClient.post(
+    await novelAIServer.post(
       "/init-story",
       {
         user_id: session.user.id,
         novel_id: novelId,
+      },
+      {
+        headers: { Authorization: `Bearer ${session.access_token}` },
       }
     )
   ).json();
