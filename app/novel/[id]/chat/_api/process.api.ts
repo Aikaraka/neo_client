@@ -1,4 +1,3 @@
-import { novelAIServer } from "@/app/novel/_api"
 import { Session } from "@supabase/supabase-js"
 
 export async function processNovel(
@@ -10,36 +9,46 @@ export async function processNovel(
   if (!session) throw new Error("세션이 없습니다.");
 
   try {
-    const response = await novelAIServer.post(
-      "/process-novel",
-      {
+    // Supabase Edge Function을 통해 neo_server의 /process-novel에 요청
+    const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-novel-proxy`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
+      },
+      body: JSON.stringify({
         user_id: session.user.id,
         novel_id: novelId,
         input: text,
         should_generate_image: shouldGenerateImage,
-      },
-      {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      },
-    );
+      }),
+    });
+
+    // 에러 상태 코드 처리
+    if (response.status === 402) {
+      const errorData = await response.json();
+      throw new Error(`TOKEN_INSUFFICIENT: ${errorData.error || "조각이 부족합니다."}`);
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: "알 수 없는 오류" }));
+      throw new Error(`API 오류 (${response.status}): ${errorData.error}`);
+    }
 
     // 응답 본문이 없을 경우의 예외 처리
     if (!response.body) {
       throw new Error("ReadableStream not supported.");
     }
+    
     return response;
 
   } catch (error) {
-    // API 클라이언트에서 던진 에러를 여기서 잡습니다.
-    // 에러 객체에 response가 있고, 그 status가 402인 경우를 확인합니다.
-    if (error && typeof error === 'object' && 'response' in error && error.response && typeof error.response === 'object' && 'status' in error.response && error.response.status === 402) {
-      // 에러 응답에서 JSON 데이터를 파싱합니다.
-      const errorData = await (error.response as Response).json();
-      // 토큰 부족을 식별할 수 있는 특정 메시지와 함께 새로운 에러를 던집니다.
-      throw new Error(`TOKEN_INSUFFICIENT: ${errorData.error || "조각이 부족합니다."}`);
+    // 이미 처리된 TOKEN_INSUFFICIENT 에러는 그대로 다시 던집니다.
+    if (error instanceof Error && error.message.startsWith("TOKEN_INSUFFICIENT")) {
+      throw error;
     }
     
-    // 402 에러가 아닌 다른 모든 에러는 그대로 다시 던집니다.
+    // 기타 모든 에러는 그대로 다시 던집니다.
     throw error;
   }
 }
