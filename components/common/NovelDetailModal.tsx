@@ -179,6 +179,7 @@ export function NovelDetailModal() {
           className={`absolute top-0 left-0 right-0 z-50 bg-gray-100/95 backdrop-blur-sm border-b border-gray-200 px-6 py-4 transition-all duration-300 ease-out rounded-t-2xl ${
             isSticky ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
           }`}
+          style={{ borderRadius: '8px 8px 0 0' }}
         >
           <div className="flex flex-col items-center gap-2">
             {/* 제목 */}
