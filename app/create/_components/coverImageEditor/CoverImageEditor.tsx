@@ -299,7 +299,7 @@ const ResizeHandle = ({
 }: HTMLAttributes<HTMLDivElement> & { visible: boolean }) => (
   <div
     className={cn(
-      "rounded-xl w-3 h-3 hover:bg-primary bg-input border border-primary cursor-pointer ",
+      "rounded-xl w-3 h-3 hover:bg-primary bg-background border border-primary cursor-pointer ",
       visible ? "visible" : "invisible",
       className
     )}

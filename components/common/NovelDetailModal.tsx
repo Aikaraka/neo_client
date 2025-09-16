@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
@@ -34,6 +34,12 @@ type Character = z.infer<typeof CharacterSchema>;
 
 export function NovelDetailModal() {
   const { isModalOpen, selectedNovelId, closeModal } = useNovelModal();
+  
+  // 스크롤 인터랙션 상태
+  const [scrollY, setScrollY] = useState(0);
+  const [isSticky, setIsSticky] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   const { data: novel, isPending } = useQuery({
     queryKey: ["novel-detail", selectedNovelId],
@@ -46,6 +52,40 @@ export function NovelDetailModal() {
     if (isModalOpen) document.addEventListener("keydown", onEsc);
     return () => document.removeEventListener("keydown", onEsc);
   }, [isModalOpen, closeModal]);
+
+  // 스크롤 이벤트 리스너 (throttled for performance)
+  useEffect(() => {
+    let ticking = false;
+    
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const container = scrollContainerRef.current;
+          const titleElement = titleRef.current;
+          
+          if (!container || !titleElement) return;
+          
+          const scrollTop = container.scrollTop;
+          setScrollY(scrollTop);
+          
+          // 제목이 상단에 닿았는지 확인
+          const titleRect = titleElement.getBoundingClientRect();
+          const containerRect = container.getBoundingClientRect();
+          const isAtTop = titleRect.top <= containerRect.top + 50; // 50px 여유
+          
+          setIsSticky(isAtTop);
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    const container = scrollContainerRef.current;
+    if (container && isModalOpen && novel) {
+      container.addEventListener("scroll", handleScroll, { passive: true });
+      return () => container.removeEventListener("scroll", handleScroll);
+    }
+  }, [isModalOpen, novel]);
 
   if (!isModalOpen || !selectedNovelId) return null;
   
@@ -62,7 +102,7 @@ export function NovelDetailModal() {
           margin: 0,
           zIndex: 50,
         }}
-         className="relative max-w-3xl w-full max-h-[80vh] bg-background/80 backdrop-blur-xl text-foreground rounded-2xl p-0 flex flex-col overflow-hidden [&>button]:z-[9999]">
+         className="relative max-w-3xl w-full max-h-[80vh] bg-white text-foreground rounded-2xl p-0 flex flex-col overflow-hidden [&>button]:z-[9999]">
            {/* 접근성 해결: Title과 Description 추가 */}
            <DialogTitle>
               <VisuallyHidden>세계관 상세 정보 로딩 중</VisuallyHidden>
@@ -106,10 +146,15 @@ export function NovelDetailModal() {
   const protagonist = characters.find(c => c.role === 'protagonist');
   const otherCharacters = characters.filter(c => c.role !== 'protagonist');
 
-  const authorNickname =
-    Array.isArray(novel.users)
-      ? novel.users[0]?.nickname
-      : novel.users?.nickname ?? "익명의 작가";
+  const authorInfo = Array.isArray(novel.users) ? novel.users[0] : novel.users;
+  const authorNickname = authorInfo?.nickname ?? "익명의 작가";
+  const authorAvatarUrl = authorInfo?.avatar_url;
+
+  // 표지 크기 계산 (스크롤에 따라 1.0 → 0.6 범위)
+  const maxScroll = 200; // 200px 스크롤 시 최소 크기
+  const minScale = 0.6;
+  const maxScale = 1.0;
+  const coverScale = Math.max(minScale, maxScale - (scrollY / maxScroll) * (maxScale - minScale));
 
   return (
     <Dialog open={isModalOpen} onOpenChange={closeModal}>
@@ -122,34 +167,72 @@ export function NovelDetailModal() {
           margin: 0,
           zIndex: 50,
         }}
-        className="relative max-w-3xl w-full max-h-[80vh] backdrop-blur-xl text-foreground rounded-2xl p-0 flex flex-col overflow-hidden [&>button]:z-[9999]"
+        className="relative max-w-3xl w-full max-h-[80vh] bg-white text-foreground rounded-2xl p-0 flex flex-col overflow-hidden [&>button]:z-[9999] border border-gray-200 shadow-2xl"
       >
-        {/* 배경 + 그라디언트 (fadeout-bg) */}
-        {novel.image_url && (
-          <div className="absolute inset-0 -z-10 pointer-events-none fadeout-bg">
-            <Image
-              src={novel.image_url}
-              alt="배경"
-              fill
-              priority
-              className="object-cover opacity-70 blur-[24px] brightness-75"
-            />
-          </div>
-        )}
-
-        <DialogTitle>
-          <VisuallyHidden>세계관 상세 정보</VisuallyHidden>
-        </DialogTitle>
-        {/* 접근성 해결: Description 추가 */}
-        <DialogDescription>
-          <VisuallyHidden>{novel.title} 세계관의 줄거리, 등장인물 등 상세 정보를 확인할 수 있습니다.</VisuallyHidden>
+        {/* 접근성 해결: Description만 숨김 처리 */}
+        <DialogDescription className="sr-only absolute -top-full">
+          선택한 세계관의 줄거리, 캐릭터 정보 및 상세 내용을 확인할 수 있습니다.
         </DialogDescription>
 
+        {/* Sticky 헤더 - 스크롤 시 나타남 */}
+        <div 
+          className={`absolute top-0 left-0 right-0 z-50 bg-gray-100/95 backdrop-blur-sm border-b border-gray-200 px-6 py-4 transition-all duration-300 ease-out rounded-t-2xl ${
+            isSticky ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+          }`}
+        >
+          <div className="flex flex-col items-center gap-2">
+            {/* 제목 */}
+            <h2 className="text-lg font-bold text-gray-900 text-center">
+              {novel.title}
+            </h2>
+            
+            {/* 태그 */}
+            <div className="flex flex-wrap gap-1 justify-center">
+              {novel.mood?.slice(0, 10).map((tag: string) => (
+                <span 
+                  key={tag} 
+                  className="bg-white text-[#858585] px-2 py-0.5 rounded-full border border-white text-[10px]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* 스크롤 영역 */}
-        <div className="relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div 
+          ref={scrollContainerRef}
+          className="relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-white"
+        >
+          {/* 배경 레이어 - 피그마 디자인 반영 */}
+          {novel.image_url && (
+            <div className="absolute inset-0 -z-10 pointer-events-none">
+              {/* 1. 원본 배경 이미지 */}
+              <Image
+                src={novel.image_url}
+                alt="배경"
+                fill
+                priority
+                className="object-cover object-top"
+              />
+              
+              {/* 2. 20% 검정색 오버레이 */}
+              <div className="absolute inset-0 bg-black/5" />
+              
+               {/* 3. 백그라운드 블러 효과 */}
+               <div className="absolute inset-0 backdrop-blur-[2px]" 
+                    style={{ 
+                      background: 'linear-gradient(to bottom, rgba(217,217,217,0) 0%, #FCFCFC 80%, #FCFCFC 100%)' 
+                    }} />
+            </div>
+          )}
           <div className="relative flex flex-col items-center w-full p-6 md:p-8">
             {/* 표지 */}
-            <div className="relative w-44 h-60 md:w-56 md:h-80 mx-auto rounded-xl overflow-hidden mb-4 border-2 border-white/80">
+            <div 
+              className="relative w-44 h-60 md:w-56 md:h-80 mx-auto rounded-xl overflow-hidden mb-4 transition-transform duration-150 ease-out"
+              style={{ transform: `scale(${coverScale})` }}
+            >
               <Image
                 src={novel.image_url || "https://i.imgur.com/D1fNsoW.png"}
                 alt={novel.title ?? "세계관 표지"}
@@ -160,23 +243,41 @@ export function NovelDetailModal() {
             </div>
 
             {/* 제목 */}
-            <h1 className="text-2xl md:text-3xl font-bold text-center mb-2 w-full truncate">
-              {novel.title}
-            </h1>
+            <DialogTitle asChild>
+              <h1 
+                ref={titleRef}
+                className="text-[23px] font-extrabold text-center mb-2 w-full truncate"
+              >
+                {novel.title}
+              </h1>
+            </DialogTitle>
 
             {/* 태그 */}
-            <div className="flex flex-wrap gap-2 justify-center mb-4 w-full">
+            <div className="flex flex-wrap gap-1 justify-center mb-4 w-full">
               {novel.mood?.map((tag: string) => (
-                <span key={tag} className="text-sm text-white">
+                <span 
+                  key={tag} 
+                  className="bg-white text-[#858585] px-3 py-1 rounded-full border border-white"
+                  style={{ 
+                    fontSize: '11.62px' 
+                  }}
+                >
                   {tag}
                 </span>
               ))}
             </div>
 
             {/* 작가 */}
-            <div className="flex items-center gap-1 text-sm text-muted-foreground mb-2">
-              <User2 className="w-4 h-4" />
-              <span>{authorNickname}</span>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-full w-fit mx-auto border border-[#D3CFE8]">
+              <div className="relative w-4 h-4 rounded-full overflow-hidden">
+                <Image
+                  src={authorAvatarUrl || "/neo_emblem.svg"}
+                  alt={`${authorNickname} 프로필`}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <span className="font-medium text-gray-700">{authorNickname}</span>
             </div>
 
             {/* 내용 카드 */}
@@ -205,7 +306,7 @@ export function NovelDetailModal() {
                          <div className="text-sm flex gap-3">
                            {protagonist.asset_url && (
                              <div 
-                               className="relative flex-shrink-0 bg-gray-50 rounded-md border border-gray-200"
+                               className="relative flex-shrink-0 bg-gray-50 rounded-md"
                                style={{ width: '84px', height: '108px' }}
                              >
                                <Image
@@ -231,7 +332,7 @@ export function NovelDetailModal() {
                          <div key={i} className="text-sm flex gap-3">
                            {c.asset_url && (
                              <div 
-                               className="relative flex-shrink-0 bg-gray-50 rounded-md border border-gray-200"
+                               className="relative flex-shrink-0 bg-gray-50 rounded-md"
                                style={{ width: '84px', height: '108px' }}
                              >
                                <Image
@@ -262,20 +363,21 @@ export function NovelDetailModal() {
           </div>
         </div>
 
-        {/* 하단 버튼 */}
-        <Link href={`/novel/${novel.id}/chat`} passHref>
+        {/* 하단 고정 버튼 - 절대 위치로 버튼만 배치 */}
+
           <Button
             size="lg"
-            className="gradient-btn absolute bottom-4 left-1/2 -translate-x-1/2 w-[12rem] rounded-full text-primary-foreground font-bold py-3 text-base z-50 flex items-center justify-between px-2"
+            className="gradient-btn w-[12rem] rounded-full text-primary-foreground font-bold text-base flex items-center justify-between px-2 absolute bottom-6 left-1/2 -translate-x-1/2 z-50"
             onClick={() => {
               // 페이지 전환 시 모달 닫기
               setTimeout(() => closeModal(), 100);
             }}
-          >
-            <span>세계관 진입하기</span>
-            <Image src="/arrow_right.png" alt="arrow-right" width={20} height={20} />
+          >        
+            <Link href={`/novel/${novel.id}/chat`} passHref className="flex items-center justify-between w-full">
+              <span>세계관 진입하기</span>
+              <Image src="/arrow_right.png" alt="arrow-right" width={20} height={20} />
+            </Link>
           </Button>
-        </Link>
       </DialogContent>
     </Dialog>
   );

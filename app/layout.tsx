@@ -12,6 +12,7 @@ import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/toaster";
 import { NovelDetailModal } from "@/components/common/NovelDetailModal"; // 모달 import
+import MainHeader from "@/app/_components/MainHeader";
 
 const NanumSquareNeo = localFont({
   src: [
@@ -57,21 +58,21 @@ export default function RootLayout({
         <div className="flex flex-col min-h-screen">
           <LoadingProvider>
             <GlobalLoadingIndicator />
-            <main className="flex-grow">
-              <ResponsiveWrapper>
-                <AuthProvider>
-                  <QueryProvider>
-                    <OnboardingProvider>
+            <AuthProvider>
+              <QueryProvider>
+                <OnboardingProvider>
+                  <MainHeader />
+                  <main className="flex-grow">
+                    <ResponsiveWrapper>
                       <SuspenseBoundary>{children}</SuspenseBoundary>
-                    </OnboardingProvider>
-                    <NovelDetailModal /> {/* 올바른 위치로 이동 */}
-                  </QueryProvider>
-                </AuthProvider>
-              </ResponsiveWrapper>
-            </main>
+                    </ResponsiveWrapper>
+                  </main>
+                  <NovelDetailModal />
+                </OnboardingProvider>
+              </QueryProvider>
+            </AuthProvider>
             {genre}
             <Toaster />
-            {/* <NovelDetailModal />  <- 기존 위치 삭제 */}
           </LoadingProvider>
         </div>
       </body>

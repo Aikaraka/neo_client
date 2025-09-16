@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Menu } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signout } from "@/app/(auth)/_api/auth.server";
@@ -18,12 +18,13 @@ export default function SideBar() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const sidebar = document.getElementById("sidebar-content");
+      const sidebarButton = document.getElementById("sidebar-button");
+
       if (
         sidebar &&
         !sidebar.contains(event.target as Node) &&
-        !(event.target as Element)
-          .closest("button")
-          ?.contains(document.querySelector(".lucide-menu"))
+        sidebarButton &&
+        !sidebarButton.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
@@ -57,10 +58,11 @@ export default function SideBar() {
   return (
     <>
       <button
+        id="sidebar-button"
         onClick={() => setIsOpen(true)}
         className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
       >
-        <Menu />
+        <Image src="/hambuger.svg" alt="menu" width={15} height={15} />
       </button>
 
       {/* Backdrop */}

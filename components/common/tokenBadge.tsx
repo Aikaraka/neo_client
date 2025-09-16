@@ -32,21 +32,21 @@ function Token() {
   return (
     <div
       onClick={() => router.push("/store")}
-      className="flex items-center justify-between bg-white rounded-full p-1 h-8 w-auto min-w-[100px] cursor-pointer shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+      className="flex items-center justify-between bg-background rounded-full p-1 h-[24px] w-auto min-w-[90px] cursor-pointer shadow-sm border-[0.5px] border-[#ACA5B1] hover:shadow-md transition-shadow"
     >
       <div className="flex items-center pl-1">
         <Image
           src="/piece.svg"
           alt="조각 아이콘"
-          height={15}
-          width={15}
+          height={12}
+          width={12}
         />
-        <span className="ml-1.5 text-sm font-bold text-gray-800">
+        <span className="ml-1.5 text-xs font-bold text-gray-800">
           {token ?? 0}
         </span>
       </div>
-      <button className="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-purple-600 transition-colors mr-0.5">
-        <Plus size={16} />
+      <button className="bg-purple-500 text-white rounded-full w-4 h-4 flex items-center justify-center hover:bg-purple-600 transition-colors mr-0.5">
+        <Plus size={13} />
       </button>
     </div>
   );

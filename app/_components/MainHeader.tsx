@@ -14,13 +14,13 @@ import {
 import { useUser } from "@/utils/supabase/authProvider";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { NotificationBell } from "@/components/ui/notification";
 import { useState, useEffect } from "react";
 import {
   getUserSafeFilterStatus,
   toggleSafeFilter,
 } from "@/app/_api/safeFilter.server";
 import { useToast } from "@/hooks/use-toast";
+import SideBar from "@/components/layout/sidebar";
 
 export default function MainHeader() {
   const user = useUser();
@@ -101,44 +101,34 @@ export default function MainHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-background pb-4 md:p-4">
+    <header className="z-40 w-full bg-background">
       <div className="w-full max-w-[1160px] mx-auto flex flex-col md:flex-row md:items-start md:justify-end">
         {/* --- 우측 컨트롤 영역 (모바일/데스크톱 공통) --- */}
         {/* 모바일에서는 flex-row, 데스크톱에서는 flex-col items-end */}
         <div className="flex flex-col items-end">
             {/* 상단 행: 사용자 컨트롤 */}
-            <div className="flex items-center justify-end w-full h-14 px-4 md:px-0 gap-3 md:space-x-4">
+            <div className="flex items-center justify-end w-full h-14 px-4 md:px-0 gap-[23px]">
+                {/* 왼쪽 그룹: 보호필터, 토큰 */}
                 <div className="flex items-center gap-1 md:space-x-1.5">
-                    <Switch
-                        id="safe-filter"
-                        checked={safeFilterEnabled}
-                        onCheckedChange={handleSafeFilterToggle}
-                        disabled={isLoading}
-                        className="scale-90 md:scale-100"
-                    />
-                    <Label htmlFor="safe-filter" className="text-xs text-gray-600">
-                        보호필터
-                    </Label>
-                    {/* 데스크톱 전용 툴팁 */}
-                    <div className="hidden md:block">
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <button>
-                                        <HelpCircle className="w-3.5 h-3.5 text-gray-500" />
-                                    </button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>보호 필터를 키면 선정적인 컨텐츠를 차단할 수 있어요.</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
+                    <div className="flex items-center gap-1 md:space-x-1.5">
+                        <Switch
+                            id="safe-filter"
+                            checked={safeFilterEnabled}
+                            onCheckedChange={handleSafeFilterToggle}
+                            disabled={isLoading}
+                        />
+                        <Label htmlFor="safe-filter" className="text-xs text-gray-600">
+                            보호필터
+                        </Label>
                     </div>
+                    {/* 구분선 */}
+                    <div className="h-6 w-[1px] bg-[#E6E6E6]" />
+                    <TokenBadge />
                 </div>
-                <TokenBadge />
+
+                {/* 오른쪽 그룹: 로그아웃, 사이드바 */}
                 {user && (
-                    <>
-                        <NotificationBell />
+                    <div className="flex items-center gap-[15px]">
                         {/* 데스크톱 전용 로그아웃 버튼 */}
                         <button
                             onClick={handleLogout}
@@ -146,11 +136,13 @@ export default function MainHeader() {
                         >
                             로그아웃
                         </button>
-                    </>
+                        <SideBar />
+                    </div>
                 )}
             </div>
-             {/* 하단 행: 검색 바 (데스크톱 only in this position) */}
-            <div className="hidden md:block w-[480px]">
+
+            {/* 하단 행: 검색창 */}
+            <div className="w-full md:w-[281px] mt-2 px-4 md:px-0">
                 <Search />
             </div>
         </div>

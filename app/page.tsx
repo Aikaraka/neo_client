@@ -7,7 +7,6 @@ import {
   TopNovelList,
   NovelListByGenre,
 } from "@/app/_components/NovelList";
-import MainHeader from "@/app/_components/MainHeader";
 import Footer from "@/components/layout/Footer";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { MainBanner } from "@/app/_components/MainBanner";
@@ -16,14 +15,8 @@ export default async function Home() {
   return (
     <>
       <OnboardingModal />
-      <div
-        className="flex w-full bg-background relative"
-        style={{ height: "111.11vh" }}
-      >
-        <div className="flex-1 flex flex-col overflow-y-auto scrollbar-hidden">
-          {/* Header */}
-          <MainHeader />
-
+      <div className="flex w-full bg-background relative">
+        <div className="flex-1 flex flex-col">
           {/* Main Content */}
           <main className="flex-1 w-full flex justify-center">
             <div className="w-full max-w-[1160px] relative p-4">

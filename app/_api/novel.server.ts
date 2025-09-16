@@ -10,7 +10,8 @@ export async function getNovelDetail(novelId: string) {
       `
       *,
       users (
-        nickname
+        nickname,
+        avatar_url
       )
     `
     )

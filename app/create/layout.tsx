@@ -7,7 +7,7 @@ export default function CreateLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex w-full h-screen justify-center items-center bg-input">
+    <div className="flex w-full h-full justify-center bg-background pt-4">
       <MainContent className="relative">
         <PageProvider maxPage={1}>{children}</PageProvider>
       </MainContent>

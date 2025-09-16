@@ -133,16 +133,6 @@ export default function SearchResultPage() {
             <div className="container max-w-md md:max-w-full p-4">
               {/* 검색 모달 버튼 */}
               <div className="mb-6 relative">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="bg-accent w-full justify-start px-5 flex rounded-full gap-3"
-                  onClick={() => setShowSearchModal(true)}
-                >
-                  <SearchIcon className="h-5 w-5" />
-                  <span className="text-gray-500">검색어를 입력하세요</span>
-                </Button>
-                
                 {/* 검색 모달 (홈페이지와 동일한 로직) */}
                 {showSearchModal && (
                   <div

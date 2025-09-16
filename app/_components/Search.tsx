@@ -17,19 +17,17 @@ import { useEffect, useRef, useState } from "react";
 // 인기 키워드 목록
 const POPULAR_KEYWORDS = [
   "로맨스", "이세계", "회귀", "헌터", "무협",
-  "로맨스판타지", "학원물", "현대물", "빙의", "환생"
+  "로맨스판타지", "학원물", "현대물", "빙의"
 ];
 
 export default function Search() {
   const [openSearchContent, setOpenSearchContent] = useState<boolean>(false);
   return (
-    <div className="flex-1 md:w-[495px] md:relative">
+    <div className="md:relative">
       <Button
-        variant="ghost"
-        className="bg-accent w-full justify-between px-5 flex rounded-full text-muted-foreground"
+        className="w-full flex justify-between items-center px-4 py-2 rounded-full bg-[#F1F1F1] border-[0.45px] border-[#94959A] text-gray-500 font-normal hover:shadow-sm"
         onClick={() => setOpenSearchContent(true)}
       >
-        <span className="text-sm">마음에 드는 세계관을 검색해보세요 !</span>
         <Image
           src="/search.svg"
           alt="Search Icon"

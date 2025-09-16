@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { completeAgeVerification } from "@/app/_api/safeFilter.server";
-import MainHeader from "@/app/_components/MainHeader";
 import { useEffect, useState } from "react";
 
 // PortOne(아임포트) 타입 정의
@@ -213,8 +212,6 @@ export default function VerifyAgePage() {
       {/* 흐림 배경 */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-br from-purple-200 via-blue-200 to-slate-200" />
       <div className="absolute inset-0 -z-10 backdrop-blur-xl" />
-
-      <MainHeader />
 
       {/* 중앙 카드 */}
       <div className="flex justify-center mt-16 px-4">
