@@ -12,7 +12,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { Filter, X, Sparkles, Search as SearchIcon } from "lucide-react";
+import { Filter, X, Sparkles } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNovelModal } from "@/hooks/useNovelModal";
 

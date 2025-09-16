@@ -21,13 +21,20 @@ interface Preferences {
   관계: string[];
 }
 
+interface Novel {
+  id: string;
+  title: string;
+  image_url?: string;
+  updated_at: string;
+}
+
 interface UserData {
   user: {
     nickname: string;
     avatar_url?: string; // profile_image_url을 avatar_url로 변경
     preferences?: Preferences | string[];
   };
-  novels: any[];
+  novels: Novel[];
 }
 
 interface MyPageClientProps {
@@ -85,7 +92,7 @@ export default function MyPageClient({ userData }: MyPageClientProps) {
         });
         router.refresh(); 
       }
-    } catch (e) {
+    } catch {
       toast({
         title: "업로드 오류",
         description: "이미지 업로드 중 오류가 발생했습니다.",
@@ -106,7 +113,7 @@ export default function MyPageClient({ userData }: MyPageClientProps) {
         title: "취향 설정 완료",
         description: "취향이 성공적으로 저장되었습니다.",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "저장 실패",
         description: "취향 저장에 실패했습니다. 다시 시도해주세요.",

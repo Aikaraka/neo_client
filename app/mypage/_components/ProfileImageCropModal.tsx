@@ -30,21 +30,13 @@ function canvasPreview(
     throw new Error("No 2d context");
   }
 
-  const scaleX = image.naturalWidth / image.width;
-  const scaleY = image.naturalHeight / image.height;
   const pixelRatio = window.devicePixelRatio;
 
-  canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
-  canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
+  canvas.width = Math.floor(crop.width * pixelRatio);
+  canvas.height = Math.floor(crop.height * pixelRatio);
 
   ctx.scale(pixelRatio, pixelRatio);
   ctx.imageSmoothingQuality = "high";
-
-  const cropX = crop.x * scaleX;
-  const cropY = crop.y * scaleY;
-
-  const centerX = image.naturalWidth / 2;
-  const centerY = image.naturalHeight / 2;
 
   ctx.save();
 
@@ -177,6 +169,7 @@ export default function ProfileImageCropModal({
                 aspect={1}
                 circularCrop
               >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   ref={imgRef}
                   alt="편집할 이미지"

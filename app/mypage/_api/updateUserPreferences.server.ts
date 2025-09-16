@@ -57,7 +57,7 @@ export async function updateUserPreferences(preferences: string[]) {
   preferences.forEach(pref => {
     for (const [category, keywords] of Object.entries(keywordCategories)) {
       if (keywords.includes(pref)) {
-        (categorizedPreferences as any)[category].push(pref);
+        (categorizedPreferences as Record<string, string[]>)[category].push(pref);
         break;
       }
     }

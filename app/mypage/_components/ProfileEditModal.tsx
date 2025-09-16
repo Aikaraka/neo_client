@@ -62,7 +62,7 @@ export default function ProfileEditModal({
         onNicknameUpdate?.();
         onClose();
       }
-    } catch (error) {
+    } catch {
       toast({
         title: "오류 발생",
         description: "닉네임 변경 중 오류가 발생했습니다.",

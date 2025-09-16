@@ -2,15 +2,8 @@
 
 import Search from "@/app/_components/Search";
 import TokenBadge from "@/components/common/tokenBadge";
-import { HelpCircle } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useUser } from "@/utils/supabase/authProvider";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";

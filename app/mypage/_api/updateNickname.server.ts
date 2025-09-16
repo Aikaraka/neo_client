@@ -23,7 +23,7 @@ export async function updateNickname(newNickname: string) {
   }
   
   // 닉네임 중복 확인
-  const { data: existingUser, error: checkError } = await supabase
+  const { data: existingUser } = await supabase
     .from("users")
     .select("id")
     .eq("nickname", newNickname)

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import Image from "next/image";
 
 interface Novel {
   id: string;
@@ -50,10 +51,11 @@ export default function NovelListClient({ novels }: NovelListClientProps) {
         {sortedNovels.map((novel) => (
           <div key={novel.id} className="flex flex-col items-center">
             <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-gray-200 cursor-pointer hover:scale-105 transition-transform">
-              <img
+              <Image
                 src={novel.image_url || "/neo_emblem.svg"}
                 alt={novel.title || "소설 표지"}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
             <p className="text-sm text-center mt-2 line-clamp-2 max-w-full">

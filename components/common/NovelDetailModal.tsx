@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/compone
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { getNovelDetail } from "@/app/_api/novel.server";
-import { User2, BookOpen, Users } from "lucide-react";
+import { BookOpen, Users } from "lucide-react";
 import { useNovelModal } from "@/hooks/useNovelModal"; // Zustand 스토어 import
 
 /* ---------- Zod 스키마 ---------- */
