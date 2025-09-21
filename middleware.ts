@@ -14,9 +14,19 @@ const adminRoutes = ["/admin"];
 const authRoutes = ["/login", "/signup"];
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  
+  // Sentry Uptime Monitor 봇 처리 (최우선)
+  const ua = request.headers.get('user-agent') || '';
+  const isSentryBot = ua.includes('SentryUptimeBot');
+  
+  if (isSentryBot && pathname === '/') {
+    // 헬스체크 엔드포인트로 리다이렉트
+    return NextResponse.rewrite(new URL('/healthz', request.url));
+  }
+  
   // 세션 업데이트 처리 및 supabase 인스턴스 가져오기
   const { supabaseResponse, user, supabase } = await updateSession(request);
-  const { pathname } = request.nextUrl;
 
   if (user) {
     const { data: userData } = await supabase
