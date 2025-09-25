@@ -3,17 +3,10 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { signout } from "@/app/(auth)/_api/auth.server";
-import { useActionWithLoading } from "@/hooks/useActionWithLoading";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
-  const router = useRouter();
-  
-  // useActionWithLoading 훅으로 signout 감싸기
-  const signoutWithLoading = useActionWithLoading(signout);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -44,16 +37,6 @@ export default function SideBar() {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, []);
-
-  const handleSignout = async () => {
-    try {
-      await signoutWithLoading(); // 감싸진 액션 호출
-    } catch {
-      // 에러 처리 (선택 사항)
-    } finally {
-      router.push("/");
-    }
-  };
 
   return (
     <>
@@ -139,15 +122,6 @@ export default function SideBar() {
                 저작권 및 지식재산권 관리 정책
               </Link>
             </div>
-          </div>
-
-          <div className="absolute bottom-5 w-full px-5">
-            <button
-              onClick={handleSignout}
-              className="w-full bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              로그아웃
-            </button>
           </div>
         </div>
       </div>

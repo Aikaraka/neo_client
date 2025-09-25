@@ -46,8 +46,6 @@ export default function PurchaseCard({
       : `${formatNumber(tokens)}개 조각`
 
     const result = await requestPayment({
-      storeId: "store-9352e30f-52b7-42c5-8d98-052d88aeb3b5",
-      channelKey: "channel-key-210bd239-bbd0-4948-a7f6-5544b7ec7c3c",
       paymentId: `payment-${Date.now()}-${crypto.randomUUID().slice(0, 9)}`, // KG이니시스 OID 길이 제한 대응
       orderName,
       totalAmount: price,

@@ -8,7 +8,6 @@ import {
   NovelListByGenre,
 } from "@/app/_components/NovelList";
 import Footer from "@/components/layout/Footer";
-import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { MainBanner } from "@/app/_components/MainBanner";
 
 // ISR 설정: 1일마다 재생성 (추천/인기 소설 업데이트 주기가 길어서)
@@ -17,7 +16,7 @@ export const revalidate = 86400; // 24시간 = 86400초
 export default async function Home() {
   return (
     <>
-      <OnboardingModal />
+      
       <div className="flex w-full bg-background relative">
         <div className="flex-1 flex flex-col">
           {/* Main Content */}

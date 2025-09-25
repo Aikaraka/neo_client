@@ -1,4 +1,3 @@
-import MainHeader from "../_components/MainHeader"
 import FreeTokenButton from "./_components/FreeTokenButton"
 import PurchaseCard from "./_components/PurchaseCard"
 import PurchaseDisclaimer from "./_components/PurchaseDisclaimer"
@@ -30,7 +29,7 @@ export default function StorePage() {
   return (
     <div className="flex w-full h-screen bg-background relative">
       <div className="flex-1 flex flex-col overflow-y-auto scrollbar-hidden">
-        <MainHeader />
+        
         <main className="flex-1 w-full">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="space-y-12">

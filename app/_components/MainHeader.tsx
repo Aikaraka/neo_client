@@ -102,8 +102,8 @@ export default function MainHeader() {
             {/* 상단 행: 사용자 컨트롤 */}
             <div className="flex items-center justify-end w-full h-14 px-4 md:px-0 gap-[23px]">
                 {/* 왼쪽 그룹: 보호필터, 토큰 */}
-                <div className="flex items-center gap-1 md:space-x-1.5">
-                    <div className="flex items-center gap-1 md:space-x-1.5">
+                <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5">
                         <Switch
                             id="safe-filter"
                             checked={safeFilterEnabled}
@@ -125,7 +125,7 @@ export default function MainHeader() {
                         {/* 데스크톱 전용 로그아웃 버튼 */}
                         <button
                             onClick={handleLogout}
-                            className="hidden md:block text-xs font-medium text-gray-500 hover:text-gray-800"
+                            className="block text-xs font-medium text-gray-500 hover:text-gray-800"
                         >
                             로그아웃
                         </button>
@@ -134,8 +134,8 @@ export default function MainHeader() {
                 )}
             </div>
 
-            {/* 하단 행: 검색창 */}
-            <div className="w-full md:w-[281px] mt-2 px-4 md:px-0">
+            {/* 하단 행: 검색창 (데스크톱 전용) */}
+            <div className="hidden md:block w-full md:w-[281px] mt-2 px-4 md:px-0">
                 <Search />
             </div>
         </div>
