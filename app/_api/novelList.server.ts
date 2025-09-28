@@ -29,17 +29,22 @@ async function getSafeFilterEnabled() {
   return true;
 }
 
-export async function getRecommendedNovels() {
+export async function getRecommendedNovels({
+  safeFilter,
+}: {
+  safeFilter?: boolean;
+} = {}) {
   const supabase = await createClient();
-  const safeFilterEnabled = await getSafeFilterEnabled();
-  
+  const safeFilterEnabled =
+    safeFilter === undefined ? await getSafeFilterEnabled() : safeFilter;
+
   let query = supabase
     .from("novels")
     .select("*")
     .filter("settings->isPublic", "eq", true)
     .order("created_at", { ascending: false })
     .limit(10);
-  
+
   // 보호필터가 켜져 있으면 성인 콘텐츠 제외
   if (safeFilterEnabled) {
     query = query.or('settings->hasAdultContent.is.null,settings->hasAdultContent.eq.false');
@@ -52,15 +57,16 @@ export async function getRecommendedNovels() {
   if (!data || data.length === 0) {
     console.log("선택된 추천 세계관이 없습니다. 공개된 최신 세계관을 가져옵니다.");
 
-    const recentNovels = await getRecentNovels();
+    const recentNovels = await getRecentNovels({ safeFilter });
     return recentNovels;
   }
   return data;
 }
 
-export async function getNovels() {
+export async function getNovels({ safeFilter }: { safeFilter?: boolean } = {}) {
   const supabase = await createClient();
-  const safeFilterEnabled = await getSafeFilterEnabled();
+  const safeFilterEnabled =
+    safeFilter === undefined ? await getSafeFilterEnabled() : safeFilter;
 
   const { data: dailyRankings, error: dailyError } = await supabase.rpc(
     "get_latest_novel_rankings",
@@ -137,11 +143,15 @@ export async function getNovels() {
   return allTimeRankings;
 }
 
-
-export async function getRecentNovels() {
+export async function getRecentNovels({
+  safeFilter,
+}: {
+  safeFilter?: boolean;
+} = {}) {
   const supabase = await createClient();
-  const safeFilterEnabled = await getSafeFilterEnabled();
-  
+  const safeFilterEnabled =
+    safeFilter === undefined ? await getSafeFilterEnabled() : safeFilter;
+
   let query = supabase
     .from("novels")
     .select("*")
@@ -161,9 +171,14 @@ export async function getRecentNovels() {
   return data;
 }
 
-export async function getNovelsForGenreList() {
+export async function getNovelsForGenreList({
+  safeFilter,
+}: {
+  safeFilter?: boolean;
+} = {}) {
   const supabase = await createClient();
-  const safeFilterEnabled = await getSafeFilterEnabled();
+  const safeFilterEnabled =
+    safeFilter === undefined ? await getSafeFilterEnabled() : safeFilter;
 
   let query = supabase
     .from("novels")
@@ -189,10 +204,14 @@ export async function getNovelsForGenreList() {
   return data || [];
 }
 
-export async function getNovelsByCategory(category: Category) {
+export async function getNovelsByCategory(
+  category: Category,
+  { safeFilter }: { safeFilter?: boolean } = {}
+) {
   const supabase = await createClient();
-  const safeFilterEnabled = await getSafeFilterEnabled();
-  
+  const safeFilterEnabled =
+    safeFilter === undefined ? await getSafeFilterEnabled() : safeFilter;
+
   let query = supabase
     .from("novels")
     .select("*")
@@ -214,10 +233,15 @@ export async function getNovelsByCategory(category: Category) {
   return data;
 }
 
-export async function getNovelsByView() {
+export async function getNovelsByView({
+  safeFilter,
+}: {
+  safeFilter?: boolean;
+} = {}) {
   const supabase = await createClient();
-  const safeFilterEnabled = await getSafeFilterEnabled();
-  
+  const safeFilterEnabled =
+    safeFilter === undefined ? await getSafeFilterEnabled() : safeFilter;
+
   // 일별 인기 소설 가져오기 (저장된 랭킹 사용)
   const { data: dailyRankings, error: dailyError } = await supabase.rpc(
     "get_latest_novel_rankings",

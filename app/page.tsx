@@ -1,97 +1,39 @@
 import Image from "next/image";
-import {
-  NovelListByGenreCarousel,
-  RecommendedNovelListCarousel,
-  TopNovelListCarousel,
-  RecommendedNovelList,
-  TopNovelList,
-  NovelListByGenre,
-} from "@/app/_components/NovelList";
+import { Suspense } from "react";
+
 import Footer from "@/components/layout/Footer";
 import { MainBanner } from "@/app/_components/MainBanner";
+import {
+  getNovelsForGenreList,
+  getNovelsByView,
+  getRecommendedNovels,
+} from "./_api/novelList.server";
+import { HomeSkeleton } from "./_components/HomeSkeleton";
+import { HomeClient } from "./_components/HomeClient";
 
 // ISR 설정: 1일마다 재생성 (추천/인기 소설 업데이트 주기가 길어서)
 export const revalidate = 86400; // 24시간 = 86400초
 
 export default async function Home() {
+  const [initialGenreNovels, initialRecommendedNovels, initialTopNovels] =
+    await Promise.all([
+      getNovelsForGenreList({ safeFilter: true }),
+      getRecommendedNovels({ safeFilter: true }),
+      getNovelsByView({ safeFilter: true }),
+    ]);
   return (
     <>
-      
       <div className="flex w-full bg-background relative">
         <div className="flex-1 flex flex-col">
           {/* Main Content */}
           <main className="flex-1 w-full flex justify-center">
-            <div className="w-full max-w-[1160px] relative p-4">
-              <MainBanner />
-              {/* Genres Section */}
-              <section className="relative">
-                <h2 className="text-lg md:text-[22px] font-semibold mb-4 flex items-center">
-                  <Image
-                    src="/novel/genre_badge.svg"
-                    alt="icon"
-                    width={20}
-                    height={20}
-                    className="h-5 md:h-6 w-auto mr-2"
-                  />
-                  장르별 세계관 추천
-                </h2>
-                <div className="relative overflow-visible">
-                  {/* 모바일에서는 NovelList, 데스크톱에서는 Carousel */}
-                  <div className="block md:hidden">
-                    <NovelListByGenre />
-                  </div>
-                  <div className="hidden md:block">
-                    <NovelListByGenreCarousel />
-                  </div>
-                </div>
-              </section>
-
-              {/* Recommended Section */}
-              <section className="relative pt-20">
-                <h2 className="text-lg md:text-[22px] font-semibold flex items-center">
-                  <Image
-                    src="/novel/recommend_badge.svg"
-                    alt="icon"
-                    width={20}
-                    height={20}
-                    className="h-5 md:h-6 w-auto mr-2"
-                  />
-                  당신을 위한 맞춤 추천
-                </h2>
-                <div className="relative overflow-visible">
-                  {/* 모바일에서는 NovelList, 데스크톱에서는 Carousel */}
-                  <div className="block md:hidden">
-                    <RecommendedNovelList />
-                  </div>
-                  <div className="hidden md:block">
-                    <RecommendedNovelListCarousel />
-                  </div>
-                </div>
-              </section>
-
-              {/* Top 5 Section */}
-              <section className="relative pt-20 pb-10">
-                <h2 className="text-lg md:text-[22px] font-semibold flex items-center">
-                  <Image
-                    src="/novel/top_badge.svg"
-                    alt="icon"
-                    width={20}
-                    height={20}
-                    className="h-5 md:h-6 w-auto mr-2"
-                  />
-                  실시간 TOP 5 세계관
-                </h2>
-                <div className="relative overflow-visible">
-                  {/* 모바일에서는 NovelList, 데스크톱에서는 Carousel */}
-                  <div className="block md:hidden">
-                    <TopNovelList />
-                  </div>
-                  <div className="hidden md:block">
-                    <TopNovelListCarousel />
-                  </div>
-                </div>
-              </section>
-            </div>
+            <Suspense fallback={<HomeSkeleton />}>
+              <HomeClient
+                initialGenreNovels={initialGenreNovels}
+                initialRecommendedNovels={initialRecommendedNovels}
+                initialTopNovels={initialTopNovels}
+              />
+            </Suspense>
           </main>
           <Footer />
         </div>
