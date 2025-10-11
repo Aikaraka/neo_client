@@ -1,8 +1,6 @@
-import Image from "next/image";
 import { Suspense } from "react";
 
 import Footer from "@/components/layout/Footer";
-import { MainBanner } from "@/app/_components/MainBanner";
 import {
   getNovelsForGenreList,
   getNovelsByView,
@@ -24,7 +22,7 @@ export default async function Home() {
   return (
     <>
       <div className="flex w-full bg-background relative">
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col w-full">
           {/* Main Content */}
           <main className="flex-1 w-full flex justify-center">
             <Suspense fallback={<HomeSkeleton />}>

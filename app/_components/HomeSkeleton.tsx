@@ -14,7 +14,7 @@ export function HomeSkeleton() {
             alt="icon"
             width={20}
             height={20}
-            className="h-5 md:h-6 w-auto mr-2"
+            className="h-5 md:h-6 w-full mr-2"
           />
           장르별 세계관 추천
         </h2>
@@ -29,7 +29,7 @@ export function HomeSkeleton() {
             alt="icon"
             width={20}
             height={20}
-            className="h-5 md:h-6 w-auto mr-2"
+            className="h-5 md:h-6 w-full mr-2"
           />
           당신을 위한 맞춤 추천
         </h2>
@@ -44,7 +44,7 @@ export function HomeSkeleton() {
             alt="icon"
             width={20}
             height={20}
-            className="h-5 md:h-6 w-auto mr-2"
+            className="h-5 md:h-6 w-full mr-2"
           />
           실시간 TOP 5 세계관
         </h2>

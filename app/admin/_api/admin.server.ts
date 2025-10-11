@@ -195,7 +195,6 @@ export async function calculateAndSaveRankings() {
       .insert(dailyRankings);
 
     if (insertDailyError) {
-      console.log("?????", insertDailyError);
       throw new Error("일별 랭킹 저장 중 오류가 발생했습니다.");
     }
   }
@@ -487,13 +486,11 @@ export async function getNovelDetailsForAdmin(novelId: string) {
 
 // 어드민 전용 세계관 삭제 함수
 export async function deleteNovelAsAdmin(novelId: string) {
-  console.log(`[deleteNovelAsAdmin] 삭제 시작: novelId=${novelId}`);
   const supabase = await createClient();
 
   try {
     // 현재 사용자 정보 확인
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    console.log(`[deleteNovelAsAdmin] 현재 사용자: ${user?.id}, 이메일: ${user?.email}`);
+    const { error: authError } = await supabase.auth.getUser();
     if (authError) {
       console.error(`[deleteNovelAsAdmin] 인증 오류:`, authError);
       throw new Error(`인증 오류: ${authError.message}`);
@@ -502,35 +499,18 @@ export async function deleteNovelAsAdmin(novelId: string) {
     // 먼저 관련된 데이터들을 삭제해야 합니다 (외래 키 제약 때문에)
     
     // 1. novel_stats 삭제
-    console.log(`[deleteNovelAsAdmin] novel_stats 삭제 시도`);
-    const statsResponse = await supabase
+    await supabase
       .from("novel_stats")
       .delete()
       .eq("novel_id", novelId);
 
-    console.log(`[deleteNovelAsAdmin] novel_stats 삭제 응답:`, {
-      data: statsResponse.data,
-      error: statsResponse.error,
-      status: statsResponse.status,
-      statusText: statsResponse.statusText
-    });
-
     // 2. novel_rankings 삭제
-    console.log(`[deleteNovelAsAdmin] novel_rankings 삭제 시도`);
-    const rankingsResponse = await supabase
+    await supabase
       .from("novel_rankings")
       .delete()
       .eq("novel_id", novelId);
 
-    console.log(`[deleteNovelAsAdmin] novel_rankings 삭제 응답:`, {
-      data: rankingsResponse.data,
-      error: rankingsResponse.error,
-      status: rankingsResponse.status,
-      statusText: rankingsResponse.statusText
-    });
-
     // 3. 삭제 전에 세계관이 존재하는지 확인
-    console.log(`[deleteNovelAsAdmin] 삭제할 세계관 확인 중`);
     const { data: novelToDelete, error: checkError } = await supabase
       .from("novels")
       .select("id, title, user_id")
@@ -541,22 +521,12 @@ export async function deleteNovelAsAdmin(novelId: string) {
       console.error(`[deleteNovelAsAdmin] 세계관을 찾을 수 없음:`, checkError);
       throw new Error(`세계관을 찾을 수 없습니다: ${novelId}`);
     }
-    console.log(`[deleteNovelAsAdmin] 삭제할 세계관 찾음:`, novelToDelete);
 
     // 4. 마지막으로 세계관 자체를 삭제
-    console.log(`[deleteNovelAsAdmin] novels 테이블에서 삭제 시도`);
     const deleteResponse = await supabase
       .from("novels")
       .delete()
       .eq("id", novelId);
-
-    console.log(`[deleteNovelAsAdmin] novels 삭제 응답:`, {
-      data: deleteResponse.data,
-      error: deleteResponse.error,
-      status: deleteResponse.status,
-      statusText: deleteResponse.statusText,
-      count: deleteResponse.count
-    });
 
     if (deleteResponse.error) {
       console.error("[deleteNovelAsAdmin] Novel deletion error 상세:", {
@@ -569,11 +539,9 @@ export async function deleteNovelAsAdmin(novelId: string) {
     }
 
     // 5. 관련 페이지 캐시 무효화
-    console.log(`[deleteNovelAsAdmin] 캐시 무효화 중`);
     revalidatePath("/admin/novels");
     revalidatePath("/");
 
-    console.log(`[deleteNovelAsAdmin] 모든 작업 완료`);
     return { success: true, message: "세계관이 성공적으로 삭제되었습니다." };
   } catch (error) {
     console.error("[deleteNovelAsAdmin] Unexpected error:", error);

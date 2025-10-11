@@ -14,10 +14,17 @@ import {
   TopNovelListCarousel,
 } from "./NovelList";
 
+// RPC 또는 뷰에서 내려오는 상위 소설 항목의 타입 정의
+interface ViewNovelDTO {
+  novel_id: string;
+  title: string;
+  image_url: string | null;
+}
+
 interface HomeClientProps {
   initialGenreNovels: Tables<"novels">[];
   initialRecommendedNovels: Tables<"novels">[];
-  initialTopNovels: any[]; // getNovelsByView returns a different type
+  initialTopNovels: ViewNovelDTO[];
 }
 
 export function HomeClient({
@@ -45,7 +52,7 @@ export function HomeClient({
   }, []);
 
   return (
-    <div className="w-full max-w-[1160px] relative p-4">
+    <div className="min-w-0 w-full max-w-[1160px] relative p-4">
       <MainBanner />
       {/* Genres Section */}
       <section className="relative">
@@ -71,7 +78,7 @@ export function HomeClient({
 
       {/* Recommended Section */}
       <section className="relative pt-20">
-        <h2 className="text-lg md:text-[22px] font-semibold flex items-center">
+        <h2 className="text-lg md:text-[22px] font-semibold flex items-center pb-4">
           <Image
             src="/novel/recommend_badge.svg"
             alt="icon"
@@ -93,7 +100,7 @@ export function HomeClient({
 
       {/* Top 5 Section */}
       <section className="relative pt-20 pb-10">
-        <h2 className="text-lg md:text-[22px] font-semibold flex items-center">
+        <h2 className="text-lg md:text-[22px] font-semibold flex items-center pb-4">
           <Image
             src="/novel/top_badge.svg"
             alt="icon"

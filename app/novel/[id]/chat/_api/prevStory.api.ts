@@ -21,12 +21,6 @@ export async function getPreviousStories(
     }
   );
   const data = await response.json();
-  console.log('[getPreviousStories] API raw data:', data);
-  if (Array.isArray(data.stories)) {
-    data.stories.forEach((story: StoryItem, idx: number) => {
-      console.log(`[getPreviousStories] story[${idx}]:`, story, 'user_input:', story.user_input);
-    });
-  }
   return data;
 }
 

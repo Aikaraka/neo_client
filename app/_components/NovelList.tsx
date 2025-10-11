@@ -1,17 +1,11 @@
 import { ScrollArea } from "@/components/layout/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  getNovelsByView,
-  getRecommendedNovels,
-  getNovelsForGenreList,
-} from "@/app/_api/novelList.server";
 import { Rabbit, Unplug } from "lucide-react";
 import { Tables } from "@/utils/supabase/types/database.types";
 import { NovelListByGenreSelector } from "@/app/_components/NovelListByGenre";
 import { CarouselNovelListByGenreSelector } from "@/app/_components/CarouselNovelListByGenre";
 import { NovelGrid } from "./NovelGrid";
-import { use } from "react";
 import { CarouselNovelList } from "./CarouselNovelList";
 
 // RPC 또는 뷰에서 내려오는 상위 소설 항목의 최소 타입 정의
@@ -93,7 +87,7 @@ export function RecommendedNovelListCarousel({
   }
 }
 
-export function TopNovelList({ novelList }: { novelList: any[] }) {
+export function TopNovelList({ novelList }: { novelList: ViewNovelDTO[] }) {
   try {
     // 뷰 결과를 novels 테이블 형태로 변환
     const novels: Tables<"novels">[] = (novelList as ViewNovelDTO[]).map(
@@ -118,7 +112,7 @@ export function TopNovelList({ novelList }: { novelList: any[] }) {
   }
 }
 
-export function TopNovelListCarousel({ novelList }: { novelList: any[] }) {
+export function TopNovelListCarousel({ novelList }: { novelList: ViewNovelDTO[] }) {
   try {
     const novels: Tables<"novels">[] = (novelList as ViewNovelDTO[]).map(
       (viewNovel: ViewNovelDTO) => ({

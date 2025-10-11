@@ -64,13 +64,6 @@ function CreateNovelPageContent() {
 
   // Zod 유효성 검사 실패 시 호출될 함수
   const onInvalid = (errors: FieldErrors<z.infer<typeof createNovelSchema>>) => {
-    // 디버깅용 로그 (정확한 오류 파악을 위해 다시 활성화)
-    console.log("Form validation failed:", errors);
-    
-    // 디버깅: 현재 폼 데이터 확인
-    const currentFormData = form.getValues();
-    console.log("Current form data:", currentFormData);
-    
     // 실제로 오류가 없는 경우 (빈 객체), 다른 문제일 가능성이 높음
     if (Object.keys(errors).length === 0) {
       console.warn("onInvalid called but no validation errors found. This might be a form submission issue.");

@@ -12,12 +12,13 @@ import {
   useInteractions,
   FloatingPortal,
 } from "@floating-ui/react";
-import { Bell, LogOut, Settings } from "lucide-react";
+import { Bell, LogOut, Settings, ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ViewSettingsPanel } from "./ViewSettingsPanel";
 
 interface MoreMenuProps {
   children: React.ReactElement;
+  onShowImageArchive: () => void;
   onColorChange?: (color: string) => void;
   selectedColor: string;
   fontSize: number;
@@ -44,7 +45,8 @@ function DiamondIcon({ size = 16 }: { size?: number }) {
 }
 
 export function MoreMenu({ 
-  children, 
+  children,
+  onShowImageArchive,
   onColorChange, 
   selectedColor, 
   fontSize, 
@@ -122,6 +124,11 @@ export function MoreMenu({
     setIsViewSettings(true);
   };
 
+  const handleShowImageArchiveClick = () => {
+    setIsOpen(false);
+    onShowImageArchive();
+  };
+
   return (
     <>
       {cloneElement(children, getReferenceProps({ ref: refs.setReference, ...children.props }))}
@@ -161,6 +168,13 @@ export function MoreMenu({
               >
                 <Bell className="w-4 h-4 text-gray-500" />
                 <span className="text-sm font-medium text-gray-700">공지사항</span>
+              </button>
+              <button
+                onClick={handleShowImageArchiveClick}
+                className="w-full text-left p-2 rounded-lg hover:bg-gray-100 transition-colors flex items-center gap-3"
+              >
+                <ImageIcon className="w-4 h-4 text-gray-500" />
+                <span className="text-sm font-medium text-gray-700">이미지 보관함</span>
               </button>
               <button
                 onClick={handleLogout}

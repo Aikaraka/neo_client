@@ -4,7 +4,7 @@ import Link from 'next/link';
 const Footer = () => {
   return (
     <footer className="bg-gray-50 text-gray-500 text-xs py-8 border-t">
-      <div className="w-full max-w-[1160px] mx-auto px-4">
+      <div className="w-full max-w-[1160px] px-4">
         <div className="space-y-4 text-left">
           {/* Policy Links */}
           <div className="flex justify-start space-x-4">

@@ -174,11 +174,10 @@ export default function MyPageClient({ userData }: MyPageClientProps) {
               layout="fill"
               objectFit="cover"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-center items-center text-white p-4">
-              <h2 className="text-xl font-bold">
+            <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-center items-center p-4">
+              <h2 className="text-xl font-bold text-center text-gray-100 text-stroke opacity-80">
                 작가님만의 세계관을 만들어보아요!
               </h2>
-              <p className="text-sm">소설 제작하기</p>
             </div>
           </div>
         </Link>

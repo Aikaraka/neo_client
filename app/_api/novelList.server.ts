@@ -55,8 +55,6 @@ export async function getRecommendedNovels({
   if (error)
     throw new Error("추천 세계관 정보를 가져오던 중 오류가 발생했습니다.");
   if (!data || data.length === 0) {
-    console.log("선택된 추천 세계관이 없습니다. 공개된 최신 세계관을 가져옵니다.");
-
     const recentNovels = await getRecentNovels({ safeFilter });
     return recentNovels;
   }
@@ -227,7 +225,6 @@ export async function getNovelsByCategory(
   const { data, error } = await query;
   
   if (error) {
-    console.log(error);
     throw new Error("카테고리별 세계관 정보를 가져오던 중 오류가 발생했습니다.");
   }
   return data;

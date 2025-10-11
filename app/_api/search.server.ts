@@ -61,7 +61,6 @@ export async function deleteSearchTerm(searchTerm: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    console.log("검색어 삭제를 위해서는 로그인이 필요합니다.");
     return;
   }
 
@@ -81,7 +80,6 @@ export async function clearAllSearchTerms() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    console.log("검색어 삭제를 위해서는 로그인이 필요합니다.");
     return;
   }
 

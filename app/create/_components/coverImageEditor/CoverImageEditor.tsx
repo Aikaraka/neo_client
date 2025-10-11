@@ -44,7 +44,6 @@ export default function CoverImageEditor() {
             crossOrigin="anonymous"
             priority
             onLoad={() => {
-              console.log('CoverImageEditor: Image onLoad event triggered for:', imageSrc);
               setCoverBgImageLoaded(true);
               setImageRetryCount(0);
             }}
@@ -273,7 +272,6 @@ function FontSelect() {
   const { changeFontStyle, fontStyle } = useCoverImageContext();
   
   const handleFontChange = (targetFont: keyof typeof fontStyles) => {
-    console.log('FontSelect: 폰트 변경 시도:', targetFont, '현재 폰트:', fontStyle);
     changeFontStyle(targetFont);
   };
   

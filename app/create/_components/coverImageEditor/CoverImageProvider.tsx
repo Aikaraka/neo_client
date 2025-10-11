@@ -43,7 +43,6 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
 
   // Wrapped setter for logging
   const newSetIsCoverBgImageLoaded = (isLoaded: boolean) => {
-    console.log("CoverImageProvider: setCoverBgImageLoaded called with:", isLoaded);
     setIsCoverBgImageLoaded(isLoaded);
   };
 
@@ -59,7 +58,6 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
     preloadImage.crossOrigin = "anonymous";
     
     preloadImage.onload = () => {
-      console.log("CoverImageProvider: Image preloaded successfully:", src.substring(0, 50));
       setImageSrc(src);
     };
     
@@ -80,7 +78,6 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
     }
     
     setIsCoverBgImageLoaded(false); // Reset on new image
-    console.log("CoverImageProvider: changeImage - isCoverBgImageLoaded reset to false");
   };
 
   const changeFontTheme = (targetFontTheme: FontTheme) => {
@@ -89,18 +86,10 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
   };
 
   const changeFontStyle = (targetFontStyle: FontStyle) => {
-    console.log('CoverImageProvider: changeFontStyle 호출됨', {
-      현재폰트: fontStyle,
-      목표폰트: targetFontStyle,
-      같은폰트여부: fontStyle === targetFontStyle
-    });
-    
     if (fontStyle === targetFontStyle) {
-      console.log('CoverImageProvider: 같은 폰트라서 변경하지 않음');
       return;
     }
     
-    console.log('CoverImageProvider: 폰트 변경 실행:', targetFontStyle);
     setFontStyleState(targetFontStyle);
   };
 

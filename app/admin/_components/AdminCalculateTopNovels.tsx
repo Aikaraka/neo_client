@@ -23,14 +23,11 @@ export default function AdminCalculateTopNovels({ onCalculationComplete }: Admin
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleCalculate = async () => {
-    console.log("[AdminCalculateTopNovels] 버튼 클릭됨");
     setIsProcessing(true);
     setResult(null);
     
     try {
-      console.log("[AdminCalculateTopNovels] 서버 액션 호출 시작");
       const response = await calculateAndSaveRankings();
-      console.log("[AdminCalculateTopNovels] 서버 액션 응답:", response);
       setResult(response);
       if (response.success) {
         onCalculationComplete();
@@ -43,7 +40,6 @@ export default function AdminCalculateTopNovels({ onCalculationComplete }: Admin
       });
     } finally {
       setIsProcessing(false);
-      console.log("[AdminCalculateTopNovels] 처리 완료");
     }
   };
 

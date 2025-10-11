@@ -2,7 +2,6 @@
 
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
 import { useEffect, useLayoutEffect, useRef } from "react";
-import { splitChatParagraphs } from "@/utils/splitChatParagraphs";
 import Image from "next/image";
 
 interface StoryContentProps {
@@ -17,12 +16,10 @@ interface StoryContentProps {
 
 export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraphWidth, font, isDark = false, messageBoxRef }: StoryContentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching: _prevFetching, isMessageSending } =
+  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching: _prevFetching, isMessageSending, streamingBackgroundStart, isBackgroundStreaming, protagonist_name, showProtagonistMessage } =
     useStoryContext();
   const interSectionRef = useRef<HTMLDivElement>(null);
   
-  console.log("[StoryContent] Messages received:", messages);
-
   // 폰트 매핑
   const getFontFamily = (fontName: string) => {
     switch (fontName) {
@@ -41,23 +38,13 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
   
   const fontFamily = getFontFamily(font);
   
-  // 렌더링 시점마다 ref 상태 출력
-  console.log("[StoryContent render] messageBoxRef.current:", messageBoxRef.current);
-  console.log("[StoryContent render] interSectionRef.current:", interSectionRef.current);
-
   useLayoutEffect(() => {
-    console.log("[StoryContent useLayoutEffect] 실행됨");
-    console.log("[StoryContent useLayoutEffect] messageBoxRef.current:", messageBoxRef.current);
-    console.log("[StoryContent useLayoutEffect] interSectionRef.current:", interSectionRef.current);
     if (!messageBoxRef.current || !interSectionRef.current) {
-      console.log("observer not attached: ref missing", { messageBox: messageBoxRef.current, interSection: interSectionRef.current });
       return;
     }
-    console.log("observer attached", { messageBox: messageBoxRef.current, interSection: interSectionRef.current });
     const observer = new window.IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMoreStories) {
-          console.log("IntersectionObserver: 최상단 감지됨, fetchMoreStories 호출");
           // 스크롤 보정 로직
           const messageBox = messageBoxRef.current;
           if (!messageBox) return;
@@ -77,8 +64,6 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
               });
             }, 0);
           });
-        } else {
-          console.log("IntersectionObserver: not intersecting", entries[0]);
         }
       },
       { root: messageBoxRef.current, threshold: 0.3 }
@@ -90,21 +75,26 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
   useEffect(() => {
     const messageBox = messageBoxRef.current;
     if (messageBox) {
-      switch (scrollType) {
-        case "smooth":
-          messageBox.scrollTo({
-            top: messageBox.scrollHeight,
-            behavior: "smooth",
-          });
-          break;
-        case "instant":
-          messageBox.scrollTo({
-            top: messageBox.scrollHeight,
-            behavior: "instant",
-          });
-          break;
-        case "none":
-          break;
+      // 사용자가 맨 밑 근처(100px 이내)에 있을 때만 자동 스크롤
+      const isNearBottom = messageBox.scrollHeight - messageBox.scrollTop - messageBox.clientHeight < 30;
+      
+      if (isNearBottom) {
+        switch (scrollType) {
+          case "smooth":
+            messageBox.scrollTo({
+              top: messageBox.scrollHeight,
+              behavior: "smooth",
+            });
+            break;
+          case "instant":
+            messageBox.scrollTo({
+              top: messageBox.scrollHeight,
+              behavior: "instant",
+            });
+            break;
+          case "none":
+            break;
+        }
       }
     }
   }, [messages, scrollType, messageBoxRef]);
@@ -119,16 +109,45 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
       }}
     >
       <div ref={interSectionRef} style={{ height: 1 }} />
+      {/* 배경 설명 - 박스 없이 굵은 글씨로 표시 */}
       <div
-        className={`bg-purple-100 p-4 text-gray-800 rounded-xl whitespace-pre-wrap`}
-        style={{ fontFamily }}
+        className="whitespace-pre-wrap"
+        style={{ 
+          fontFamily,
+          fontSize: `${fontSize + 2}px`,
+          fontWeight: 600,
+          lineHeight: lineHeight * 1.2,
+          color: isDark ? "#E5E7EB" : "#1F2937",
+          marginBottom: `${paragraphSpacing * 1.5}px`,
+        }}
       >
-        {background?.start ?? "여러분들의 소설을 시작해보세요."}
+        {isBackgroundStreaming || streamingBackgroundStart 
+          ? streamingBackgroundStart || ""
+          : background?.start ?? "여러분들의 소설을 시작해보세요."
+        }
       </div>
+
+      {/* 주인공 소개 메시지 - 그라데이션 효과 */}
+      {showProtagonistMessage && protagonist_name && (
+        <div
+          className="text-center mb-6 py-3 px-4 rounded-lg bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200/50"
+          style={{ 
+            fontFamily,
+            fontSize: `${fontSize}px`,
+            marginBottom: `${paragraphSpacing * 1.5}px`,
+          }}
+        >
+          <span className="text-gray-700">당신의 캐릭터는 </span>
+          <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+            {protagonist_name}
+          </span>
+          <span className="text-gray-700"> 입니다. <br /> 멈춘 문장 너머로, 새로운 이야기가 기다립니다.</span>
+        </div>
+      )}
 
       {messages.map((msg, i) => {
         if (msg.type === "user") {
-          const paragraphs = splitChatParagraphs(msg.content);
+          const paragraphs = msg.content.split('\n\n').filter(Boolean);
           return (
             <div key={i}>
               {paragraphs.map((p, j) => (
@@ -138,9 +157,9 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
                   style={{ 
                     color: isDark ? "#BE7AD3" : "#9125B1", 
                     WebkitTextFillColor: isDark ? "#BE7AD3" : "#9125B1", 
-                    fontWeight: 400,
-                    fontSize: `${fontSize}px`,
-                    lineHeight: lineHeight,
+                    fontWeight: 200,
+                    fontSize: `${fontSize + 2}px`,
+                    lineHeight: lineHeight * 1.2,
                     marginBottom: `${paragraphSpacing}px`,
                     marginTop: `${paragraphSpacing}px`,
                     textAlign: "left",
@@ -153,7 +172,7 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
             </div>
           );
         } else if (msg.type === "ai") {
-          const paragraphs = splitChatParagraphs(msg.content)
+          const paragraphs = msg.content.split('\n\n').filter(Boolean);
           return (
             <div key={i}>
               {msg.image_url && (
@@ -172,8 +191,9 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
                   className="text-gray-800 whitespace-pre-line tracking-wide"
                   style={{ 
                     color: isDark ? "#fff" : undefined,
-                    fontSize: `${fontSize}px`,
-                    lineHeight: lineHeight,
+                    fontSize: `${fontSize + 2}px`,
+                    fontWeight: 200,
+                    lineHeight: lineHeight * 1.2,
                     marginBottom: `${paragraphSpacing / 2}px`,
                     marginTop: `${paragraphSpacing / 2}px`,
                     textAlign: "left",

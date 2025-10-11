@@ -55,7 +55,7 @@ export default function ResponsiveWrapper({
         className={cn(
           "w-full",
           "md:pl-[80px]", 
-          !isChatPage && "pb-mobile-nav" 
+          !isChatPage
         )}
       >
         {children}

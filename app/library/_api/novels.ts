@@ -16,7 +16,6 @@ export async function getMyNovelList(): Promise<LibraryNovel[]> {
     })
   ).json();
 
-  console.log("getMyNovelList", data);
 
   return data;
 }

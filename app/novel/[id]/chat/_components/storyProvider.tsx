@@ -3,11 +3,13 @@ import React, {
   createContext,
   useContext,
   useState,
+  useEffect,
 } from "react";
 import {
   initStory,
   InitStoryResponse,
 } from "@/app/novel/[id]/chat/_api/initStory.api";
+import * as Sentry from "@sentry/nextjs";
 import { getPreviousStories } from "@/app/novel/[id]/chat/_api/prevStory.api";
 import { processNovel } from "@/app/novel/[id]/chat/_api/process.api";
 import { undoLastStory } from "@/app/novel/[id]/chat/_api/undo.api";
@@ -42,6 +44,9 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   prevFetching: boolean;
   archivedImages: string[];
   isGeneratingImage: boolean;
+  streamingBackgroundStart: string;
+  isBackgroundStreaming: boolean;
+  showProtagonistMessage: boolean;
 };
 
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
@@ -77,6 +82,10 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const [archivedImages, setArchivedImages] = useState<string[]>([]);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [generatedProgressMilestones, setGeneratedProgressMilestones] = useState<Set<number>>(new Set());
+  const [streamingBackgroundStart, setStreamingBackgroundStart] = useState("");
+  const [isBackgroundStreaming, setIsBackgroundStreaming] = useState(false);
+  const [showProtagonistMessage, setShowProtagonistMessage] = useState(false);
+  const [hasStreamedBackground, setHasStreamedBackground] = useState(false);
 
   const {
     data: initialData,
@@ -106,20 +115,40 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
               image_url: s.image_url, // Add image_url from initial stories
             })
         }
-        console.log("[initStory] restoredMessages:", restoredMessages)
         setMessages(restoredMessages)
-        setScrollType("instant");
+        setScrollType("smooth");
         setProgressRate(initSetting.progress_rate);
         setCurrPage(initSetting.oldest_story_number);
         setHasMoreStories(initSetting.has_more_stories);
+        
         return initSetting;
       } catch (error) {
         console.error(`[StoryProvider] initStory 실패:`, error);
+        
+        // Sentry에 에러 보고 (컨텍스트 포함)
+        Sentry.captureException(error, {
+          tags: { 
+            component: "StoryProvider",
+            action: "initStory",
+          },
+          extra: { 
+            novelId,
+            errorType: error instanceof Error ? error.constructor.name : typeof error,
+            errorMessage: error instanceof Error ? error.message : String(error),
+          },
+        });
+        
         // 세션 관련 에러인 경우 더 명확한 에러 메시지 제공
         if (error instanceof Error && error.message.includes("세션")) {
           toast({
             title: "로그인이 필요합니다",
             description: "세계관에 진입하려면 로그인이 필요합니다.",
+            variant: "destructive",
+          });
+        } else if (error instanceof TypeError && error.message.includes("fetch")) {
+          toast({
+            title: "서버 연결 실패",
+            description: "백엔드 서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
             variant: "destructive",
           });
         }
@@ -130,6 +159,37 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
 
   const session = useSession();
   const { toast } = useToast();
+
+  // background.start를 스트리밍으로 표시하는 함수
+  const streamBackgroundText = async (text: string) => {
+    let accumulatedText = "";
+    
+    for (const char of text) {
+      accumulatedText += char;
+      setStreamingBackgroundStart(accumulatedText);
+      // 각 문자마다 지연 (타이핑 효과)
+      await new Promise(resolve => setTimeout(resolve, 30));
+    }
+  };
+
+  // 초기 데이터 로드 후 background 스트리밍 시작
+  useEffect(() => {
+    const startBackgroundStreaming = async () => {
+      if (initialData && !initPending && !hasStreamedBackground) {
+        setHasStreamedBackground(true);
+        
+        const backgroundText = initialData.background?.start ?? "여러분들의 소설을 시작해보세요.";
+        setIsBackgroundStreaming(true);
+        await streamBackgroundText(backgroundText);
+        setIsBackgroundStreaming(false);
+        
+        // 스트리밍 완료 후 protagonist 메시지 표시
+        setShowProtagonistMessage(true);
+      }
+    };
+    
+    startBackgroundStreaming();
+  }, [initialData, initPending, hasStreamedBackground]);
 
   const sendNovelProcessMessage = async (auto = false, input = "") => {
     if (isMessageSending) return;
@@ -165,53 +225,42 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         { type: 'ai' as const, content: "", story_number: currentStoryNumber, user_input: text },
       ]);
 
-      console.log(`[StoryProvider] processNovel 호출 시작: novelId=${novelId}, text=${text}, shouldGenerateImage=${shouldGenerateImage}`)
       const stream = await processNovel(session, novelId, text, shouldGenerateImage);
-      console.log(`[StoryProvider] processNovel 응답 받음:`, stream);
-      console.log(`[StoryProvider] stream.body 타입:`, typeof stream?.body);
-      console.log(`[StoryProvider] stream.body:`, stream?.body);
 
       if (!stream?.body) {
         console.error(`[StoryProvider] ReadableStream 없음:`, stream);
         throw new Error("ReadableStream not supported.");
       }
 
-      console.log(`[StoryProvider] SSE 스트림 읽기 시작`);
       const reader = stream.body.getReader();
       const decoder = new TextDecoder("utf-8");
       let done = false;
       let buffer = "";
       let accumulatedText = "";
       let imageUrl = "";
-      console.log(`[StoryProvider] Reader 생성됨:`, reader);
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
         done = readerDone;
-        console.log('[StoryProvider] Reader 상태:', { done, valueLength: value?.length || 0 });
         
         const chunkValue = decoder.decode(value || new Uint8Array(), {
           stream: !done,
         });
-        console.log('[StoryProvider] 디코딩된 청크:', chunkValue);
+        
         buffer += chunkValue;
 
         const lines = buffer.split("\n\n");
         buffer = lines.pop() || "";
-        console.log('[StoryProvider] 파싱된 라인들:', lines);
 
         for (const line of lines) {
                       if (line.startsWith("data: ")) {
               const dataStr = line.substring(6).trim();
-              console.log('[StoryProvider] SSE 데이터 수신:', dataStr);
               
               if (dataStr === "[DONE]") {
-                console.log('[StoryProvider] 스트리밍 완료 신호 수신');
                 break;
               }
 
               const data = JSON.parse(dataStr);
-              console.log('[StoryProvider] 파싱된 데이터:', data);
 
             if (data.type === "story") {
               // <E> 토큰 필터링 (완전한 토큰과 불완전한 토큰 모두 제거)
@@ -220,14 +269,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
                 .replace(/<E[^>]*>/g, '')  // 완전한 <E> 토큰 제거
                 .replace(/<E[^>]*$/g, '')  // <E로 시작하는 불완전한 토큰 제거
                 .replace(/<E$/g, '');      // <E로 끝나는 경우 제거
-              
-              // 필터링된 내용이 원본과 다른 경우 로그 출력
-              if (originalContent !== filteredContent) {
-                console.log('[StoryProvider] <E> 토큰 필터링됨:', {
-                  original: originalContent,
-                  filtered: filteredContent
-                });
-              }
               
               // 문자 단위로 실시간 타이핑 효과 구현
               for (const char of filteredContent) {
@@ -247,7 +288,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
 
             } else if (data.type === "image") {
               imageUrl = data.image_url;
-              console.log('[StoryProvider] 이미지 URL 수신:', imageUrl);
               // 즉시 상태를 업데이트하여 이미지 렌더링
               setMessages((prev) => {
                 const newMsgs = [...prev];
@@ -267,8 +307,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
               
               for (const milestone of milestones) {
                 if (currentProgress >= milestone && !generatedProgressMilestones.has(milestone)) {
-                  console.log(`[StoryProvider] 진행률 ${milestone}% 도달, 이미지 생성 시작`);
-                  
                   // 마일스톤 기록
                   setGeneratedProgressMilestones(prev => new Set([...prev, milestone]));
                   
@@ -318,18 +356,15 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
 
   const generateImageForProgress = async (milestone: number) => {
     if (!session) {
-      console.log('[StoryProvider] 세션이 없어 이미지 생성을 건너뜁니다.');
       return;
     }
 
     try {
       setIsGeneratingImage(true);
-      console.log(`[StoryProvider] 진행률 ${milestone}% 이미지 생성 시작`);
       
       const result = await generateImage(session, novelId);
       
       if (result.success && result.image_url) {
-        console.log(`[StoryProvider] 진행률 ${milestone}% 이미지 생성 성공:`, result.image_url);
         
         // 보관함에 이미지 추가
         setArchivedImages(prev => [...prev, result.image_url]);
@@ -404,7 +439,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         novelId,
         currPage
       );
-      console.log('[fetchMoreStories] stories:', stories);
       const sortedStories = stories.sort(
         (a, b) => a.story_number - b.story_number
       );
@@ -426,7 +460,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
             image_url: s.image_url, // Add image_url from previous stories
           })
       }
-      console.log('[fetchMoreStories] prevMessages:', prevMessages);
       setMessages((prev) => [...prevMessages, ...prev]);
       setHasMoreStories(has_more);
       setCurrPage(sortedStories[0]?.story_number ?? 0);
@@ -467,6 +500,10 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         prevFetching,
         archivedImages,
         isGeneratingImage,
+        streamingBackgroundStart,
+        isBackgroundStreaming,
+        protagonist_name: initialData?.protagonist_name,
+        showProtagonistMessage,
       }}
     >
       {children}
