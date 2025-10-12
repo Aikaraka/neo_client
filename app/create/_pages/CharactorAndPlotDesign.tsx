@@ -261,7 +261,6 @@ export default function CharactorAndPlotDesign() {
       // Canvas를 사용한 안정적인 캡처
       const imageDataUrl = await captureWithCanvas();
 
-      console.log('캡처된 imageDataUrl 길이:', imageDataUrl.length);
       if (!imageDataUrl || imageDataUrl.length < 200 || !imageDataUrl.startsWith('data:image/png;base64,')) {
           console.error("캡처된 이미지 데이터가 유효하지 않음:", imageDataUrl.substring(0,100));
           throw new Error("캡처된 표지 이미지가 유효하지 않습니다. 다시 시도해주세요.");

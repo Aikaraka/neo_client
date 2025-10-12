@@ -44,7 +44,6 @@ export default function VerifyAgePage() {
     const loadPortOneSDK = () => {
       // 이미 로드되어 있는지 확인
       if (window.IMP) {
-        console.log("PortOne SDK 이미 로드됨");
         setIsPortOneReady(true);
         return;
       }
@@ -52,14 +51,11 @@ export default function VerifyAgePage() {
       // 스크립트가 이미 로드 중인지 확인
       const existingScript = document.querySelector('script[src*="browser-sdk.js"]');
       if (existingScript) {
-        console.log("PortOne SDK 스크립트 이미 존재, 초기화 대기...");
         // 스크립트는 있지만 window.IMP가 없는 경우, 잠시 대기 후 다시 확인
         setTimeout(() => {
           if (window.IMP) {
-            console.log("PortOne SDK 초기화 완료!");
             setIsPortOneReady(true);
           } else {
-            console.log("스크립트는 있지만 window.IMP가 없음, 재로드 시도");
             // 기존 스크립트 제거 후 재로드
             (existingScript as HTMLScriptElement).remove();
             loadPortOneSDK();
@@ -67,8 +63,6 @@ export default function VerifyAgePage() {
         }, 1000);
         return;
       }
-
-      console.log("PortOne SDK 수동 로드 시작");
       
       // 스크립트 동적 로드
       const script = document.createElement('script');
@@ -77,24 +71,20 @@ export default function VerifyAgePage() {
       script.async = true;
       
       script.onload = () => {
-        console.log("jQuery 로드 완료, 이제 PortOne SDK 로드");
         // jQuery 로드 후 PortOne SDK 로드
         const portoneScript = document.createElement('script');
         portoneScript.src = 'https://cdn.iamport.kr/v1/iamport.js';
         portoneScript.async = true;
         
         portoneScript.onload = () => {
-          console.log("PortOne SDK 로드 완료!");
           setTimeout(() => {
             if (window.IMP) {
-              console.log("window.IMP 확인됨:", window.IMP);
               setIsPortOneReady(true);
             } else {
               console.error("window.IMP가 여전히 undefined");
               // 다시 한 번 시도
               setTimeout(() => {
                 if (window.IMP) {
-                  console.log("지연 후 window.IMP 확인됨");
                   setIsPortOneReady(true);
                 } else {
                   console.error("최종적으로 window.IMP 로드 실패");
@@ -124,7 +114,6 @@ export default function VerifyAgePage() {
     // 3초 후에도 로드되지 않으면 재시도
     const timeout = setTimeout(() => {
       if (!window.IMP) {
-        console.log("3초 후 재시도");
         loadPortOneSDK();
       }
     }, 3000);
@@ -134,10 +123,6 @@ export default function VerifyAgePage() {
 
   /* ---------------- 인증 로직 ---------------- */
   const handleVerification = () => {
-    console.log("인증 버튼 클릭됨");
-    console.log("isPortOneReady:", isPortOneReady);
-    console.log("window.IMP:", window.IMP);
-
     if (!isPortOneReady || !window.IMP) {
       toast({
         title: "오류",
@@ -148,7 +133,6 @@ export default function VerifyAgePage() {
     }
 
     const impCode = process.env.NEXT_PUBLIC_PORTONE_CODE;
-    console.log("impCode:", impCode);
     
     if (!impCode) {
       toast({
@@ -160,9 +144,7 @@ export default function VerifyAgePage() {
     }
 
     try {
-      console.log("PortOne 초기화 시작");
       window.IMP.init(impCode);
-      console.log("PortOne 초기화 완료");
       
       window.IMP.certification(
         { 
@@ -171,7 +153,6 @@ export default function VerifyAgePage() {
           pg: 'danal'
         },
         async (rsp) => {
-          console.log("인증 결과:", rsp);
           if (rsp.success) {
             try {
               await completeAgeVerification(rsp.imp_uid);

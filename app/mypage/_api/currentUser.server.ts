@@ -5,28 +5,44 @@ import { AuthError } from "@supabase/supabase-js";
 
 export async function getCurrentUser() {
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error) throw new Error("유저 정보를 가져오지 못했습니다.");
-  const { data: userData, error: notFoundError } = await supabase
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+  if (error || !user) {
+    throw new Error("유저 정보를 가져오지 못했습니다.");
+  }
+
+  const userProfilePromise = supabase
     .from("users")
     .select("*")
-    .eq("id", data.user.id)
+    .eq("id", user.id)
     .single();
+
+  const tokenPromise = supabase
+    .from("user_ai_token")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
+
+  const novelsPromise = supabase.from("novels").select("*").eq("user_id", user.id);
+
+  const [
+    { data: userData, error: notFoundError },
+    { data: tokenData, error: tokenError },
+    { data: novelData, error: novelError },
+  ] = await Promise.all([userProfilePromise, tokenPromise, novelsPromise]);
+
   if (notFoundError) {
     throw new Error("유저 정보를 찾을 수 없습니다.");
   }
-  const { data: tokenData, error: tokenError } = await supabase
-    .from("user_ai_token")
-    .select("*")
-    .eq("user_id", data.user.id)
-    .single();
-  if (tokenError) throw new Error("유저 정보를 찾을 수 없습니다.");
+  if (tokenError) {
+    throw new Error("유저 정보를 찾을 수 없습니다.");
+  }
+  if (novelError) {
+    throw new Error("소설 정보를 가져오지 못했습니다.");
+  }
 
-  const { data: novelData, error: novelError } = await supabase
-    .from("novels")
-    .select("*")
-    .eq("user_id", data.user.id);
-  if (novelError) throw new Error("소설 정보를 가져오지 못했습니다.");
   const result = { user: userData, token: tokenData, novels: novelData };
   return result;
 }

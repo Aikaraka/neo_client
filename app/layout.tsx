@@ -8,7 +8,6 @@ import ResponsiveWrapper from "@/components/common/responsiveWrapper";
 import SuspenseBoundary from "@/components/common/suspenseBoundary";
 import { LoadingProvider } from "@/contexts/LoadingContext";
 import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicator";
-import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import Script from "next/script";
 import { Toaster } from "@/components/ui/toaster";
 import { NovelDetailModal } from "@/components/common/NovelDetailModal"; // 모달 import
@@ -60,7 +59,7 @@ export default function RootLayout({
             <GlobalLoadingIndicator />
             <AuthProvider>
               <QueryProvider>
-                <OnboardingProvider>
+                
                   <MainHeader />
                   <main className="flex-grow">
                     <ResponsiveWrapper>
@@ -68,7 +67,7 @@ export default function RootLayout({
                     </ResponsiveWrapper>
                   </main>
                   <NovelDetailModal />
-                </OnboardingProvider>
+                
               </QueryProvider>
             </AuthProvider>
             {genre}

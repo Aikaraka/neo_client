@@ -9,9 +9,12 @@ declare global {
   }
 }
 
+const PORTONE_STORE_ID = process.env.NEXT_PUBLIC_PORTONE_STORE_ID
+const PORTONE_CHANNEL_KEY = process.env.NEXT_PUBLIC_PORTONE_CHANNEL_KEY
+
 interface PaymentParams {
-  storeId: string
-  channelKey: string
+  storeId?: string
+  channelKey?: string
   paymentId: string
   orderName: string
   totalAmount: number
@@ -33,6 +36,9 @@ export function usePayment() {
       customer,
     } = params
 
+    const resolvedStoreId = storeId ?? PORTONE_STORE_ID
+    const resolvedChannelKey = channelKey ?? PORTONE_CHANNEL_KEY
+
     if (!window.PortOne) {
       return {
         success: false,
@@ -40,11 +46,22 @@ export function usePayment() {
       }
     }
 
+    if (!resolvedStoreId || !resolvedChannelKey) {
+      console.error("PortOne 결제 설정이 비어 있습니다.", {
+        storeId: resolvedStoreId,
+        channelKey: resolvedChannelKey,
+      })
+      return {
+        success: false,
+        message: "결제 설정이 올바르지 않습니다. 관리자에게 문의해주세요.",
+      }
+    }
+
     try {
       // 1. 포트원 결제 모달 호출
       const response = await window.PortOne.requestPayment({
-        storeId,
-        channelKey,
+        storeId: resolvedStoreId,
+        channelKey: resolvedChannelKey,
         paymentId,
         orderName,
         totalAmount,

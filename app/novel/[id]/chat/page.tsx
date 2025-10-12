@@ -16,7 +16,7 @@ function ChatPageContent() {
   const [bgColor, setBgColor] = useState("#FFFFFF");
   const [fontSize, setFontSize] = useState(15);
   const [lineHeight, setLineHeight] = useState(1.6);
-  const [paragraphSpacing, setParagraphSpacing] = useState(16);
+  const [paragraphSpacing, setParagraphSpacing] = useState(24);
   const [paragraphWidth, setParagraphWidth] = useState(600);
   const [brightness, setBrightness] = useState(1);
   const [font, setFont] = useState("나눔명조");
@@ -64,7 +64,7 @@ function ChatPageContent() {
   return (
     <div
       className="flex flex-col w-full h-screen overflow-hidden relative"
-      style={{ backgroundColor: "#EDEFF3" }}
+      style={{ backgroundColor: "#EAECF0" }}
     >
       {/* 중앙 카드 컨테이너 (헤더 + 콘텐츠) - 고정 크기 */}
       <div className="flex-1 overflow-hidden flex items-center justify-center p-4 pb-24">
@@ -82,6 +82,7 @@ function ChatPageContent() {
             <div className="flex items-center justify-between p-2">
               <div className="flex-1">
                 <ProgressRate 
+                  onShowImageArchive={() => setShowImageArchive(true)}
                   onColorChange={setBgColor}
                   selectedColor={bgColor}
                   fontSize={fontSize}
@@ -98,16 +99,6 @@ function ChatPageContent() {
                   onFontChange={setFont}
                 />
               </div>
-              
-              {/* 이미지 보관함 토글 버튼 */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowImageArchive(!showImageArchive)}
-                className={`ml-2 ${isDark ? 'text-white hover:bg-white/10' : 'text-gray-600 hover:bg-gray-100'}`}
-              >
-                {showImageArchive ? <X className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />}
-              </Button>
             </div>
           </div>
           
@@ -174,7 +165,7 @@ function ChatPageContent() {
             </div>
             <div className="flex-1 overflow-y-auto p-6 bg-gray-50/30">
               {archivedImages.length === 0 && !isGeneratingImage ? (
-                <div className="flex flex-col items-center justify-center py-16 px-4">
+                <div className="flex flex-col items-center justify-center py-16">
                   <div className="relative mb-6">
                     <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-2xl flex items-center justify-center">
                       <ImageIcon className="h-10 w-10 text-purple-400" />

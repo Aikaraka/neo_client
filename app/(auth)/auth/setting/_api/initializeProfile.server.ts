@@ -24,16 +24,6 @@ export const initialProfileSubmit = async (
       error: userError,
     } = await supabase.auth.getUser();
 
-    // 디버깅을 위한 상세한 로깅
-    console.log("Session status:", {
-      hasSession: !!session,
-      hasUser: !!user,
-      sessionError: sessionError?.message,
-      userError: userError?.message,
-      userId: user?.id,
-      userEmail: user?.email,
-    });
-
     // Sentry에 컨텍스트 정보 추가
     Sentry.setContext("profile_initialization", {
       hasSession: !!session,
@@ -175,7 +165,6 @@ export const initialProfileSubmit = async (
 
 
 
-    console.log("프로필 초기화 완료:", { userId: user.id, email: user.email });
     
   } catch (error) {
     // 모든 예외를 Sentry에 기록

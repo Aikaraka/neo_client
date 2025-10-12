@@ -83,7 +83,6 @@ export async function generateImage(prompt: string) {
       (artifact) => `data:image/png;base64,${artifact.base64}`
     );
     
-    console.log(`성공적으로 ${images.length}개의 이미지를 생성했습니다.`);
     return images;
     
   } catch (error) {

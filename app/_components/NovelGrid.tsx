@@ -72,8 +72,8 @@ export function NovelGrid({ novels }: { novels: Novel[] }) {
               <Book
                 className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
                 style={{
-                  width: "clamp(100px, 30vw, 150px)",
-                  height: "clamp(133px, calc(30vw * 1.33), 200px)",
+                    width: "clamp(70px, 30vw, 110px)",
+                    height: "clamp(93px, calc(30vw * 1.33), 153px)"
                 }}
               >
                 <Image

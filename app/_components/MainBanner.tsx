@@ -2,18 +2,29 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+
+const supabaseStorageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/banner`;
 
 const banners = [
   {
-    image: "https://images.unsplash.com/photo-1589998059171-988d887df646?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    title: "새로운 세계관을 탐험하세요",
-    description: "당신이 상상하던 모든 이야기가 여기에 있습니다.",
+    image: `${supabaseStorageUrl}/banner1_text.png`,
+    title: "작가용 가이드",
+    link: "https://neo.featurebase.app/en/help/articles/4900456-writinghand-jaggayong-gaideu",
+    external: true,
   },
   {
-    image: "https://images.unsplash.com/photo-1532012197267-da84d127e765?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    title: "나만의 이야기를 만들어보세요",
-    description: "창의력을 발휘하여 독자적인 스토리를 구성할 수 있습니다.",
+    image: `${supabaseStorageUrl}/banner2_text.png`,
+    title: "유저용 가이드1",
+    link: "https://neo.featurebase.app/en/help/articles/2014044-tada-nano-banana-tabjaehan-ai-soseol-peulraespom-deungjang-banana",
+    external: true,
+  },
+  {
+    image: `${supabaseStorageUrl}/banner3_text.png`,
+    title: "유저용 가이드2",
+    link: "https://neo.featurebase.app/en/help/articles/8854968-yujeoyong-gaideu-v1",
+    external: true,
   },
 ];
 
@@ -40,51 +51,76 @@ export function MainBanner() {
   }, [currentIndex, goToNext]);
 
   return (
-    <div className="relative w-full h-64 md:h-80 lg:h-96 overflow-hidden rounded-lg mb-8">
-      {banners.map((banner, index) => (
-        <div
-          key={index}
-          className={`absolute top-0 left-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-            index === currentIndex ? "opacity-100" : "opacity-0"
-          }`}
-        >
-          <Image
-            src={banner.image}
-            alt={banner.title}
-            fill
-            className="object-cover"
-            priority={index === 0}
-          />
-          <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white p-4">
-            <h2 className="text-2xl md:text-4xl font-bold mb-2 text-center">
-              {banner.title}
-            </h2>
-            <p className="text-sm md:text-lg text-center">
-              {banner.description}
-            </p>
+    <div className="relative w-full aspect-[1160/384] overflow-hidden rounded-lg mb-8">
+      {banners.map((banner, index) => {
+        const imageContent = (
+          <div
+            className={`absolute top-0 left-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+              index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
+          >
+            <Image
+              src={banner.image}
+              alt={banner.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 1160px"
+              className="object-cover"
+              priority={index === 0}
+            />
           </div>
-        </div>
-      ))}
+        );
+
+        if (banner.link) {
+          if (banner.external) {
+            // 외부 링크는 a 태그 사용
+            return (
+              <a
+                key={index}
+                href={banner.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`cursor-pointer ${index === currentIndex ? 'pointer-events-auto' : 'pointer-events-none'}`}
+              >
+                {imageContent}
+              </a>
+            );
+          } else {
+            // 내부 링크는 Link 컴포넌트 사용
+            return (
+              <Link
+                key={index}
+                href={banner.link}
+                className={`cursor-pointer ${index === currentIndex ? 'pointer-events-auto' : 'pointer-events-none'}`}
+              >
+                {imageContent}
+              </Link>
+            );
+          }
+        }
+
+        // 링크가 없는 경우 그냥 이미지만 표시
+        return <div key={index}>{imageContent}</div>;
+      })}
        <button
         onClick={goToPrevious}
-        className="absolute top-1/2 left-4 -translate-y-1/2 z-10 p-2 bg-black bg-opacity-50 rounded-full text-white hover:bg-opacity-75 transition-opacity"
+        className="absolute top-1/2 left-1 md:left-4 -translate-y-1/2 z-10 p-1 md:p-2 bg-black bg-opacity-50 rounded-full text-white transition-all"
         aria-label="Previous slide"
       >
-        <ChevronLeft className="h-6 w-6" />
+        <ChevronLeft className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
       </button>
       <button
         onClick={goToNext}
-        className="absolute top-1/2 right-4 -translate-y-1/2 z-10 p-2 bg-black bg-opacity-50 rounded-full text-white hover:bg-opacity-75 transition-opacity"
+        className="absolute top-1/2 right-1 md:right-4 -translate-y-1/2 z-10 p-1 md:p-2 bg-black bg-opacity-50 rounded-full text-white transition-all"
         aria-label="Next slide"
       >
-        <ChevronRight className="h-6 w-6" />
+        <ChevronRight className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
       </button>
-       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 flex space-x-2">
+       <div className="absolute bottom-2 md:bottom-4 left-1/2 -translate-x-1/2 z-10 flex space-x-1.5 md:space-x-2">
         {banners.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentIndex(index)}
-            className={`h-2 w-2 rounded-full ${
+            className={`h-1.5 w-1.5 md:h-2 md:w-2 rounded-full transition-all ${
               currentIndex === index ? "bg-white" : "bg-gray-400"
             }`}
             aria-label={`Go to slide ${index + 1}`}

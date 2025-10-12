@@ -7,6 +7,7 @@ import { MoreMenu } from "./MoreMenu";
 import React from "react";
 
 interface ProgressRateProps {
+  onShowImageArchive: () => void;
   onColorChange?: (color: string) => void;
   selectedColor: string;
   fontSize: number;
@@ -24,6 +25,7 @@ interface ProgressRateProps {
 }
 
 export default function ProgressRate({
+  onShowImageArchive,
   onColorChange,
   selectedColor,
   fontSize,
@@ -70,6 +72,7 @@ export default function ProgressRate({
       {/* 오른쪽 아이콘 그룹 */}
       <div className="w-10 flex justify-end">
         <MoreMenu
+          onShowImageArchive={onShowImageArchive}
           onColorChange={onColorChange}
           selectedColor={selectedColor}
           fontSize={fontSize}

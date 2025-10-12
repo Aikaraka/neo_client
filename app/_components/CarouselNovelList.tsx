@@ -189,7 +189,7 @@ export function CarouselNovelList({
 export function TopNovelListCarousel() {
   const { data: novels, isPending } = useQuery<Novel[]>({
     queryKey: ["top-novels"],
-    queryFn: getNovelsByView,
+    queryFn: () => getNovelsByView({ safeFilter: true }),
   });
 
   if (isPending) {
@@ -208,7 +208,7 @@ export function TopNovelListCarousel() {
 export function RecommendedNovelListCarousel() {
   const { data: novels, isPending } = useQuery<Novel[]>({
     queryKey: ["recommended-novels"],
-    queryFn: getRecommendedNovels,
+    queryFn: () => getRecommendedNovels({ safeFilter: true }),
   });
 
   if (isPending) {

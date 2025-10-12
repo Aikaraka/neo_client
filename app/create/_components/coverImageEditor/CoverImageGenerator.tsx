@@ -75,7 +75,6 @@ export default function CoverImageGenerator() {
       
       // S3 URL인 경우 프록시를 통해 가져오기
       const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
-      console.log('CoverImageGenerator: 프록시 URL 사용:', proxyUrl);
       
       const response = await fetch(proxyUrl);
       if (!response.ok) {
@@ -87,7 +86,6 @@ export default function CoverImageGenerator() {
         const reader = new FileReader();
         reader.onloadend = () => {
           const result = reader.result as string;
-          console.log('CoverImageGenerator: Data URL 변환 성공:', result.substring(0, 50));
           resolve(result);
         };
         reader.onerror = reject;
@@ -105,26 +103,21 @@ export default function CoverImageGenerator() {
     const totalImages = urls.length;
     let completed = 0;
     
-    console.log('CoverImageGenerator: 이미지 프리로드 시작', totalImages);
-    
     const convertPromises = urls.map(async (url) => {
       try {
         const dataUrl = await convertToDataURL(url);
         setPreloadedImages(prev => new Map(prev).set(url, dataUrl));
         completed++;
         setPreloadProgress(Math.round((completed / totalImages) * 100));
-        console.log(`CoverImageGenerator: 프리로드 진행 ${completed}/${totalImages}`);
       } catch (error) {
         console.error('CoverImageGenerator: 프리로드 실패', url, error);
       }
     });
     
     await Promise.allSettled(convertPromises);
-    console.log('CoverImageGenerator: 모든 이미지 프리로드 완료');
   };
 
   const handleImageSelect = async (url: string, idx: number) => {
-    console.log('CoverImageGenerator: 이미지 선택됨', url.substring(0, 50));
     
     // 이미 변환 중이면 무시
     if (isConverting) return;
@@ -135,7 +128,6 @@ export default function CoverImageGenerator() {
     // 미리 변환된 이미지가 있는지 확인
     const preloadedDataUrl = preloadedImages.get(url);
     if (preloadedDataUrl) {
-      console.log('CoverImageGenerator: 프리로드된 이미지 사용');
       setSelectedImageUrl(preloadedDataUrl);
       return;
     }
@@ -149,7 +141,6 @@ export default function CoverImageGenerator() {
       setSelectedImageUrl(dataUrl);
       // 변환된 이미지를 캐시에 저장
       setPreloadedImages(prev => new Map(prev).set(url, dataUrl));
-      console.log('CoverImageGenerator: Data URL 변환 완료', dataUrl.substring(0, 50));
     } catch (error) {
       console.error('CoverImageGenerator: 변환 실패', error);
       toast({
@@ -165,14 +156,12 @@ export default function CoverImageGenerator() {
 
   const handleComplete = () => {
     if (selectedImageUrl) {
-      console.log('CoverImageGenerator: 선택된 이미지로 변경', selectedImageUrl.substring(0, 50));
       changeImage(selectedImageUrl);
       toast({
         title: "표지 이미지 설정 완료",
         description: "AI가 생성한 이미지가 표지로 설정되었습니다.",
       });
     } else {
-      console.log('CoverImageGenerator: 이미지가 선택되지 않음, 기존 이미지 유지');
       toast({
         title: "이미지 선택 안됨",
         description: "이미지를 선택한 후 완료 버튼을 눌러주세요.",
@@ -184,7 +173,6 @@ export default function CoverImageGenerator() {
   };
 
   const handleCancel = () => {
-    console.log('CoverImageGenerator: 모달 취소');
     setSelectedImage(null);
     setSelectedImageUrl(null);
     setIsConverting(false);

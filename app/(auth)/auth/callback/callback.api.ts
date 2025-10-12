@@ -19,7 +19,6 @@ export const insertNewUser = async (session: Session | null, supabase: SupabaseC
     .single();
 
   if (existingUser) {
-    console.log("사용자가 이미 존재합니다:", session.user.id);
     return { data: existingUser, error: null };
   }
 

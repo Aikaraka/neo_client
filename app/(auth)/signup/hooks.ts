@@ -24,12 +24,10 @@ export function useSignupForm() {
     mutationFn: async (values: z.infer<typeof signupFormSchema>) => {
       const { email, password } = values;
 
-      console.log("Starting signup process for:", email);
       
       // 중복 체크를 제거하고 바로 signup 진행
       // Supabase Auth가 자체적으로 중복 체크를 수행함
       const { error } = await signup({ email, password });
-      console.log("Signup result:", { email, error });
       
       if (error) {
         // error 객체가 있으면 Error 인스턴스로 변환하여 throw

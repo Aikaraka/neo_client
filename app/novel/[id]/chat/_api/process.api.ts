@@ -9,12 +9,17 @@ export async function processNovel(
   if (!session) throw new Error("세션이 없습니다.");
 
   try {
+    
+    if (!session.access_token) {
+      throw new Error("세션 토큰이 없습니다. 다시 로그인해주세요.");
+    }
+    
     // Supabase Edge Function을 통해 neo_server의 /process-novel에 요청
     const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-novel-proxy`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.access_token}`,
+        "Authorization": `Bearer ${session.access_token}`
       },
       body: JSON.stringify({
         user_id: session.user.id,

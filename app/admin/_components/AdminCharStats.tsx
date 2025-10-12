@@ -12,14 +12,11 @@ export default function AdminChatStats() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const handleResetStats = async () => {
-    console.log("[AdminChatStats] 버튼 클릭됨");
     setIsProcessing(true);
     setResult(null);
     
     try {
-      console.log("[AdminChatStats] 서버 액션 호출 시작");
       const response = await updateTopNovelViews();
-      console.log("[AdminChatStats] 서버 액션 응답:", response);
       setResult(response);
     } catch (error) {
       console.error("[AdminChatStats] 서버 액션 에러:", error);
@@ -29,7 +26,6 @@ export default function AdminChatStats() {
       });
     } finally {
       setIsProcessing(false);
-      console.log("[AdminChatStats] 처리 완료");
     }
   };
 

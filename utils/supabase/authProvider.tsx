@@ -59,7 +59,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.refresh();
       }
       if (event === "TOKEN_REFRESHED") {
-        console.log("refresh");
         setSession(session);
       }
     });

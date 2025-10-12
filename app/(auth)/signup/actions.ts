@@ -77,7 +77,6 @@ export const signup = async ({
       return { authData: null, error };
     }
     
-    console.log("Signup successful for:", email);
     return { authData, error: null };
   } catch (exception) {
     console.error("Signup exception:", exception);

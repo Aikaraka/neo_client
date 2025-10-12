@@ -1,5 +1,5 @@
 "use client";
-
+// 모바일용 컴포넌트, 장르별 세계관 추천
 import { Button } from "@/components/ui/button";
 import { Category, Tables } from "@/utils/supabase/types/database.types";
 import { useState } from "react";
@@ -40,13 +40,13 @@ export function NovelListByGenreSelector({
   return (
     <div>
       <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex gap-2 mb-5">
+        <div className="flex gap-2 mb-3">
           <Button
             key="신작"
             type="button"
             size="sm"
             variant={filter === "신작" ? "default" : "outline"}
-            className={`rounded-full ${
+            className={`rounded-full h-7 px-3 ${
               filter !== "신작" 
                 ? "bg-white text-gray-800 border-gray-300 hover:bg-gray-50" 
                 : ""
@@ -61,7 +61,7 @@ export function NovelListByGenreSelector({
                 type="button"
                 size="sm"
                 variant={filter === g ? "default" : "outline"}
-                className={`rounded-full ${
+                className={`rounded-full h-7 px-2 ${
                   filter !== g 
                     ? "bg-white text-gray-800 border-gray-300 hover:bg-gray-50" 
                     : ""
@@ -119,8 +119,8 @@ export function NovelListByGenreSelector({
                   <Book 
                     className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
                     style={{
-                      width: "clamp(100px, 30vw, 150px)",
-                      height: "clamp(133px, calc(30vw * 1.33), 200px)"
+                      width: "clamp(70px, 30vw, 110px)",
+                      height: "clamp(93px, calc(30vw * 1.33), 153px)"
                     }}
                   >
                     <Image
@@ -171,8 +171,8 @@ export function NovelListByGenreSelector({
                     <Book 
                       className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
                       style={{
-                        width: "clamp(100px, 30vw, 150px)",
-                        height: "clamp(133px, calc(30vw * 1.33), 200px)"
+                      width: "clamp(70px, 30vw, 110px)",
+                      height: "clamp(93px, calc(30vw * 1.33), 153px)"
                       }}
                     >
                       <Image

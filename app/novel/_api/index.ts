@@ -8,10 +8,6 @@ const RUNTIME_API_URL =
     ? `${window.location.protocol}//${window.location.hostname}:8000`
     : "http://localhost:8000");
 
-// 디버깅용 로그 (개발 시에만 유용)
-// eslint-disable-next-line no-console
-console.log("🔧 API URL 설정 (client):", RUNTIME_API_URL);
-
 export const novelAIServer = new APIBuilder(RUNTIME_API_URL)
   .withCredentials(true)
   .headers({
@@ -37,7 +33,6 @@ novelAIServer.use.response = async (response, requestFunction) => {
         ...novelAIServer.headers,
         Authorization: `Bearer ${newAccessToken}`,
       };
-      console.log("조각 갱신 성공, 재시도");
 
       return requestFunction();
     } catch (refreshError) {
@@ -64,7 +59,6 @@ novelAIServer.use.request = async (options) => {
       Authorization: `Bearer ${accessToken}`,
     };
     
-    console.log("요청 헤더 설정 완료");
     return options;
   } catch (error) {
     console.error("요청 설정 중 오류:", error);

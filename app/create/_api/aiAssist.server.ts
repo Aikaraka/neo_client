@@ -39,7 +39,6 @@ export async function postAIAssist(
     relationshipIndex: request.relationshipIndex,
   };
 
-  console.log('Request Data:', req);
 
   try {
     const response = await novelAiServerForServer.post("/input-pumping", req, {

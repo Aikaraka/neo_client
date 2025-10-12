@@ -23,7 +23,7 @@ const handleAsteriskClick = (textarea: HTMLTextAreaElement | null) => {
 
 export function ChatInput() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const { sendNovelProcessMessage, isMessageSending, undoStory } = useStoryContext();
+  const { sendNovelProcessMessage, isMessageSending, undoStory, isBackgroundStreaming } = useStoryContext();
   
   const handleTextAreaChange: FormEventHandler<HTMLTextAreaElement> = (e) => {
     const el = e.currentTarget;
@@ -49,6 +49,8 @@ export function ChatInput() {
     }
   };
 
+  const isInputDisabled = isMessageSending || isBackgroundStreaming;
+
   return (
     <div className="w-full bg-transparent p-2">
       <div className="flex items-center gap-3 w-full bg-[#F5F5F5] rounded-xl p-2">
@@ -65,15 +67,15 @@ export function ChatInput() {
           onChange={handleTextAreaChange}
           onKeyDown={handleKeyDown}
           rows={1}
-          placeholder="대화를 입력하여 소설을 작성하세요."
+          placeholder={isBackgroundStreaming ? "첫 장면을 로딩 중..." : "소설을 작성해주세요."}
           className="flex-1 bg-transparent p-0 resize-none leading-relaxed focus:outline-none placeholder:text-sm"
           style={{ maxHeight: 80, paddingTop: '4px' }}
-          disabled={isMessageSending}
+          disabled={isInputDisabled}
         />
         <div className="flex ml-2 flex-shrink-0 gap-2">
-          <Button variant={"link"} className="p-0 h-auto [&_svg]:size-5" onClick={undoStory} disabled={isMessageSending}><UndoIcon /></Button>
-          <Button variant={"link"} className="p-0 h-auto [&_svg]:size-5" onClick={() => handleNovelProcess(true)} disabled={isMessageSending}><AutoChat /></Button>
-          <Button variant={"link"} className="p-0 h-auto [&_svg]:size-5" onClick={() => handleNovelProcess(false)} disabled={isMessageSending}><PaperPlane /></Button>
+          <Button variant={"link"} className="p-0 h-auto [&_svg]:size-5" onClick={undoStory} disabled={isInputDisabled}><UndoIcon /></Button>
+          <Button variant={"link"} className="p-0 h-auto [&_svg]:size-5" onClick={() => handleNovelProcess(true)} disabled={isInputDisabled}><AutoChat /></Button>
+          <Button variant={"link"} className="p-0 h-auto [&_svg]:size-5" onClick={() => handleNovelProcess(false)} disabled={isInputDisabled}><PaperPlane /></Button>
         </div>
       </div>
     </div>

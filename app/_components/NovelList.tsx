@@ -1,16 +1,12 @@
 import { ScrollArea } from "@/components/layout/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  getNovelsByView,
-  getRecommendedNovels,
-  getNovelsForGenreList,
-} from "@/app/_api/novelList.server";
 import { Rabbit, Unplug } from "lucide-react";
 import { Tables } from "@/utils/supabase/types/database.types";
 import { NovelListByGenreSelector } from "@/app/_components/NovelListByGenre";
 import { CarouselNovelListByGenreSelector } from "@/app/_components/CarouselNovelListByGenre";
 import { NovelGrid } from "./NovelGrid";
+import { CarouselNovelList } from "./CarouselNovelList";
 
 // RPC 또는 뷰에서 내려오는 상위 소설 항목의 최소 타입 정의
 interface ViewNovelDTO {
@@ -67,30 +63,34 @@ export function NovelListSkeleton({ count = 5 }: { count?: number }) {
   );
 }
 
-export async function RecommendedNovelList() {
+export function RecommendedNovelList({
+  novelList,
+}: {
+  novelList: Tables<"novels">[];
+}) {
   try {
-    const novelList = await getRecommendedNovels();
     return <NovelList novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
   }
 }
 
-export async function RecommendedNovelListCarousel() {
+export function RecommendedNovelListCarousel({
+  novelList,
+}: {
+  novelList: Tables<"novels">[];
+}) {
   try {
-    const novelList = await getRecommendedNovels();
-    const { CarouselNovelList } = await import("./CarouselNovelList");
     return <CarouselNovelList novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
   }
 }
 
-export async function TopNovelList() {
+export function TopNovelList({ novelList }: { novelList: ViewNovelDTO[] }) {
   try {
-    const rawNovelList = await getNovelsByView();
     // 뷰 결과를 novels 테이블 형태로 변환
-    const novelList: Tables<"novels">[] = (rawNovelList as ViewNovelDTO[]).map(
+    const novels: Tables<"novels">[] = (novelList as ViewNovelDTO[]).map(
       (viewNovel: ViewNovelDTO) => ({
         id: viewNovel.novel_id,
         title: viewNovel.title,
@@ -106,16 +106,15 @@ export async function TopNovelList() {
         user_id: null,
       })
     );
-    return <NovelList novelList={novelList} />;
+    return <NovelList novelList={novels} />;
   } catch {
     return <NovelListErrorFallback />;
   }
 }
 
-export async function TopNovelListCarousel() {
+export function TopNovelListCarousel({ novelList }: { novelList: ViewNovelDTO[] }) {
   try {
-    const rawNovelList = await getNovelsByView();
-    const novelList: Tables<"novels">[] = (rawNovelList as ViewNovelDTO[]).map(
+    const novels: Tables<"novels">[] = (novelList as ViewNovelDTO[]).map(
       (viewNovel: ViewNovelDTO) => ({
         id: viewNovel.novel_id,
         title: viewNovel.title,
@@ -131,27 +130,30 @@ export async function TopNovelListCarousel() {
         user_id: null,
       })
     );
-    const { CarouselNovelList } = await import("./CarouselNovelList");
-    return <CarouselNovelList novelList={novelList} />;
+    return <CarouselNovelList novelList={novels} />;
   } catch {
     return <NovelListErrorFallback />;
   }
 }
 
-export async function NovelListByGenre() {
+export function NovelListByGenre({
+  novelList,
+}: {
+  novelList: Tables<"novels">[];
+}) {
   try {
-    // "사서"에게 장르 목록에 필요한 소설을 요청합니다.
-    const novelList = await getNovelsForGenreList();
     return <NovelListByGenreSelector novelList={novelList} />;
   } catch {
     return <NovelListErrorFallback />;
   }
 }
 
-export async function NovelListByGenreCarousel() {
+export function NovelListByGenreCarousel({
+  novelList,
+}: {
+  novelList: Tables<"novels">[];
+}) {
   try {
-    // "사서"에게 장르 목록에 필요한 소설을 요청합니다.
-    const novelList = await getNovelsForGenreList();
     return <CarouselNovelListByGenreSelector novelList={novelList} />;
   } catch (err) {
     console.error("Error fetching novels for genre carousel:", err);
