@@ -37,10 +37,10 @@ export function ImageAssetUpload({
       try {
         const webpFile = await convertToWebP(file)
 
-        if (webpFile.size > 1024 * 1024) { // 1MB 크기 제한
+        if (webpFile.size > 3 * 1024 * 1024) { // 2MB 크기 제한
           toast({
             title: "파일 크기 초과",
-            description: "이미지 파일 크기가 너무 큽니다. 다른 이미지를 사용해주세요.",
+            description: "변환된 이미지가 3MB를 초과합니다. 더 작은 이미지를 사용해주세요.",
             variant: "destructive",
           })
           return;
