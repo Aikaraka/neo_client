@@ -8,12 +8,19 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 
+type SignupError = {
+  message: string;
+  name: string;
+  email?: string;
+  canResend?: boolean;
+};
+
 export function useSignupForm() {
   const { toast } = useToast();
   const { nextPage } = usePageContext();
   const [showResendModal, setShowResendModal] = useState(false);
   const [pendingEmail, setPendingEmail] = useState<string>("");
-  
+
   const form = useForm<z.infer<typeof signupFormSchema>>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -24,27 +31,18 @@ export function useSignupForm() {
     mode: "onChange",
   });
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: async (values: z.infer<typeof signupFormSchema>) => {
+  const { mutate, isPending } = useMutation<
+    void,
+    SignupError,
+    z.infer<typeof signupFormSchema>
+  >({
+    mutationFn: async (values) => {
       const { email, password } = values;
 
-      
-      // 중복 체크를 제거하고 바로 signup 진행
-      // Supabase Auth가 자체적으로 중복 체크를 수행함
       const { error } = await signup({ email, password });
-      
+
       if (error) {
-        // error 객체가 있으면 Error 인스턴스로 변환하여 throw
-        if (typeof error === 'object' && 'message' in error) {
-          // 미인증 사용자 - 재전송 모달 표시
-          if (error.name === "EmailNotConfirmed" && error.canResend) {
-            const customError = new Error(error.message) as any;
-            customError.name = "EmailNotConfirmed";
-            customError.email = error.email;
-            throw customError;
-          }
-          throw new Error(error.message);
-        }
+        // 서버 액션의 에러 객체를 그대로 throw하여 onError에서 타입 추론이 가능하도록 함
         throw error;
       }
     },
@@ -56,16 +54,16 @@ export function useSignupForm() {
       });
       // 폼 초기화는 EmailSent 확인 버튼에서 수행
     },
-    onError: (error: any) => {
+    onError: (error) => {
       console.error("Signup error occurred:", error);
-      
+
       // 미인증 사용자 - 재전송 모달 표시
-      if (error.name === "EmailNotConfirmed") {
+      if (error.name === "EmailNotConfirmed" && error.email) {
         setPendingEmail(error.email);
         setShowResendModal(true);
         return;
       }
-      
+
       // 이미 인증된 사용자인 경우 홈으로 리다이렉트
       if (error.message?.includes("이미 로그인된 상태입니다")) {
         toast({
@@ -77,7 +75,7 @@ export function useSignupForm() {
         }, 1000);
         return;
       }
-      
+
       // 실패 시 에러 메시지 표시
       toast({
         title: "회원가입 오류",
@@ -90,7 +88,7 @@ export function useSignupForm() {
   // 재전송 핸들러
   const handleResendEmail = async () => {
     const result = await resendConfirmationEmail(pendingEmail);
-    
+
     if (result.success) {
       toast({
         title: "인증 메일 재전송 완료",
