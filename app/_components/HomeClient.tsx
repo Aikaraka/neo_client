@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Tables } from "@/utils/supabase/types/database.types";
-import { getPersonalizedHomeLists } from "@/app/_api/home.client.actions";
 import { MainBanner } from "./MainBanner";
 import {
   NovelListByGenre,
