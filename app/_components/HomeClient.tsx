@@ -38,18 +38,12 @@ export function HomeClient({
   );
   const [topNovels, setTopNovels] = useState(initialTopNovels);
 
+  // props가 변경될 때마다 상태를 업데이트 (보호 필터 토글 시 서버에서 새 데이터를 가져옴)
   useEffect(() => {
-    const revalidateForUser = async () => {
-      const personalizedLists = await getPersonalizedHomeLists();
-      if (personalizedLists) {
-        setGenreNovels(personalizedLists.genre);
-        setRecommendedNovels(personalizedLists.recommended);
-        setTopNovels(personalizedLists.top);
-      }
-    };
-
-    revalidateForUser();
-  }, []);
+    setGenreNovels(initialGenreNovels);
+    setRecommendedNovels(initialRecommendedNovels);
+    setTopNovels(initialTopNovels);
+  }, [initialGenreNovels, initialRecommendedNovels, initialTopNovels]);
 
   return (
     <div className="min-w-0 w-full max-w-[1160px] relative p-4">

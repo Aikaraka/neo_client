@@ -9,15 +9,16 @@ import {
 import { HomeSkeleton } from "./_components/HomeSkeleton";
 import { HomeClient } from "./_components/HomeClient";
 
-// ISR 설정: 1일마다 재생성 (추천/인기 소설 업데이트 주기가 길어서)
-export const revalidate = 86400; // 24시간 = 86400초
+// 동적 페이지로 설정: 보호 필터 상태가 사용자별로 다르므로 캐싱하지 않음
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  // safeFilter 파라미터를 전달하지 않으면, 각 함수가 자동으로 사용자의 보호 필터 상태를 확인합니다
   const [initialGenreNovels, initialRecommendedNovels, initialTopNovels] =
     await Promise.all([
-      getNovelsForGenreList({ safeFilter: true }),
-      getRecommendedNovels({ safeFilter: true }),
-      getNovelsByView({ safeFilter: true }),
+      getNovelsForGenreList(),
+      getRecommendedNovels(),
+      getNovelsByView(),
     ]);
   return (
     <>
