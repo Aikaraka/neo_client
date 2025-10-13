@@ -2,8 +2,33 @@
 import { SignupFormType } from "@/app/(auth)/signup/schema";
 import { createClient } from "@/utils/supabase/server";
 
-// 더 이상 사용하지 않음 - Supabase Auth가 자체적으로 중복 체크를 수행
-// export const checkEmailDuplication = async (email: string) => { ... }
+// 인증 메일 재전송 함수
+export const resendConfirmationEmail = async (email: string) => {
+  const supabase = await createClient();
+  
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+  const { error } = await supabase.auth.resend({
+    type: 'signup',
+    email: email,
+    options: {
+      emailRedirectTo: `${baseUrl}/auth/callback`,
+    }
+  });
+
+  if (error) {
+    return { 
+      success: false, 
+      error: { 
+        message: "이메일 재전송에 실패했습니다. 잠시 후 다시 시도해주세요.",
+        name: "ResendFailed"
+      } 
+    };
+  }
+
+  return { success: true, error: null };
+};
 
 export const signup = async ({
   email,
@@ -25,8 +50,24 @@ export const signup = async ({
     };
   }
 
-  // public.users 테이블 중복 체크 제거
-  // Supabase Auth가 자체적으로 처리하도록 함
+  // public.users 테이블에서 이메일 중복 체크
+  // public.users에 있다 = 이미 인증 완료된 사용자
+  const { data: existingUser } = await supabase
+    .from("users")
+    .select("email")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (existingUser) {
+    return {
+      authData: null,
+      error: {
+        message: "이미 가입된 이메일입니다. 로그인을 시도하거나 비밀번호 찾기를 이용해주세요.",
+        name: "UserAlreadyExists",
+        canResend: false
+      }
+    };
+  }
 
   // 동적으로 현재 도메인 사용 (localhost 또는 vercel 배포 도메인)
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
@@ -62,14 +103,17 @@ export const signup = async ({
       }
       
       // Supabase Auth에서 이미 존재하는 사용자 에러 처리
+      // auth.users에는 있지만 public.users에는 없음 = 미인증 사용자
       if (error.message?.includes("User already registered") || 
           error.message?.includes("already exists") ||
           error.code === "user_already_exists") {
         return { 
           authData: null, 
           error: { 
-            message: "이미 가입된 이메일입니다. 이메일 인증을 완료하거나 로그인해주세요.", 
-            name: "UserAlreadyExists" 
+            message: "이미 가입 요청한 이메일입니다.\n이전에 발송된 인증 메일을 확인하지 않으셨어요. 재전송 해드릴까요?", 
+            name: "EmailNotConfirmed",
+            canResend: true,
+            email: email  // 재전송에 필요
           } 
         };
       }

@@ -84,10 +84,6 @@ export function LoginForm() {
               <ChevronRight className="w-6 h-6" />
             </Button>
             <div className="flex items-center justify-center gap-x-2 text-sm">
-              <Button variant="link" className="p-0 text-primary" asChild>
-                <Link href="/signup">회원가입</Link>
-              </Button>
-              <div className="h-3 w-px bg-slate-300" />
               <Button
                 variant="link"
                 className="p-0 text-muted-foreground"

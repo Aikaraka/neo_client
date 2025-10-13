@@ -5,12 +5,15 @@ import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { getNovelDetail } from "@/app/_api/novel.server";
 import { BookOpen, Users } from "lucide-react";
 import { useNovelModal } from "@/hooks/useNovelModal"; // Zustand 스토어 import
+import { useAuth } from "@/utils/supabase/authProvider";
+import { LoginPromptModal } from "@/components/common/LoginPromptModal";
 
 /* ---------- Zod 스키마 ---------- */
 const RelationshipSchema = z.object({
@@ -34,12 +37,17 @@ type Character = z.infer<typeof CharacterSchema>;
 
 export function NovelDetailModal() {
   const { isModalOpen, selectedNovelId, closeModal } = useNovelModal();
+  const { session } = useAuth();
+  const router = useRouter();
   
   // 스크롤 인터랙션 상태
   const [scrollY, setScrollY] = useState(0);
   const [isSticky, setIsSticky] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  
+  // 로그인 유도 모달 상태
+  const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
   const { data: novel, isPending } = useQuery({
     queryKey: ["novel-detail", selectedNovelId],
@@ -365,20 +373,32 @@ export function NovelDetailModal() {
         </div>
 
         {/* 하단 고정 버튼 - 절대 위치로 버튼만 배치 */}
-
           <Button
             size="lg"
-            className="gradient-btn w-[12rem] rounded-full text-primary-foreground font-bold text-base flex items-center justify-between px-2 absolute bottom-6 left-1/2 -translate-x-1/2 z-50"
+            className="gradient-btn w-[12rem] rounded-full text-primary-foreground font-bold text-base flex items-center justify-between px-4 absolute bottom-6 left-1/2 -translate-x-1/2 z-50"
             onClick={() => {
-              // 페이지 전환 시 모달 닫기
-              setTimeout(() => closeModal(), 100);
+              // 로그인 체크
+              if (!session?.user) {
+                // 비로그인 상태: 로그인 유도 모달 표시
+                setIsLoginPromptOpen(true);
+                return;
+              }
+              
+              // 로그인 상태: 페이지 이동
+              closeModal();
+              router.push(`/novel/${novel.id}/chat`);
             }}
           >        
-            <Link href={`/novel/${novel.id}/chat`} passHref className="flex items-center justify-between w-full">
-              <span>세계관 진입하기</span>
-              <Image src="/arrow_right.png" alt="arrow-right" width={20} height={20} />
-            </Link>
+            <span>세계관 진입하기</span>
+            <Image src="/arrow_right.png" alt="arrow-right" width={20} height={20} />
           </Button>
+
+        {/* 로그인 유도 모달 */}
+        <LoginPromptModal
+          isOpen={isLoginPromptOpen}
+          onClose={() => setIsLoginPromptOpen(false)}
+          returnUrl={`/novel/${novel.id}/chat`}
+        />
       </DialogContent>
     </Dialog>
   );
