@@ -7,6 +7,7 @@ import DatePicker from "@/app/(auth)/auth/setting/_components/datePicker";
 import {
   SettingFormFieldName,
   SettingFormType,
+  calculateAge,
 } from "@/app/(auth)/auth/setting/_schema";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -14,12 +15,27 @@ import { InputFormField, useValidation } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Modal } from "@/components/ui/modal";
 import useModal from "@/hooks/use-modal";
-import { AtSign, User } from "lucide-react";
+import { AtSign, User, AlertCircle } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
+import { useMemo } from "react";
 
 export default function SettingForm({ isPending }: { isPending: boolean }) {
-  const { control } = useFormContext<SettingFormType>();
+  const { control, watch, formState: { errors } } = useFormContext<SettingFormType>();
   const { open: agreementModal, switchModal, message, setMessage } = useModal();
+  
+  // 생년월일 값 실시간 감시
+  const birthValue = watch("birth");
+  
+  // 만 나이 계산 및 경고 표시 여부
+  const ageWarning = useMemo(() => {
+    if (!birthValue || birthValue.length !== 8) return null;
+    
+    const age = calculateAge(birthValue);
+    if (age < 14) {
+      return `만 ${age}세는 회원가입이 불가능합니다. (만 14세 이상 가능)`;
+    }
+    return null;
+  }, [birthValue]);
 
   const canProceed = useValidation<SettingFormFieldName>(
     "birth",
@@ -65,9 +81,25 @@ export default function SettingForm({ isPending }: { isPending: boolean }) {
             icon={<AtSign />}
             className="bg-white"
           />
-          <div className="flex items-center gap-2 px-2 justify-between">
-            생년월일
-            <DatePicker name="birth" />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 px-2 justify-between">
+              생년월일
+              <DatePicker name="birth" />
+            </div>
+            {/* 만 14세 미만 경고 메시지 */}
+            {ageWarning && (
+              <div className="flex items-center gap-2 px-2 py-2 bg-red-50 border border-red-200 rounded-md">
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <p className="text-sm text-red-600">{ageWarning}</p>
+              </div>
+            )}
+            {/* 폼 검증 에러 메시지 */}
+            {errors.birth && !ageWarning && (
+              <div className="flex items-center gap-2 px-2 py-2 bg-amber-50 border border-amber-200 rounded-md">
+                <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                <p className="text-sm text-amber-600">{errors.birth.message}</p>
+              </div>
+            )}
           </div>
           <div className="flex justify-between items-center px-2">
             <p>성별</p>

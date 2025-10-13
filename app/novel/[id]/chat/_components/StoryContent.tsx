@@ -207,15 +207,20 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
           );
         }
       })}
-      {isMessageSending && (
-        <div className="flex justify-center items-center p-4">
-          <div className="animate-pulse">
-            <p style={{ fontFamily, color: isDark ? "#fff" : "#232325" }}>
-              Neo가 소설을 작성중이에요...
-            </p>
+      {/* 소설이 나오기 시작하면 pending 숨김: 마지막 메시지가 AI이고 content가 비어있을 때만 표시 */}
+      {isMessageSending && (() => {
+        const lastMessage = messages[messages.length - 1];
+        const shouldShowPending = !lastMessage || lastMessage.type !== "ai" || !lastMessage.content;
+        return shouldShowPending ? (
+          <div className="flex justify-center items-center p-4">
+            <div className="animate-pulse">
+              <p style={{ fontFamily, color: isDark ? "#fff" : "#232325" }}>
+                Neo가 소설을 작성중이에요...
+              </p>
+            </div>
           </div>
-        </div>
-      )}
+        ) : null;
+      })()}
     </div>
   );
 }
