@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   getUserSafeFilterStatus,
-  toggleSafeFilter,
+  setSafeFilter,
 } from "@/app/_api/safeFilter.server";
 import { useToast } from "@/hooks/use-toast";
 import SideBar from "@/components/layout/sidebar";
@@ -71,7 +71,7 @@ export default function MainHeader() {
 
     // 서버에 토글 요청
     setIsLoading(true);
-    const result = await toggleSafeFilter();
+    const result = await setSafeFilter(checked);
     setIsLoading(false);
 
     if (result.success) {

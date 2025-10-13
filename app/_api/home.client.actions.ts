@@ -1,26 +1,21 @@
 "use server";
 
-import { getUserSafeFilterStatus } from "@/app/_api/safeFilter.server";
 import {
   getNovelsForGenreList,
   getRecommendedNovels,
   getNovelsByView,
 } from "./novelList.server";
 
+/**
+ * 사용자의 보호 필터 설정에 따라 홈 페이지 리스트를 가져옵니다.
+ * 각 함수가 자동으로 사용자의 보호 필터 상태를 확인하므로,
+ * safeFilter 파라미터를 전달하지 않습니다.
+ */
 export async function getPersonalizedHomeLists() {
-  const { safeFilterEnabled } = await getUserSafeFilterStatus();
-
-  // If safe filter is enabled for the user, no need to re-fetch,
-  // as the initial static page is already the safe version.
-  if (safeFilterEnabled) {
-    return null;
-  }
-
-  // If safe filter is OFF, fetch all lists again with the filter disabled.
   const [genre, recommended, top] = await Promise.all([
-    getNovelsForGenreList({ safeFilter: false }),
-    getRecommendedNovels({ safeFilter: false }), // This will become personalized later
-    getNovelsByView({ safeFilter: false }),
+    getNovelsForGenreList(),
+    getRecommendedNovels(),
+    getNovelsByView(),
   ]);
 
   return { genre, recommended, top };

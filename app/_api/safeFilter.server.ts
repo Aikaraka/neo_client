@@ -100,34 +100,34 @@ export async function getUserSafeFilterStatus() {
 }
 
 /**
- * 보호필터 상태를 토글합니다
+ * 보호필터 상태를 설정합니다.
+ * @param newStatus - 새로운 보호필터 상태 (true: 켜짐, false: 꺼짐)
  * @returns 성공 여부와 새로운 상태
  */
-export async function toggleSafeFilter() {
+export async function setSafeFilter(newStatus: boolean) {
   const supabase = await createClient();
-  
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
   if (!user || authError) {
     throw new Error("로그인이 필요합니다.");
   }
 
-  // 현재 상태 확인
-  const { data: currentData, error: fetchError } = await supabase
+  // 현재 사용자 정보 확인 (본인인증 여부)
+  const { data: userData, error: fetchError } = await supabase
     .from("users")
-    .select("is_adult, safe_filter_enabled, age_verification_completed")
+    .select("age_verification_completed")
     .eq("id", user.id)
     .single();
 
-  if (fetchError || !currentData) {
+  if (fetchError || !userData) {
     throw new Error("사용자 정보를 가져올 수 없습니다.");
   }
 
-  // 현재 보호필터 상태
-  const currentSafeFilter = currentData.safe_filter_enabled ?? true;
-  const wantsToDisable = currentSafeFilter === true; // 현재 ON이고 OFF로 바꾸려는 경우
-  
-  // 본인인증을 완료하지 않은 사용자는 보호필터를 끌 수 없음
-  if (!currentData.age_verification_completed && wantsToDisable) {
+  // 보호필터를 끄려고 할 때, 본인인증을 완료했는지 확인
+  if (newStatus === false && !userData.age_verification_completed) {
     return {
       success: false,
       requiresVerification: true,
@@ -135,8 +135,6 @@ export async function toggleSafeFilter() {
     };
   }
 
-  // 본인인증을 완료한 사용자만 보호필터 토글 가능
-  const newStatus = currentData.age_verification_completed ? !currentSafeFilter : true;
   const { error: updateError } = await supabase
     .from("users")
     .update({ safe_filter_enabled: newStatus })
@@ -148,7 +146,7 @@ export async function toggleSafeFilter() {
 
   // 페이지 리프레시를 위한 revalidate
   revalidatePath("/");
-  
+
   return {
     success: true,
     requiresVerification: false,

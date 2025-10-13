@@ -3,17 +3,12 @@ import NotFound from "@/app/not-found";
 import { getSearchResult } from "@/app/search/[keyword]/_api/searchResult.server";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
-import { MainContent } from "@/components/ui/content";
 import { Toaster } from "@/components/ui/toaster";
-import RecentSearchTerms from "@/app/_components/RecentSearchTerms";
-import SeacrhForm from "@/app/_components/searchForm";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
-import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Filter, X, Sparkles } from "lucide-react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { useNovelModal } from "@/hooks/useNovelModal";
 
 // 정의된 키워드 목록 (필터 옵션용)
@@ -25,12 +20,6 @@ const FILTER_KEYWORDS = [
   "성좌물", "좀비", "괴수", "마법", "제국", "기사단", "황실", 
   "재벌가", "연예계", "아이돌", "오피스", "셀럽", "직장물", 
   "의사물", "형사물", "법조물", "추리", "스릴러", "복수극", "정략결혼"
-];
-
-// 인기 키워드 목록 (홈페이지와 동일)
-const POPULAR_KEYWORDS = [
-  "로맨스", "이세계", "회귀", "헌터", "무협",
-  "로맨스판타지", "학원물", "현대물", "빙의", "환생"
 ];
 
 type SortOption = "latest" | "popular" | "title";
@@ -49,34 +38,11 @@ export default function SearchResultPage() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>("latest");
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [showSearchModal, setShowSearchModal] = useState(false);
-  
-  const isMobile = useIsMobile();
-  const searchRef = useRef<HTMLDivElement>(null);
   
   const { data: novelList, isError, isLoading } = useQuery({
     queryFn: () => getSearchResult(keyword),
     queryKey: ["search", keyword],
   });
-
-  // 검색 모달 외부 클릭 감지 (데스크톱에서만)
-  useEffect(() => {
-    if (!showSearchModal || isMobile) return;
-
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setShowSearchModal(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showSearchModal, isMobile]);
 
   if (isError) return <NotFound />;
 
@@ -125,65 +91,13 @@ export default function SearchResultPage() {
   };
 
   return (
-    <Toaster>
-      <div className="flex flex-col h-screen w-full bg-background relative items-center">
-        <MainContent className="scrollbar-hidden h-full overflow-y-auto md:max-h-screen">
+    <>
+      <Toaster />
+      <div className="flex w-full bg-background relative">
+        <div className="flex-1 flex flex-col w-full">
           {/* Main Content */}
-          <main className="flex-1 overflow-y-auto pb-16 w-full scrollbar-hidden">
-            <div className="container max-w-md md:max-w-full p-4">
-              {/* 검색 모달 버튼 */}
-              <div className="mb-6 relative">
-                {/* 검색 모달 (홈페이지와 동일한 로직) */}
-                {showSearchModal && (
-                  <div
-                    ref={searchRef}
-                    className="h-screen w-full flex flex-col absolute top-0 left-0 bg-white z-50 sm:border sm:rounded-xl sm:h-auto sm:w-96 sm:shadow-lg"
-                  >
-                    <div className="w-full h-full flex flex-col p-4 space-y-4 lg:p-0">
-                      <section className="flex items-center gap-2">
-                        <SeacrhForm />
-                        <Button
-                          variant="ghost"
-                          className="[&_svg]:size-6 p-2 sm:hidden"
-                          onClick={() => setShowSearchModal(false)}
-                        >
-                          <X />
-                        </Button>
-                      </section>
-                      
-                      {/* 최근 검색어 섹션 */}
-                      <section className="p-4">
-                        <div className="mb-2 flex gap-3 items-center">
-                          <p>최근 검색어</p>
-                        </div>
-                        <div className="flex gap-2 overflow-x-auto scrollbar-hidden h-10">
-                          <RecentSearchTerms />
-                        </div>
-                      </section>
-
-                      {/* 인기 키워드 섹션 */}
-                      <section className="px-4 pb-4">
-                        <div className="mb-3">
-                          <p>인기 키워드</p>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {POPULAR_KEYWORDS.map((keywordItem) => (
-                            <Link
-                              key={keywordItem}
-                              href={`/search/${encodeURIComponent(keywordItem)}`}
-                              onClick={() => setShowSearchModal(false)}
-                              className="px-3 py-2 bg-gray-100 hover:bg-primary hover:text-primary-foreground rounded-full text-sm font-medium transition-colors"
-                            >
-                              #{keywordItem}
-                            </Link>
-                          ))}
-                        </div>
-                      </section>
-                    </div>
-                  </div>
-                )}
-              </div>
-
+          <main className="flex-1 w-full flex justify-center">
+            <div className="min-w-0 w-full max-w-[1160px] p-4">
               {/* 검색 결과 헤더 */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
@@ -387,9 +301,10 @@ export default function SearchResultPage() {
               )}
             </div>
           </main>
-        </MainContent>
+        </div>
+      </div>
         
-        {/* 개선된 필터 모달 */}
+      {/* 개선된 필터 모달 */}
         <Modal
           open={showFilterModal}
           switch={() => setShowFilterModal(false)}
@@ -471,19 +386,18 @@ export default function SearchResultPage() {
           </div>
         </Modal>
         
-        <style jsx>{`
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
           }
-        `}</style>
-      </div>
-    </Toaster>
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
+    </>
   );
 }
