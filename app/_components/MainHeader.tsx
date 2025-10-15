@@ -100,7 +100,7 @@ export default function MainHeader() {
         {/* 모바일에서는 flex-row, 데스크톱에서는 flex-col items-end */}
         <div className="flex flex-col items-end">
             {/* 상단 행: 사용자 컨트롤 */}
-            <div className="flex items-center justify-end w-full h-14 px-4 md:px-0 gap-[23px]">
+            <div className="flex items-center justify-end w-full h-[clamp(3.25rem,15vw,3.5rem)] px-4 md:px-0 gap-[clamp(1rem,5vw,1.4375rem)]">
                 {/* 왼쪽 그룹: 보호필터, 토큰 */}
                 <div className="flex items-center gap-1.5">
                     <div className="flex items-center gap-1.5">
@@ -110,7 +110,7 @@ export default function MainHeader() {
                             onCheckedChange={handleSafeFilterToggle}
                             disabled={isLoading}
                         />
-                        <Label htmlFor="safe-filter" className="text-xs text-gray-600">
+                        <Label htmlFor="safe-filter" className="text-[clamp(0.5625rem,3vw,0.75rem)] text-gray-600 whitespace-nowrap">
                             보호필터
                         </Label>
                     </div>
@@ -121,11 +121,11 @@ export default function MainHeader() {
 
                 {/* 오른쪽 그룹: 로그아웃, 사이드바 */}
                 {user && (
-                    <div className="flex items-center gap-[15px]">
+                    <div className="flex items-center gap-[clamp(0.75rem,4vw,0.9375rem)]">
                         {/* 데스크톱 전용 로그아웃 버튼 */}
                         <button
                             onClick={handleLogout}
-                            className="block text-xs font-medium text-gray-500 hover:text-gray-800"
+                            className="block text-[clamp(0.5625rem,3vw,0.75rem)] font-medium text-gray-500 hover:text-gray-800 whitespace-nowrap"
                         >
                             로그아웃
                         </button>

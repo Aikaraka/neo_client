@@ -127,10 +127,10 @@ export default function MyPageClient({ userData }: MyPageClientProps) {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* 프로필 + 배너 섹션 - 같은 행 배치 */}
-      <div className="flex gap-6 mb-8">
+      <div className="flex flex-col md:flex-row gap-6 mb-8">
         {/* 프로필 섹션 - 흰색 배경 카드 */}
-        <div className="bg-white rounded-lg p-6 flex items-center justify-between shadow-sm w-[500px]">
-          <div className="flex items-center gap-4">
+        <div className="bg-white rounded-lg p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between shadow-sm w-full md:flex-[2]">
+          <div className="flex items-center gap-4 mb-4 sm:mb-0">
             {/* --- 프로필 이미지 UI 수정 --- */}
             <div
               className="relative w-[60px] h-[60px] rounded-full cursor-pointer group bg-slate-300 overflow-hidden"
@@ -166,17 +166,17 @@ export default function MyPageClient({ userData }: MyPageClientProps) {
         </div>
 
         {/* 배너 섹션 */}
-        <Link href="/create" className="flex-1">
+        <Link href="/create" className="w-full md:flex-[1]">
           <div className="relative w-full h-32 rounded-lg overflow-hidden cursor-pointer">
             <Image
-              src="https://ocdthvsbuvikwyrjogcd.supabase.co/storage/v1/object/public/novel-covers/676d3787-37db-448d-80c6-02afc0824dee/0.7380132379345876.webp"
+              src="https://ocdthvsbuvikwyrjogcd.supabase.co/storage/v1/object/public/banner/mypage.jpg"
               alt="소설 제작하기"
               layout="fill"
               objectFit="cover"
             />
             <div className="absolute inset-0 bg-black bg-opacity-30 flex flex-col justify-center items-center p-4">
               <h2 className="text-xl font-bold text-center text-gray-100 text-stroke opacity-80">
-                작가님만의 세계관을 만들어보아요!
+                작가님만의 세계관을 <br/> 만들어보세요!
               </h2>
             </div>
           </div>

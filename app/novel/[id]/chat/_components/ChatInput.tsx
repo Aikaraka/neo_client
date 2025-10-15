@@ -36,7 +36,11 @@ export function ChatInput() {
       e.preventDefault();
       const value = textareaRef.current?.value;
       sendNovelProcessMessage(!value, value);
-      if(textareaRef.current) textareaRef.current.value = "";
+      if(textareaRef.current) {
+        textareaRef.current.value = "";
+        // Reset height to initial state
+        textareaRef.current.style.height = "auto";
+      }
     }
   };
 
@@ -46,6 +50,8 @@ export function ChatInput() {
     } else if (textareaRef.current?.value) {
       sendNovelProcessMessage(false, textareaRef.current?.value);
       textareaRef.current.value = "";
+      // Reset height to initial state
+      textareaRef.current.style.height = "auto";
     }
   };
 
@@ -53,7 +59,7 @@ export function ChatInput() {
 
   return (
     <div className="w-full bg-transparent p-2">
-      <div className="flex items-center gap-3 w-full bg-[#F5F5F5] rounded-xl p-2">
+      <div className="flex items-center gap-3 w-full bg-[#F5F5F5] p-2">
         <Image
           src="/novel/chat/astroid.svg"
           alt="astroid"

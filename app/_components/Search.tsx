@@ -111,7 +111,7 @@ export function SearchContent({
       >
         <div className="w-full h-full flex flex-col p-4 space-y-4 lg:p-0">
           <section className="flex items-center gap-2">
-            <SeacrhForm />
+            <SeacrhForm onSearch={() => setOpenSearchContent(false)} />
             {isMobile && (
               <Button
                 variant={"ghost"}

@@ -12,7 +12,11 @@ const search = z.object({
   query: z.string().nonempty(),
 });
 
-export default function SeacrhForm() {
+export default function SeacrhForm({
+  onSearch,
+}: {
+  onSearch?: () => void;
+}) {
   const form = useForm<z.infer<typeof search>>({
     resolver: zodResolver(search),
     defaultValues: {
@@ -23,7 +27,10 @@ export default function SeacrhForm() {
   const queryClient = useQueryClient();
   const { mutate } = useMutation({
     mutationFn: saveSearchTerm,
-    onMutate: () => router.push(`/search/${form.getValues().query}`),
+    onMutate: (query) => {
+      router.push(`/search/${encodeURIComponent(query)}`);
+      onSearch?.(); // 검색 실행 시 onSearch 콜백 호출
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["search"] }),
   });
   return (

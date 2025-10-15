@@ -66,7 +66,8 @@ export function NovelGrid({ novels }: { novels: Novel[] }) {
           return (
             <div
               key={novel.id}
-              className="flex flex-col items-center cursor-pointer"
+              className="flex flex-col items-center cursor-pointer shrink-0"
+              style={{ width: "clamp(70px, 30vw, 110px)" }}
               onClick={() => openModal(novel.id as unknown as string)}
             >
               <Book
@@ -88,14 +89,9 @@ export function NovelGrid({ novels }: { novels: Novel[] }) {
                   className="rounded-t-lg object-cover w-full h-full z-30"
                 />
               </Book>
-              <div className="h-5 bg-transparent flex items-center justify-center mt-1 relative z-10">
-                <p className="text-sm font-light text-center px-2">
-                  <span className="md:hidden">
-                    {title.length > 9 ? `${title.slice(0, 7)}...` : title}
-                  </span>
-                  <span className="hidden md:inline">
-                    {title.length > 15 ? `${title.slice(0, 14)}...` : title}
-                  </span>
+              <div className="h-5 bg-transparent flex items-center justify-center mt-1 relative z-10 w-full">
+                <p className="text-sm font-light text-center px-2 w-full truncate">
+                  {title}
                 </p>
               </div>
             </div>

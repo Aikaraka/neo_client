@@ -104,7 +104,7 @@ export default function SearchResultPage() {
                   {/* 검색어 표시 */}
                   <div className="flex items-center gap-2">
                     <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                      &ldquo;{decodedKeyword}&rdquo;
+                      “{decodedKeyword}”
                     </h1>
                   </div>
 
@@ -279,7 +279,7 @@ export default function SearchResultPage() {
                   <p className="text-xl text-gray-700 mb-3 font-bold">
                     {selectedFilters.length > 0 
                       ? "필터와 일치하는 세계관이 없어요"
-                      : `&ldquo;${decodedKeyword}&rdquo; 검색 결과가 없어요`
+                      : `“${decodedKeyword}” 검색 결과가 없어요`
                     }
                   </p>
                   <p className="text-sm text-gray-500 mb-6 max-w-sm mx-auto">

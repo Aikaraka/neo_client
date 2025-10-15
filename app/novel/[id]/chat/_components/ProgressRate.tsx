@@ -44,33 +44,30 @@ export default function ProgressRate({
   const { progressRate, title } = useStoryContext();
 
   return (
-    <div className="px-4 py-3 flex items-center justify-between relative">
-      <div className="w-10">
+    <div className="px-4 py-3 flex items-center justify-between relative mx-auto">
+      <div className="w-10 flex items-center">
         <PrevPageButton />
       </div>
 
-      <div className="flex-1 flex flex-col items-center text-center">
+      <div className="flex-1 flex flex-col items-center text-center min-w-0">
         {/* 예: 소설 제목, 진행률 등 표시 */}
-        <span className="font-medium text-sm truncate w-48">{title}</span>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">진행률</span>
-          <div className="flex-1 flex items-center w-48">
-            {/* 간단히 프로그레스바 대용 */}
-            <div className="h-2 w-full bg-gray-200 relative rounded">
-              <div
-                className="h-2 bg-purple-400 rounded transition-all duration-700 ease-in-out"
-                style={{ width: `${progressRate}%` }}
-              ></div>
-            </div>
-            <span className="text-xs text-gray-500 ml-2">
-              {progressRate}%
-            </span>
+        <span className="font-medium text-sm truncate w-full">{title}</span>
+        <div className="flex items-center gap-2 w-full max-w-xs">
+          <span className="text-xs text-gray-500 whitespace-nowrap">진행률</span>
+          <div className="h-2 flex-1 bg-gray-200 relative rounded min-w-0">
+            <div
+              className="h-2 bg-purple-400 rounded transition-all duration-700 ease-in-out"
+              style={{ width: `${progressRate}%` }}
+            ></div>
           </div>
+          <span className="text-xs text-gray-500 whitespace-nowrap">
+            {progressRate}%
+          </span>
         </div>
       </div>
 
       {/* 오른쪽 아이콘 그룹 */}
-      <div className="w-10 flex justify-end">
+      <div className="w-10 flex items-center justify-end">
         <MoreMenu
           onShowImageArchive={onShowImageArchive}
           onColorChange={onColorChange}

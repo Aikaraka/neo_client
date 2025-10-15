@@ -47,6 +47,8 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   streamingBackgroundStart: string;
   isBackgroundStreaming: boolean;
   showProtagonistMessage: boolean;
+  isAutoScrollEnabled: boolean;
+  setIsAutoScrollEnabled: (enabled: boolean) => void;
 };
 
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
@@ -86,6 +88,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const [isBackgroundStreaming, setIsBackgroundStreaming] = useState(false);
   const [showProtagonistMessage, setShowProtagonistMessage] = useState(false);
   const [hasStreamedBackground, setHasStreamedBackground] = useState(false);
+  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
 
   const {
     data: initialData,
@@ -172,19 +175,34 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 초기 데이터 로드 후 background 스트리밍 시작
+  // 초기 데이터 로드 후 background 스트리밍 시작 (처음 방문자만)
   useEffect(() => {
     const startBackgroundStreaming = async () => {
       if (initialData && !initPending && !hasStreamedBackground) {
         setHasStreamedBackground(true);
         
-        const backgroundText = initialData.background?.start ?? "여러분들의 소설을 시작해보세요.";
-        setIsBackgroundStreaming(true);
-        await streamBackgroundText(backgroundText);
-        setIsBackgroundStreaming(false);
+        // initial_stories가 비어있으면 처음 방문자 -> 스트리밍 실행
+        const isFirstVisit = !initialData.initial_stories || initialData.initial_stories.length === 0;
         
-        // 스트리밍 완료 후 protagonist 메시지 표시
-        setShowProtagonistMessage(true);
+        if (isFirstVisit) {
+          const backgroundText = initialData.background?.start ?? "여러분들의 소설을 시작해보세요.";
+          setIsBackgroundStreaming(true);
+          await streamBackgroundText(backgroundText);
+          setIsBackgroundStreaming(false);
+          
+          // 스트리밍 완료 후 protagonist 메시지 표시
+          setShowProtagonistMessage(true);
+        } else {
+          // 재방문자는 스트리밍 없이 바로 배경 텍스트와 protagonist 메시지 표시
+          const backgroundText = initialData.background?.start ?? "여러분들의 소설을 시작해보세요.";
+          setStreamingBackgroundStart(backgroundText);
+          setShowProtagonistMessage(true);
+          
+          // 재방문자는 바로 최근 메시지로 스크롤
+          setTimeout(() => {
+            setScrollType("instant");
+          }, 100);
+        }
       }
     };
     
@@ -207,9 +225,11 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     const aiMessageCount = messages.filter((msg) => msg.type === "ai").length
     const shouldGenerateImage = (aiMessageCount + 1) % 1 === 0
 
-    setScrollType("smooth");
-    try {
-      setIsMessageSending(true);
+      setScrollType("smooth");
+      // 새로운 메시지 전송 시 자동 스크롤 활성화
+      setIsAutoScrollEnabled(true);
+      try {
+        setIsMessageSending(true);
 
       const text = auto ? "계속 진행해주세요." : input;
       if (!text) return;
@@ -504,6 +524,8 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         isBackgroundStreaming,
         protagonist_name: initialData?.protagonist_name,
         showProtagonistMessage,
+        isAutoScrollEnabled,
+        setIsAutoScrollEnabled,
       }}
     >
       {children}

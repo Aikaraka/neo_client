@@ -3,10 +3,12 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { X } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -60,44 +62,43 @@ export default function SideBar() {
         className={`absolute right-0 top-0 md:fixed h-full w-80 bg-white shadow-lg transform transition-transform duration-300 z-50
           ${isOpen ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="flex flex-col justify-between w-full h-full pt-10">
+        <div className="flex justify-end p-2">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X className="w-6 h-6 text-gray-600" />
+          </button>
+        </div>
+        <div className="flex flex-col justify-between w-full h-full pt-2">
           <div>
-            <div className="flex justify-between border-b py-6 px-3">
-              <h3 className="text-sm font-semibold">성인 콘텐츠 포함</h3>
-              <button
-                role="switch"
-                aria-checked={isChecked}
-                onClick={() => setIsChecked(!isChecked)}
-                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors
-                  ${isChecked ? "bg-purple-600" : "bg-gray-200"}`}
-              >
-                <span
-                  className={`inline-block h-4 w-4 rounded-full bg-white transition-transform
-                    ${isChecked ? "translate-x-6" : "translate-x-1"}`}
-                />
-              </button>
-            </div>
-
             <div className="text-sm flex flex-col py-6 border-b px-3 gap-5">
               <Link
-                href="/account/setting"
+                href="/mypage"
                 className="hover:text-gray-600 transition-colors"
+                onClick={() => setIsOpen(false)}
               >
                 계정 관리
               </Link>
-              <Link href="/" className="hover:text-gray-600 transition-colors">
-                언어 관리
-              </Link>
-              <Link href="/mypage/history" className="hover:text-gray-600 transition-colors">
+              <Link href="/mypage/history" className="hover:text-gray-600 transition-colors" onClick={() => setIsOpen(false)}>
                 조각 구매/사용 내역
               </Link>
             </div>
 
             <div className="text-sm flex flex-col py-6 border-b px-3 gap-5">
-              <Link href="/" className="hover:text-gray-600 transition-colors">
+              <Link
+                href="/support"
+                className="hover:text-gray-600 transition-colors"
+                onClick={() => setIsOpen(false)}
+              >
                 고객 지원 센터
               </Link>
-              <Link href="/" className="hover:text-gray-600 transition-colors">
+              <Link 
+                href="https://neo.featurebase.app/en/help/articles/8854968-speechballoon-yujeoyong-gaideu-v1"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-600 transition-colors" 
+                onClick={() => setIsOpen(false)}>
                 공지사항
               </Link>
             </div>
@@ -106,18 +107,21 @@ export default function SideBar() {
               <Link
                 href="/terms/service"
                 className="hover:text-gray-600 transition-colors"
+                onClick={() => setIsOpen(false)}
               >
                 서비스 이용 약관
               </Link>
               <Link
                 href="/terms/privacy"
                 className="hover:text-gray-600 transition-colors"
+                onClick={() => setIsOpen(false)}
               >
                 개인정보 처리 방침
               </Link>
               <Link
                 href="/terms/copyright"
                 className="hover:text-gray-600 transition-colors"
+                onClick={() => setIsOpen(false)}
               >
                 저작권 및 지식재산권 관리 정책
               </Link>

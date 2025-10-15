@@ -11,7 +11,7 @@ import { GlobalLoadingIndicator } from "@/components/common/GlobalLoadingIndicat
 import Script from "next/script";
 import { Toaster } from "@/components/ui/toaster";
 import { NovelDetailModal } from "@/components/common/NovelDetailModal"; // 모달 import
-import MainHeader from "@/app/_components/MainHeader";
+import ConditionalHeader from "@/app/_components/ConditionalHeader";
 
 const NanumSquareNeo = localFont({
   src: [
@@ -60,7 +60,7 @@ export default function RootLayout({
             <AuthProvider>
               <QueryProvider>
                 
-                  <MainHeader />
+                  <ConditionalHeader />
                   <main className="flex-grow">
                     <ResponsiveWrapper>
                       <SuspenseBoundary>{children}</SuspenseBoundary>
