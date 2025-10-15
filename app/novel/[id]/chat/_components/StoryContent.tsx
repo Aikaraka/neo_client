@@ -1,7 +1,7 @@
 "use client";
 
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 
 interface StoryContentProps {
@@ -16,9 +16,11 @@ interface StoryContentProps {
 
 export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraphWidth, font, isDark = false, messageBoxRef }: StoryContentProps) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching: _prevFetching, isMessageSending, streamingBackgroundStart, isBackgroundStreaming, protagonist_name, showProtagonistMessage } =
+  const { background, messages, fetchMoreStories, hasMoreStories, scrollType, prevFetching: _prevFetching, isMessageSending, streamingBackgroundStart, isBackgroundStreaming, protagonist_name, showProtagonistMessage, isAutoScrollEnabled, setIsAutoScrollEnabled } =
     useStoryContext();
   const interSectionRef = useRef<HTMLDivElement>(null);
+  const isUserScrollingRef = useRef(false);
+  const isAutoScrollingRef = useRef(false);
   
   // 폰트 매핑
   const getFontFamily = (fontName: string) => {
@@ -37,6 +39,57 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
   };
   
   const fontFamily = getFontFamily(font);
+  
+  // 사용자가 맨 아래에 있는지 확인하는 함수
+  const isNearBottom = useCallback((element: HTMLElement, threshold = 100) => {
+    return element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
+  }, []);
+
+  // 스크롤 이벤트 핸들러
+  const handleScroll = useCallback(() => {
+    const messageBox = messageBoxRef.current;
+    if (!messageBox) return;
+
+    // 자동 스크롤 중이면 사용자 스크롤로 인식하지 않음
+    if (isAutoScrollingRef.current) {
+      return;
+    }
+
+    // 사용자가 수동으로 스크롤했는지 감지
+    if (isUserScrollingRef.current) {
+      const nearBottom = isNearBottom(messageBox, 100);
+      
+      if (nearBottom && !isAutoScrollEnabled) {
+        // 사용자가 맨 아래로 돌아왔으면 자동 스크롤 재활성화
+        setIsAutoScrollEnabled(true);
+      } else if (!nearBottom && isAutoScrollEnabled) {
+        // 사용자가 맨 아래에서 멀어졌으면 자동 스크롤 비활성화
+        setIsAutoScrollEnabled(false);
+      }
+    }
+    
+    // 스크롤 이벤트가 끝난 후 플래그 리셋
+    setTimeout(() => {
+      isUserScrollingRef.current = false;
+    }, 150);
+  }, [messageBoxRef, isNearBottom, isAutoScrollEnabled, setIsAutoScrollEnabled]);
+
+  // 스크롤 이벤트 리스너 등록
+  useEffect(() => {
+    const messageBox = messageBoxRef.current;
+    if (!messageBox) return;
+
+    const scrollHandler = () => {
+      isUserScrollingRef.current = true;
+      handleScroll();
+    };
+
+    messageBox.addEventListener('scroll', scrollHandler, { passive: true });
+    
+    return () => {
+      messageBox.removeEventListener('scroll', scrollHandler);
+    };
+  }, [messageBoxRef, handleScroll]);
   
   useLayoutEffect(() => {
     if (!messageBoxRef.current || !interSectionRef.current) {
@@ -74,30 +127,44 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
 
   useEffect(() => {
     const messageBox = messageBoxRef.current;
-    if (messageBox) {
-      // 사용자가 맨 밑 근처(100px 이내)에 있을 때만 자동 스크롤
-      const isNearBottom = messageBox.scrollHeight - messageBox.scrollTop - messageBox.clientHeight < 30;
+    if (messageBox && isAutoScrollEnabled) {
+      // 자동 스크롤이 활성화되어 있을 때만 실행
+      const nearBottom = isNearBottom(messageBox, 30);
       
-      if (isNearBottom) {
-        switch (scrollType) {
-          case "smooth":
-            messageBox.scrollTo({
-              top: messageBox.scrollHeight,
-              behavior: "smooth",
-            });
-            break;
-          case "instant":
-            messageBox.scrollTo({
-              top: messageBox.scrollHeight,
-              behavior: "instant",
-            });
-            break;
-          case "none":
-            break;
+      if (nearBottom) {
+        // 자동 스크롤 시작
+        isAutoScrollingRef.current = true;
+        isUserScrollingRef.current = false;
+        
+        const scrollToBottom = () => {
+          messageBox.scrollTo({
+            top: messageBox.scrollHeight,
+            behavior: scrollType === "none" ? "auto" : scrollType,
+          });
+          
+          // 스크롤 완료 후 플래그 리셋
+          setTimeout(() => {
+            isAutoScrollingRef.current = false;
+          }, scrollType === "smooth" ? 300 : 50);
+        };
+
+        if (scrollType !== "none") {
+          scrollToBottom();
         }
       }
     }
-  }, [messages, scrollType, messageBoxRef]);
+  }, [messages, scrollType, messageBoxRef, isAutoScrollEnabled, isNearBottom]);
+
+  // 새로운 메시지가 추가될 때 자동 스크롤 활성화 (특히 user 메시지)
+  useEffect(() => {
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      // 새로운 user 메시지가 추가되면 자동 스크롤 활성화
+      if (lastMessage.type === "user") {
+        setIsAutoScrollEnabled(true);
+      }
+    }
+  }, [messages, setIsAutoScrollEnabled]);
 
   return (
     <div

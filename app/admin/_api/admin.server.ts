@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/utils/supabase/server";
+import { createClient, createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { NovelForAdmin } from "@/types/novel";
 
@@ -547,4 +547,64 @@ export async function deleteNovelAsAdmin(novelId: string) {
     console.error("[deleteNovelAsAdmin] Unexpected error:", error);
     throw error;
   }
+}
+
+// ====================================================================
+// 고객 지원 (CS) 티켓 관리
+// ====================================================================
+
+export async function getSupportTickets() {
+  const supabase = await createServiceRoleClient();
+
+  const { data, error } = await supabase
+    .from("support_tickets")
+    .select(
+      `
+      *,
+      users (
+        email
+      )
+    `
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching support tickets:", error);
+    throw new Error("고객 지원 티켓을 가져오는 중 오류가 발생했습니다.");
+  }
+
+  // 데이터 가공: users 테이블이 객체로 중첩되어 있으므로 email을 직접 접근 가능하게 만듭니다.
+  const tickets = data.map((ticket) => ({
+    ...ticket,
+    user_email: (ticket.users as { email: string } | null)?.email ?? "탈퇴한 사용자",
+  }));
+
+  return tickets;
+}
+
+export async function updateTicketStatus(ticketId: string, newStatus: string) {
+  const supabase = await createServiceRoleClient();
+
+  const { data, error } = await supabase
+    .from("support_tickets")
+    .update({ status: newStatus })
+    .eq("id", ticketId)
+    .select()
+    .single();
+
+  if (error) {
+    console.error(`Error updating ticket ${ticketId} status:`, error);
+    return {
+      success: false,
+      message: "티켓 상태 변경 중 오류가 발생했습니다.",
+    };
+  }
+  
+  revalidatePath("/admin/support");
+
+  return {
+    success: true,
+    message: "티켓 상태가 성공적으로 변경되었습니다.",
+    updatedTicket: data,
+  };
 }
