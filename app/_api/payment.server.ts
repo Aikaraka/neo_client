@@ -1,6 +1,7 @@
 "use server"
 
 import { createServiceRoleClient } from "@/utils/supabase/server"
+import * as Sentry from "@sentry/nextjs"
 
 interface VerificationResult {
   isSuccess: boolean
@@ -79,7 +80,22 @@ export async function processAndGrantToken(
   // 2. 금액 검증
   if (amount.total !== requestedAmount) {
     // 실제 결제된 금액과 우리 시스템이 예상한 금액이 다를 경우 (보안상 매우 중요)
-    // TODO: 결제 위변조 시도에 대한 로깅 및 알림 처리
+    // ⚠️ 결제 위변조 시도 로깅
+    Sentry.captureMessage("결제 금액 불일치 감지 - 잠재적 위변조 시도", {
+      level: "warning",
+      tags: { 
+        event_type: "payment_amount_mismatch", 
+        context: "payment_verification",
+        security_alert: true
+      },
+      extra: {
+        paymentId,
+        requestedAmount,
+        actualAmount: amount.total,
+        customerEmail: customer.email,
+        timestamp: new Date().toISOString(),
+      }
+    });
     return { success: false, message: "결제 금액이 일치하지 않습니다." }
   }
 
@@ -164,11 +180,55 @@ export async function processAndGrantToken(
         paymentId,
         error: historyError,
       });
+      Sentry.captureException(historyError, {
+        tags: { 
+          error_type: "payment_history_error", 
+          context: "payment_processing",
+          critical: true
+        },
+        extra: { userId, paymentId, amount: amount.total, grantedToken }
+      });
     }
+    
+    // ✅ 결제 성공 로깅
+    Sentry.captureMessage("결제 및 토큰 지급 성공", {
+      level: "info",
+      tags: { 
+        event_type: "payment_success", 
+        context: "payment_processing" 
+      },
+      user: {
+        id: userId,
+        email: customer.email,
+      },
+      extra: {
+        paymentId,
+        amount: amount.total,
+        tokensGranted: grantedToken,
+        previousBalance: currentTokens,
+        newBalance,
+        timestamp: new Date().toISOString(),
+      }
+    });
     
     return { success: true, message: "결제가 성공적으로 완료되었으며, 조각이 지급되었습니다." }
   } catch (dbError) {
-    // TODO: 조각 지급 실패 시 처리 (예: 재시도 큐, 관리자 알림)
+    // ⚠️ 조각 지급 실패 로깅 (critical)
+    Sentry.captureException(dbError instanceof Error ? dbError : new Error(String(dbError)), {
+      tags: { 
+        error_type: "token_grant_failure", 
+        context: "payment_processing",
+        critical: true // 결제는 성공했지만 토큰 지급 실패
+      },
+      extra: {
+        paymentId,
+        requestedAmount,
+        grantedToken,
+        customerEmail: paymentData?.customer.email,
+        timestamp: new Date().toISOString(),
+      }
+    });
+    
     const errorMessage = dbError instanceof Error ? dbError.message : String(dbError)
     return {
       success: false,

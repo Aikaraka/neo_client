@@ -55,6 +55,23 @@ export async function GET(request: Request) {
         });
         console.error("사용자 생성 실패:", insertError);
         // 사용자 생성 실패해도 설정 페이지로 이동하여 재시도 가능하도록 함
+      } else {
+        // ✅ 신규 회원가입 성공 로깅
+        Sentry.captureMessage("신규 유저 가입 성공", {
+          level: "info",
+          tags: { 
+            event_type: "user_signup", 
+            context: "auth_callback" 
+          },
+          user: {
+            id: session.user.id,
+            email: session.user.email || undefined,
+          },
+          extra: {
+            provider: session.user.app_metadata?.provider,
+            timestamp: new Date().toISOString(),
+          }
+        });
       }
       return NextResponse.redirect(new URL("/auth/setting", requestUrl));
     }

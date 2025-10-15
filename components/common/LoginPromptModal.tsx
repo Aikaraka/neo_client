@@ -14,6 +14,7 @@ interface LoginPromptModalProps {
   isOpen: boolean;
   onClose: () => void;
   returnUrl: string;
+  onConfirm?: () => void; // 로그인 페이지 이동 전 추가 처리를 위한 콜백
 }
 
 /**
@@ -26,10 +27,13 @@ export function LoginPromptModal({
   isOpen,
   onClose,
   returnUrl,
+  onConfirm,
 }: LoginPromptModalProps) {
   const router = useRouter();
 
   const handleConfirm = () => {
+    // 부모 컴포넌트에서 전달된 추가 처리 실행 (예: 부모 모달 닫기)
+    onConfirm?.();
     // 로그인 페이지로 이동하며 returnUrl 파라미터 전달
     router.push(`/login?returnUrl=${encodeURIComponent(returnUrl)}`);
     onClose();
