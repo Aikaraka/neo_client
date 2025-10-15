@@ -4,11 +4,9 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

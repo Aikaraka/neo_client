@@ -15,10 +15,11 @@ import { processNovel } from "@/app/novel/[id]/chat/_api/process.api";
 import { undoLastStory } from "@/app/novel/[id]/chat/_api/undo.api";
 import { generateImage } from "@/app/novel/[id]/chat/_api/generateImage.api";
 import { LoadingModal } from "@/components/ui/modal";
+import { TokenInsufficientModal } from "@/components/common/TokenInsufficientModal";
 import { useToast } from "@/hooks/use-toast";
 import { useSession } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useParams} from "next/navigation";
 
 export type Message = {
   type: "user" | "ai"
@@ -40,7 +41,6 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   currPage: number;
   initPending: boolean;
   hasMoreStories: boolean;
-  scrollType: ScrollBehavior | "none";
   prevFetching: boolean;
   archivedImages: string[];
   isGeneratingImage: boolean;
@@ -49,6 +49,7 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   showProtagonistMessage: boolean;
   isAutoScrollEnabled: boolean;
   setIsAutoScrollEnabled: (enabled: boolean) => void;
+  isFirstVisit: boolean;
 };
 
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
@@ -70,16 +71,12 @@ const TOAST_UDNO_NOVEL_ERROR_DECRIPTION = "더 되돌릴 소설이 없습니다.
 
 export function StoryProvider({ children }: { children: React.ReactNode }) {
   const { id: novelId } = useParams<{ id: string }>();
-  const router = useRouter();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [progressRate, setProgressRate] = useState(0);
   const [isMessageSending, setIsMessageSending] = useState(false);
   const [currPage, setCurrPage] = useState(0);
   const [hasMoreStories, setHasMoreStories] = useState(false);
-  const [scrollType, setScrollType] = useState<ScrollBehavior | "none">(
-    "instant"
-  );
   const [prevFetching, setPrevFetching] = useState(false);
   const [archivedImages, setArchivedImages] = useState<string[]>([]);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -89,6 +86,8 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const [showProtagonistMessage, setShowProtagonistMessage] = useState(false);
   const [hasStreamedBackground, setHasStreamedBackground] = useState(false);
   const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
+  const [isFirstVisit, setIsFirstVisit] = useState(true);
+  const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
 
   const {
     data: initialData,
@@ -118,11 +117,14 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
               image_url: s.image_url, // Add image_url from initial stories
             })
         }
-        setMessages(restoredMessages)
-        setScrollType("smooth");
+        setMessages(restoredMessages);
         setProgressRate(initSetting.progress_rate);
         setCurrPage(initSetting.oldest_story_number);
         setHasMoreStories(initSetting.has_more_stories);
+        
+        // 처음 방문 여부 설정
+        const isFirst = !initSetting.initial_stories || initSetting.initial_stories.length === 0;
+        setIsFirstVisit(isFirst);
         
         return initSetting;
       } catch (error) {
@@ -175,39 +177,30 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // 초기 데이터 로드 후 background 스트리밍 시작 (처음 방문자만)
+  // 초기 데이터 로드 후 background 처리
   useEffect(() => {
     const startBackgroundStreaming = async () => {
       if (initialData && !initPending && !hasStreamedBackground) {
         setHasStreamedBackground(true);
         
-        // initial_stories가 비어있으면 처음 방문자 -> 스트리밍 실행
-        const isFirstVisit = !initialData.initial_stories || initialData.initial_stories.length === 0;
+        const backgroundText = initialData.background?.start ?? "여러분들의 소설을 시작해보세요.";
         
         if (isFirstVisit) {
-          const backgroundText = initialData.background?.start ?? "여러분들의 소설을 시작해보세요.";
+          // 처음 방문자: 스트리밍 실행
           setIsBackgroundStreaming(true);
           await streamBackgroundText(backgroundText);
           setIsBackgroundStreaming(false);
-          
-          // 스트리밍 완료 후 protagonist 메시지 표시
           setShowProtagonistMessage(true);
         } else {
-          // 재방문자는 스트리밍 없이 바로 배경 텍스트와 protagonist 메시지 표시
-          const backgroundText = initialData.background?.start ?? "여러분들의 소설을 시작해보세요.";
+          // 재방문자: 즉시 표시
           setStreamingBackgroundStart(backgroundText);
           setShowProtagonistMessage(true);
-          
-          // 재방문자는 바로 최근 메시지로 스크롤
-          setTimeout(() => {
-            setScrollType("instant");
-          }, 100);
         }
       }
     };
     
     startBackgroundStreaming();
-  }, [initialData, initPending, hasStreamedBackground]);
+  }, [initialData, initPending, hasStreamedBackground, isFirstVisit]);
 
   const sendNovelProcessMessage = async (auto = false, input = "") => {
     if (isMessageSending) return;
@@ -225,11 +218,11 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     const aiMessageCount = messages.filter((msg) => msg.type === "ai").length
     const shouldGenerateImage = (aiMessageCount + 1) % 1 === 0
 
-      setScrollType("smooth");
-      // 새로운 메시지 전송 시 자동 스크롤 활성화
-      setIsAutoScrollEnabled(true);
-      try {
-        setIsMessageSending(true);
+    // 유저 인풋 시 자동 스크롤 활성화
+    setIsAutoScrollEnabled(true);
+    
+    try {
+      setIsMessageSending(true);
 
       const text = auto ? "계속 진행해주세요." : input;
       if (!text) return;
@@ -349,20 +342,15 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       console.error(`[StoryProvider] processNovel 오류:`, error);
       
       if (error instanceof Error && error.message.includes('TOKEN_INSUFFICIENT')) {
-        toast({
-          variant: "destructive",
-          title: "조각이 다 떨어졌어요!",
-          description: "더 많은 소설을 보려면 조각을 충전해주세요.",
-          action: (
-            <button
-              onClick={() => router.push('/store')}
-              className="bg-white text-red-600 px-3 py-1 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
-            >
-              조각 충전하기
-            </button>
-          ),
-        });
+        // 실패한 유저 인풋과 빈 AI 메시지 제거
+        setMessages((prev) => prev.slice(0, -2));
+        
+        // 토큰 부족 모달 표시
+        setIsTokenModalOpen(true);
       } else {
+        // 다른 에러의 경우에도 실패한 메시지 제거
+        setMessages((prev) => prev.slice(0, -2));
+        
         toast({
           variant: "destructive",
           title: TOAST_GEN_NOVEL_ERROR_TITLE,
@@ -452,7 +440,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
 
   const fetchMoreStories = async () => {
     if (initPending || !hasMoreStories || prevFetching) return;
-    setScrollType("none");
+    
     try {
       setPrevFetching(true);
       const { has_more, stories } = await getPreviousStories(
@@ -515,7 +503,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         fetchMoreStories,
         currPage,
         hasMoreStories,
-        scrollType,
         initPending,
         prevFetching,
         archivedImages,
@@ -526,10 +513,15 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         showProtagonistMessage,
         isAutoScrollEnabled,
         setIsAutoScrollEnabled,
+        isFirstVisit,
       }}
     >
       {children}
       <LoadingModal visible={initPending} />
+      <TokenInsufficientModal 
+        isOpen={isTokenModalOpen} 
+        onClose={() => setIsTokenModalOpen(false)} 
+      />
     </StoryContext.Provider>
   );
 }

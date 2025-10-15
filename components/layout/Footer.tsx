@@ -11,6 +11,7 @@ const Footer = () => {
             <Link href="/terms/service" className="hover:text-gray-800">이용약관</Link>
             <Link href="/terms/privacy" className="hover:text-gray-800">개인정보처리방침</Link>
             <Link href="/terms/copyright" className="hover:text-gray-800">콘텐츠 심의 규정</Link>
+            <Link href="/support" className="hover:text-gray-800">고객 지원 센터</Link>
           </div>
           
           {/* Company Info */}

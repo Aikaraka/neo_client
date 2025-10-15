@@ -42,7 +42,6 @@ export async function middleware(request: NextRequest) {
 
     if (adminRoutes.some((route) => pathname.startsWith(route))) {
       if (!userData || userData.role !== "admin") {
-        console.error("관리자 권한이 없습니다.");
         const mainURL = new URL("/", request.url);
         return NextResponse.redirect(mainURL);
       }
