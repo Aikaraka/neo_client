@@ -4,6 +4,7 @@ import { CreateNovelForm } from "../_schema/createNovelSchema";
 import { createClient } from "@/utils/supabase/server";
 import { Character, Relationship } from "@/types/novel";
 import { novelAiServerForServer } from "@/api/serverInstance";
+import * as Sentry from "@sentry/nextjs";
 
 export interface AIAssistRequest {
   formData: CreateNovelForm;
@@ -50,6 +51,23 @@ export async function postAIAssist(
     return response.json();
   } catch (error) {
     console.error('AI Assist 요청 실패:', error);
+    // AI 어시스트 실패 로깅
+    Sentry.captureException(error, {
+      tags: { 
+        error_type: "ai_assist_failure", 
+        context: "input_pumping" 
+      },
+      user: {
+        id: session.user.id,
+        email: session.user.email || undefined,
+      },
+      extra: { 
+        targetField: request.targetField,
+        backgroundType: request.backgroundType,
+        characterIndex: request.characterIndex,
+        relationshipIndex: request.relationshipIndex,
+      }
+    });
     throw new Error("AI 어시스트 요청 중 오류가 발생했습니다.");
   }
 }

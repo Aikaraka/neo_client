@@ -164,6 +164,7 @@ export function NovelDetailModal() {
   const coverScale = Math.max(minScale, maxScale - (scrollY / maxScroll) * (maxScale - minScale));
 
   return (
+    <>
     <Dialog open={isModalOpen} onOpenChange={closeModal}>
       <DialogContent
         style={{
@@ -391,15 +392,20 @@ export function NovelDetailModal() {
             <span>세계관 진입하기</span>
             <Image src="/arrow_right.png" alt="arrow-right" width={20} height={20} />
           </Button>
-
-        {/* 로그인 유도 모달 */}
-        <LoginPromptModal
-          isOpen={isLoginPromptOpen}
-          onClose={() => setIsLoginPromptOpen(false)}
-          returnUrl={`/novel/${novel.id}/chat`}
-        />
       </DialogContent>
     </Dialog>
+
+    {/* 로그인 유도 모달 - NovelDetailModal의 Dialog 밖에서 독립적으로 렌더링 */}
+    <LoginPromptModal
+      isOpen={isLoginPromptOpen}
+      onClose={() => setIsLoginPromptOpen(false)}
+      returnUrl={`/novel/${novel.id}/chat`}
+      onConfirm={() => {
+        // 로그인 페이지로 이동하기 전에 NovelDetailModal도 함께 닫기
+        closeModal();
+      }}
+    />
+    </>
   );
 }
 
