@@ -24,10 +24,10 @@ export function ImageAssetUpload({
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
-      if (file.size > 10 * 1024 * 1024) { // 10MB 크기 제한
+      if (file.size > 2 * 1024 * 1024) { // 2MB 크기 제한
         toast({
           title: "파일 크기 초과",
-          description: "10MB 이하의 이미지를 업로드해주세요.",
+          description: "2MB 이하로 압축한 후 이용해주세요.",
           variant: "destructive",
         })
         return
@@ -37,10 +37,10 @@ export function ImageAssetUpload({
       try {
         const webpFile = await convertToWebP(file)
 
-        if (webpFile.size > 3 * 1024 * 1024) { // 2MB 크기 제한
+        if (webpFile.size > 1 * 1024 * 1024) { // 1MB 크기 제한
           toast({
             title: "파일 크기 초과",
-            description: "변환된 이미지가 3MB를 초과합니다. 더 작은 이미지를 사용해주세요.",
+            description: "네오 로직으로 압축된 이미지가 1MB를 초과합니다. 더 작은 이미지를 업로드해주세요.",
             variant: "destructive",
           })
           return;

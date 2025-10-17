@@ -20,6 +20,7 @@ novelAiServerForServer.use.response = async (response, requestFunction) => {
     try {
       const { data, error } = await supabase.auth.refreshSession();
       if (error || !data.session) {
+        console.error("세션 갱신 실패:", error);
         throw new Error("세션 갱신 실패");
       }
 
@@ -31,6 +32,7 @@ novelAiServerForServer.use.response = async (response, requestFunction) => {
 
       return requestFunction();
     } catch (refreshError) {
+      console.error("조각 갱신 중 오류:", refreshError);
       throw new Error("인증 조각 갱신에 실패했습니다.");
     }
   }
@@ -43,6 +45,7 @@ novelAiServerForServer.use.request = async (options) => {
     const { data, error } = await supabase.auth.getSession();
     
     if (error || !data.session) {
+      console.error("세션 조회 실패:", error);
       throw new Error("세션이 없습니다.");
     }
     
