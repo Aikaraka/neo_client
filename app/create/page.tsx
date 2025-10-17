@@ -168,7 +168,12 @@ function CreateNovelPageContent() {
       console.error("세계관 생성 중 오류:", error);
       let description = "세계관 생성 중 오류가 발생했습니다.";
       if (error instanceof Error) {
-        description = error.message;
+        // 파일 크기 관련 에러인 경우 사용자 친화적인 메시지로 변경
+        if (error.message.includes("Body exceeded") || error.message.includes("limit")) {
+          description = "파일 크기가 너무 큽니다! 이미지 파일들을 압축한 후 다시 시도해주세요.";
+        } else {
+          description = error.message;
+        }
       }
       toast({
         title: SUBMIT_ERROR_TITLE,
