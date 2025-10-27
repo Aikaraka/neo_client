@@ -44,7 +44,10 @@ export function NovelDetailModal() {
   const [isSticky, setIsSticky] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  
+
+  // 모바일 감지
+  const [isMobile, setIsMobile] = useState(false);
+
   // 로그인 유도 모달 상태
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
@@ -53,6 +56,17 @@ export function NovelDetailModal() {
     queryFn: () => getNovelDetail(selectedNovelId!),
     enabled: !!selectedNovelId && isModalOpen,
   });
+
+  // 모바일 감지 useEffect
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && closeModal();
@@ -75,11 +89,12 @@ export function NovelDetailModal() {
           const scrollTop = container.scrollTop;
           setScrollY(scrollTop);
           
-          // 제목이 상단에 닿았는지 확인
+          // 제목이 상단에 닿았는지 확인 (모바일/데스크톱 분기)
           const titleRect = titleElement.getBoundingClientRect();
           const containerRect = container.getBoundingClientRect();
-          const isAtTop = titleRect.top <= containerRect.top + 50; // 50px 여유
-          
+          const triggerOffset = isMobile ? 100 : 50; // 모바일 100px, 데스크톱 50px
+          const isAtTop = titleRect.top <= containerRect.top + triggerOffset;
+
           setIsSticky(isAtTop);
           ticking = false;
         });
@@ -92,7 +107,7 @@ export function NovelDetailModal() {
       container.addEventListener("scroll", handleScroll, { passive: true });
       return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, [isModalOpen, novel]);
+  }, [isModalOpen, novel, isMobile]);
 
   if (!isModalOpen || !selectedNovelId) return null;
   
@@ -157,9 +172,9 @@ export function NovelDetailModal() {
   const authorNickname = authorInfo?.nickname ?? "익명의 작가";
   const authorAvatarUrl = authorInfo?.avatar_url;
 
-  // 표지 크기 계산 (스크롤에 따라 1.0 → 0.6 범위)
-  const maxScroll = 200; // 200px 스크롤 시 최소 크기
-  const minScale = 0.6;
+  // 표지 크기 계산 (모바일/데스크톱 분기)
+  const maxScroll = isMobile ? 150 : 200; // 모바일 150px, 데스크톱 200px
+  const minScale = isMobile ? 0.85 : 0.6; // 모바일 0.85, 데스크톱 0.6
   const maxScale = 1.0;
   const coverScale = Math.max(minScale, maxScale - (scrollY / maxScroll) * (maxScale - minScale));
 
@@ -195,11 +210,11 @@ export function NovelDetailModal() {
               {novel.title}
             </h2>
             
-            {/* 태그 */}
+            {/* 태그 (모바일에서는 3개만 표시) */}
             <div className="flex flex-wrap gap-1 justify-center">
-              {novel.mood?.slice(0, 10).map((tag: string) => (
-                <span 
-                  key={tag} 
+              {novel.mood?.slice(0, isMobile ? 3 : 10).map((tag: string) => (
+                <span
+                  key={tag}
                   className="bg-white text-[#858585] px-2 py-0.5 rounded-full border border-white text-[10px]"
                 >
                   {tag}
@@ -228,12 +243,14 @@ export function NovelDetailModal() {
               
               {/* 2. 20% 검정색 오버레이 */}
               <div className="absolute inset-0 bg-black/5" />
-              
-               {/* 3. 백그라운드 블러 효과 */}
-               <div className="absolute inset-0 backdrop-blur-[2px]" 
-                    style={{ 
-                      background: 'linear-gradient(to bottom, rgba(217,217,217,0) 0%, #FCFCFC 80%, #FCFCFC 100%)' 
-                    }} />
+
+               {/* 3. 백그라운드 블러 효과 (모바일에서는 블러 제거) */}
+               <div
+                 className={`absolute inset-0 ${!isMobile ? 'backdrop-blur-[2px]' : ''}`}
+                 style={{
+                   background: 'linear-gradient(to bottom, rgba(217,217,217,0) 0%, #FCFCFC 80%, #FCFCFC 100%)'
+                 }}
+               />
             </div>
           )}
           <div className="relative flex flex-col items-center w-full p-6 md:p-8">
