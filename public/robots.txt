@@ -1,0 +1,11 @@
+# 검색 엔진은 허용하되, 이미지 최적화 경로는 차단
+User-agent: *
+Allow: /
+# Vercel Image Optimization 경로 차단 (Quota 절약)
+Disallow: /_next/image
+Disallow: /_next/static/
+# API 경로 차단
+Disallow: /api/
+
+# 주요 검색 엔진만 sitemap 제공
+Sitemap: https://www.neo-ai.app/sitemap.xml
