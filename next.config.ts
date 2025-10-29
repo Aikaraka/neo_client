@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    unoptimized: true, // TODO: Vercel Image Optimization quota 생기면 제거
     deviceSizes: [640, 750, 1080], // 기본값(16개)에서 3개로 축소 - 할당량 70% 감소
     imageSizes: [16, 32, 48, 64],  // 작은 아이콘용 크기 유지
     remotePatterns: [
