@@ -65,7 +65,7 @@ export async function dataURLToWebP(
 ): Promise<File> {
   // 먼저 일반 파일로 변환
   const file = dataURLToFile(dataUrl, filename + ".png");
-  
+
   // WebP로 변환
   return await convertToWebP(file, quality);
 }

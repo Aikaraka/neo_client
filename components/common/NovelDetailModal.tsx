@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useLayoutEffect } from "react";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
@@ -48,6 +48,9 @@ export function NovelDetailModal() {
   // 모바일 감지
   const [isMobile, setIsMobile] = useState(false);
 
+  // 모달 재오픈 트리거 (타임스탬프로 항상 유니크한 값 보장)
+  const [modalOpenCount, setModalOpenCount] = useState(0);
+
   // 로그인 유도 모달 상태
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
@@ -68,6 +71,36 @@ export function NovelDetailModal() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // 모달 오픈 시 상태 초기화 (같은 소설 재진입 시에도 초기화 보장)
+  useLayoutEffect(() => {
+    if (isModalOpen && novel) {
+      // 타임스탬프로 업데이트 (항상 유니크한 값으로 스크롤 이벤트 리스너 재등록 트리거)
+      setModalOpenCount(Date.now());
+
+      // 상태 초기화
+      setScrollY(0);
+      setIsSticky(false);
+      setIsLoginPromptOpen(false);
+      // DOM이 렌더링될 때까지 대기 후 스크롤 초기화
+      const timer = setTimeout(() => {
+        if (scrollContainerRef.current) {
+          scrollContainerRef.current.scrollTop = 0;
+        }
+      }, 0);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isModalOpen, novel, isPending]); // isPending으로 novel 로드 완료 감지
+
+  // 모달 닫을 때 state 초기화 (타이밍 레이스 방지)
+  useEffect(() => {
+    if (!isModalOpen) {
+      setScrollY(0);
+      setIsSticky(false);
+      setIsLoginPromptOpen(false);
+    }
+  }, [isModalOpen, novel]);
+
   useEffect(() => {
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && closeModal();
     if (isModalOpen) document.addEventListener("keydown", onEsc);
@@ -83,12 +116,15 @@ export function NovelDetailModal() {
         requestAnimationFrame(() => {
           const container = scrollContainerRef.current;
           const titleElement = titleRef.current;
-          
-          if (!container || !titleElement) return;
-          
+
+          if (!container || !titleElement) {
+            ticking = false; // early return 시에도 ticking 해제
+            return;
+          }
+
           const scrollTop = container.scrollTop;
           setScrollY(scrollTop);
-          
+
           // 제목이 상단에 닿았는지 확인 (모바일/데스크톱 분기)
           const titleRect = titleElement.getBoundingClientRect();
           const containerRect = container.getBoundingClientRect();
@@ -107,7 +143,7 @@ export function NovelDetailModal() {
       container.addEventListener("scroll", handleScroll, { passive: true });
       return () => container.removeEventListener("scroll", handleScroll);
     }
-  }, [isModalOpen, novel, isMobile]);
+  }, [modalOpenCount, isMobile, isModalOpen, novel]); // modalOpenCount 변경 시 이벤트 리스너 재등록
 
   if (!isModalOpen || !selectedNovelId) return null;
   
@@ -172,11 +208,17 @@ export function NovelDetailModal() {
   const authorNickname = authorInfo?.nickname ?? "익명의 작가";
   const authorAvatarUrl = authorInfo?.avatar_url;
 
+  // novel.mood 타입 안정성 체크
+  const moodTags = Array.isArray(novel.mood) ? novel.mood : [];
+
   // 표지 크기 계산 (모바일/데스크톱 분기)
   const maxScroll = isMobile ? 150 : 200; // 모바일 150px, 데스크톱 200px
   const minScale = isMobile ? 0.85 : 0.6; // 모바일 0.85, 데스크톱 0.6
   const maxScale = 1.0;
   const coverScale = Math.max(minScale, maxScale - (scrollY / maxScroll) * (maxScale - minScale));
+
+  // 모바일/데스크톱 블러 강도 통일
+  const blurValue = '1px';
 
   return (
     <>
@@ -198,11 +240,15 @@ export function NovelDetailModal() {
         </DialogDescription>
 
         {/* Sticky 헤더 - 스크롤 시 나타남 */}
-        <div 
-          className={`absolute top-0 left-0 right-0 z-50 bg-gray-100/95 backdrop-blur-sm border-b border-gray-200 px-6 py-4 transition-all duration-300 ease-out rounded-t-2xl ${
+        <div
+          className={`absolute top-0 left-0 right-0 z-50 bg-gray-100/95 border-b border-gray-200 px-6 py-4 transition-all duration-300 ease-out rounded-t-2xl ${
             isSticky ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
           }`}
-          style={{ borderRadius: '8px 8px 0 0' }}
+          style={{
+            borderRadius: '8px 8px 0 0',
+            WebkitBackdropFilter: 'blur(4px)', // Safari 접두사 (backdrop-blur-sm = 4px)
+            backdropFilter: 'blur(4px)',
+          }}
         >
           <div className="flex flex-col items-center gap-2">
             {/* 제목 */}
@@ -212,9 +258,9 @@ export function NovelDetailModal() {
             
             {/* 태그 (모바일에서는 3개만 표시) */}
             <div className="flex flex-wrap gap-1 justify-center">
-              {novel.mood?.slice(0, isMobile ? 3 : 10).map((tag: string) => (
+              {moodTags.slice(0, isMobile ? 3 : 10).map((tag: string, i: number) => (
                 <span
-                  key={tag}
+                  key={`sticky-tag-${i}-${tag}`}
                   className="bg-white text-[#858585] px-2 py-0.5 rounded-full border border-white text-[10px]"
                 >
                   {tag}
@@ -229,28 +275,41 @@ export function NovelDetailModal() {
           ref={scrollContainerRef}
           className="relative z-10 flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] bg-white"
         >
-          {/* 배경 레이어 - 피그마 디자인 반영 */}
+          {/* 배경 레이어 - backdrop-filter 포기, 이미지 자체에 blur 적용 (100% 작동!) */}
           {novel.image_url && (
-            <div className="absolute inset-0 -z-10 pointer-events-none">
-              {/* 1. 원본 배경 이미지 */}
-              <Image
-                src={novel.image_url}
-                alt="배경"
-                fill
-                priority
-                className="object-cover object-top"
-              />
-              
-              {/* 2. 20% 검정색 오버레이 */}
-              <div className="absolute inset-0 bg-black/5" />
+            <div className="absolute inset-0 -z-10 pointer-events-none overflow-hidden">
+              {/* 1. blur 처리된 배경 이미지 (filter: blur 사용) */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  WebkitFilter: `blur(${blurValue})`,
+                  filter: `blur(${blurValue})`,
+                  transform: 'scale(1.1)', // blur로 인한 가장자리 흐림 방지
+                }}
+              >
+                <Image
+                  src={novel.image_url}
+                  alt="배경"
+                  fill
+                  priority
+                  className="object-cover object-top"
+                />
+              </div>
 
-               {/* 3. 백그라운드 블러 효과 (모바일에서는 블러 제거) */}
-               <div
-                 className={`absolute inset-0 ${!isMobile ? 'backdrop-blur-[2px]' : ''}`}
-                 style={{
-                   background: 'linear-gradient(to bottom, rgba(217,217,217,0) 0%, #FCFCFC 80%, #FCFCFC 100%)'
-                 }}
-               />
+              {/* 2. Gradient 오버레이 */}
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `
+                    linear-gradient(
+                      to bottom,
+                      rgba(217, 217, 217, 0.1) 0%,
+                      rgba(252, 252, 252, 0.8) 80%,
+                      rgba(252, 252, 252, 1) 100%
+                    )
+                  `,
+                }}
+              />
             </div>
           )}
           <div className="relative flex flex-col items-center w-full p-6 md:p-8">
@@ -280,12 +339,12 @@ export function NovelDetailModal() {
 
             {/* 태그 */}
             <div className="flex flex-wrap gap-1 justify-center mb-4 w-full">
-              {novel.mood?.map((tag: string) => (
-                <span 
-                  key={tag} 
+              {moodTags.map((tag: string, i: number) => (
+                <span
+                  key={`content-tag-${i}-${tag}`}
                   className="bg-white text-[#858585] px-3 py-1 rounded-full border border-white"
-                  style={{ 
-                    fontSize: '11.62px' 
+                  style={{
+                    fontSize: '11.62px'
                   }}
                 >
                   {tag}
@@ -294,7 +353,13 @@ export function NovelDetailModal() {
             </div>
 
             {/* 작가 */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 bg-white/80 backdrop-blur-sm px-3 py-2 rounded-full w-fit mx-auto border border-[#D3CFE8]">
+            <div
+              className="flex items-center gap-2 text-sm text-muted-foreground mb-2 bg-white/80 px-3 py-2 rounded-full w-fit mx-auto border border-[#D3CFE8]"
+              style={{
+                WebkitBackdropFilter: 'blur(4px)', // Safari 접두사 (backdrop-blur-sm = 4px)
+                backdropFilter: 'blur(4px)',
+              }}
+            >
               <div className="relative w-4 h-4 rounded-full overflow-hidden">
                 <Image
                   src={authorAvatarUrl || "/neo_emblem.svg"}
@@ -331,7 +396,7 @@ export function NovelDetailModal() {
                        {protagonist && (
                          <div className="text-sm flex gap-3">
                            {protagonist.asset_url && (
-                             <div 
+                             <div
                                className="relative flex-shrink-0 bg-gray-50 rounded-md"
                                style={{ width: '84px', height: '108px' }}
                              >
@@ -357,7 +422,7 @@ export function NovelDetailModal() {
                        {otherCharacters.map((c, i) => (
                          <div key={i} className="text-sm flex gap-3">
                            {c.asset_url && (
-                             <div 
+                             <div
                                className="relative flex-shrink-0 bg-gray-50 rounded-md"
                                style={{ width: '84px', height: '108px' }}
                              >

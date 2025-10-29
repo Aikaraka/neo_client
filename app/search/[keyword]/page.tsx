@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { Filter, X, Sparkles } from "lucide-react";
+import { Filter, X } from "lucide-react";
 import { useNovelModal } from "@/hooks/useNovelModal";
 
 // 정의된 키워드 목록 (필터 옵션용)
@@ -144,7 +144,7 @@ export default function SearchResultPage() {
                     ))}
                   </div>
                   <span className="text-sm text-gray-500">
-                    검색 결과 {sortedNovels.length}개
+                    {decodedKeyword} : 검색 결과 {sortedNovels.length}개
                   </span>
                 </div>
 
@@ -226,10 +226,6 @@ export default function SearchResultPage() {
                             height={120}
                             className="rounded-lg object-cover flex-shrink-0 shadow-md group-hover:shadow-xl transition-shadow duration-300"
                           />
-                          {/* 반짝이 효과 */}
-                          <div className="absolute -top-1 -right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Sparkles className="w-4 h-4 text-primary animate-pulse" />
-                          </div>
                         </div>
 
                         <div className="flex-1 min-w-0">
