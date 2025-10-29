@@ -150,7 +150,7 @@ export function MoreMenu({
                 <span className="ml-1.5 font-semibold text-gray-700">{point ?? "-"}</span>
               </span>
             </div>
-            
+
             <hr className="my-1 border-gray-100" />
 
             {/* Menu Items Section */}

@@ -32,43 +32,48 @@ export async function getSearchResult(keyword: string) {
   const supabase = await createClient();
   const decodedKeyword = decodeURIComponent(keyword);
   const safeFilterEnabled = await getSafeFilterEnabled();
-  
-  // 1단계: 정확한 키워드 매칭 (우선순위 최고)
-  if (DEFINED_KEYWORDS.includes(decodedKeyword)) {
-    let query = supabase
-      .from("novels")
-      .select("*")
-      .contains("mood", [decodedKeyword])
-      .filter("settings->isPublic", "eq", true)
-      .order("created_at", { ascending: false });
-    
-    // 보호필터가 켜져 있으면 성인 콘텐츠 제외
-    if (safeFilterEnabled) {
-      query = query.or('settings->hasAdultContent.is.null,settings->hasAdultContent.eq.false');
-    }
-    
-    const { data: exactMatch } = await query;
-      
-    if (exactMatch && exactMatch.length > 0) {
-      return exactMatch;
-    }
-  }
-  
-  // 2단계: 제목 검색 (키워드가 정의되지 않았거나 결과가 없는 경우)
+
+  // 제목 + 장르(mood) 동시 검색
+  // title에 키워드가 포함되거나 mood 배열에 키워드가 포함된 소설 모두 검색
   let query = supabase
     .from("novels")
     .select("*")
-    .ilike("title", `%${decodedKeyword}%`)
+    .or(`title.ilike.%${decodedKeyword}%,mood.cs.{${decodedKeyword}}`)
     .filter("settings->isPublic", "eq", true)
     .order("created_at", { ascending: false });
-  
+
   // 보호필터가 켜져 있으면 성인 콘텐츠 제외
   if (safeFilterEnabled) {
     query = query.or('settings->hasAdultContent.is.null,settings->hasAdultContent.eq.false');
   }
-  
-  const { data: titleMatch, error } = await query;
-    
+
+  const { data: results, error } = await query;
+
   if (error) throw new Error("검색 결과를 가져오던 중 오류가 발생했습니다.");
-  return titleMatch || [];
+
+  // Novel 타입 정의
+  type Novel = {
+    id: string;
+    title: string;
+    mood: string[] | null;
+    [key: string]: unknown;
+  };
+
+  // 정의된 키워드의 경우 mood에 정확히 매칭되는 소설을 우선순위로 정렬
+  if (DEFINED_KEYWORDS.includes(decodedKeyword) && results && results.length > 0) {
+    const moodMatches: Novel[] = [];
+    const titleOnlyMatches: Novel[] = [];
+
+    results.forEach((novel: Novel) => {
+      if (novel.mood && novel.mood.includes(decodedKeyword)) {
+        moodMatches.push(novel);
+      } else {
+        titleOnlyMatches.push(novel);
+      }
+    });
+
+    return [...moodMatches, ...titleOnlyMatches];
+  }
+
+  return results || [];
 }
