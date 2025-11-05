@@ -249,8 +249,198 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       const decoder = new TextDecoder("utf-8");
       let done = false;
       let buffer = "";
-      let accumulatedText = "";
       let imageUrl = "";
+      
+      // AtomicStreamJsonParser 패턴: 이전 성공 결과 유지
+      let lastSuccessfulContent = "";
+      let lastSuccessfulLength = 0;
+      type MessageData = {
+        type: string;
+        content?: string;
+        story_number?: number;
+        user_input?: string;
+        [key: string]: unknown;
+      };
+      let lastSuccessfulData: MessageData | null = null;
+      
+      // 스로틀링을 위한 버퍼 및 타이머
+      let pendingUpdate: { content: string; data: MessageData } | null = null;
+      let lastUpdateTime = 0;
+      const THROTTLE_MS = 200; // 200ms 간격으로 업데이트 (타이핑 효과와 조화)
+      let throttleTimer: NodeJS.Timeout | null = null;
+      
+      // 타이핑 효과 제어
+      let typingController: { cancelled: boolean; targetContent: string; typingPromise: Promise<void> | null } | null = null;
+      const TYPING_DELAY_MS = 15; // 각 문자마다 15ms 지연 (타이핑 속도, 자연스러운 느낌)
+
+      /**
+       * 콘텐츠 품질 계산 함수
+       * 텍스트 길이와 유효성을 기반으로 품질 점수 계산
+       */
+      const calculateContentQuality = (content: string): number => {
+        if (!content) return 0;
+        // HTML 태그 제거 후 텍스트 길이 측정 (다른 코드베이스 방식)
+        const textOnly = content.replace(/<[^>]*>/g, "");
+        return textOnly.length;
+      };
+
+      /**
+       * 새 결과가 이전 결과보다 나은지 판단
+       * 스트리밍 중에는 더 완화된 임계값 적용 (50%), 일반적으로는 80%
+       */
+      const isResultBetter = (
+        newContent: string, 
+        newLength: number, 
+        threshold: number = 0.8
+      ): boolean => {
+        if (!lastSuccessfulContent) return true; // 첫 결과는 항상 수용
+        
+        const newQuality = calculateContentQuality(newContent);
+        const oldQuality = calculateContentQuality(lastSuccessfulContent);
+        
+        // 새 데이터가 기존 데이터의 최소 threshold% 품질이어야 함
+        // 또는 이전보다 크게 개선된 경우 (50자 이상 증가)
+        const qualityThreshold = Math.max(oldQuality * threshold, oldQuality - 50);
+        return newQuality >= qualityThreshold;
+      };
+      
+      /**
+       * 대기 중인 업데이트를 실제로 적용
+       * 안전한 타이핑 효과: 추가된 부분만 한글자씩 표시
+       */
+      const applyPendingUpdate = () => {
+        if (!pendingUpdate) return;
+        
+        const { content, data } = pendingUpdate;
+        lastUpdateTime = Date.now();
+        pendingUpdate = null;
+        
+        // 이전 타이핑 효과 취소 (새 콘텐츠가 왔으므로)
+        if (typingController) {
+          typingController.cancelled = true;
+        }
+        
+        // 새로운 타이핑 컨트롤러 생성
+        typingController = { 
+          cancelled: false, 
+          targetContent: content,
+          typingPromise: null
+        };
+        const currentController = typingController;
+        
+        // 현재 표시된 메시지와 비교하여 추가된 부분만 타이핑
+        setMessages((prev) => {
+          const newMsgs = [...prev];
+          const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
+          if (lastAiIdx !== -1) {
+            const currentDisplayedContent = newMsgs[lastAiIdx].content || "";
+            
+            // 실제로 변경된 경우만 업데이트 (길이가 증가하거나 내용이 다른 경우)
+            if (content !== currentDisplayedContent && content.length >= currentDisplayedContent.length) {
+              // 추가된 부분 추출
+              const newChars = content.slice(currentDisplayedContent.length);
+              
+              if (newChars.length > 0) {
+                // 비동기로 추가된 문자들을 순차적으로 타이핑 효과로 표시
+                const typingPromise = (async () => {
+                  let tempContent = currentDisplayedContent;
+                  
+                  for (const char of newChars) {
+                    // 취소되었는지 확인
+                    if (currentController.cancelled) {
+                      // 취소되었으면 최신 목표 콘텐츠로 즉시 업데이트하고 종료
+                      setMessages((prevMsgs) => {
+                        const updatedMsgs = [...prevMsgs];
+                        const aiIdx = updatedMsgs.map(m => m.type).lastIndexOf('ai');
+                        if (aiIdx !== -1) {
+                          updatedMsgs[aiIdx] = { 
+                            type: 'ai', 
+                            content: currentController.targetContent,
+                            story_number: data.story_number, 
+                            user_input: data.user_input, 
+                            image_url: imageUrl 
+                          };
+                        }
+                        return updatedMsgs;
+                      });
+                      return;
+                    }
+                    
+                    tempContent += char;
+                    setMessages((prevMsgs) => {
+                      const updatedMsgs = [...prevMsgs];
+                      const aiIdx = updatedMsgs.map(m => m.type).lastIndexOf('ai');
+                      if (aiIdx !== -1) {
+                        // 취소되었는지 다시 확인 (상태 업데이트 직전)
+                        if (currentController.cancelled) {
+                          updatedMsgs[aiIdx] = { 
+                            type: 'ai', 
+                            content: currentController.targetContent,
+                            story_number: data.story_number, 
+                            user_input: data.user_input, 
+                            image_url: imageUrl 
+                          };
+                        } else {
+                          updatedMsgs[aiIdx] = { 
+                            type: 'ai', 
+                            content: tempContent, 
+                            story_number: data.story_number, 
+                            user_input: data.user_input, 
+                            image_url: imageUrl 
+                          };
+                        }
+                      }
+                      return updatedMsgs;
+                    });
+                    
+                    // 각 문자마다 지연 (타이핑 효과)
+                    await new Promise(resolve => setTimeout(resolve, TYPING_DELAY_MS));
+                  }
+                })();
+                
+                currentController.typingPromise = typingPromise;
+              } else {
+                // 추가된 부분이 없으면 즉시 업데이트
+                newMsgs[lastAiIdx] = { 
+                  type: 'ai', 
+                  content: content, 
+                  story_number: data.story_number, 
+                  user_input: data.user_input, 
+                  image_url: imageUrl 
+                };
+              }
+            }
+          }
+          return newMsgs;
+        });
+      };
+      
+      /**
+       * 스로틀링된 메시지 업데이트 함수
+       * 100ms 간격으로만 실제 상태 업데이트 수행
+       */
+      const throttledUpdateMessage = (content: string, messageData: MessageData) => {
+        const now = Date.now();
+        pendingUpdate = { content, data: messageData };
+        
+        // 마지막 업데이트로부터 THROTTLE_MS 이상 지났으면 즉시 업데이트
+        if (now - lastUpdateTime >= THROTTLE_MS) {
+          if (throttleTimer) {
+            clearTimeout(throttleTimer);
+            throttleTimer = null;
+          }
+          applyPendingUpdate();
+        } else {
+          // 아직 시간이 안 지났으면 타이머 설정
+          if (!throttleTimer) {
+            const delay = THROTTLE_MS - (now - lastUpdateTime);
+            throttleTimer = setTimeout(() => {
+              applyPendingUpdate();
+              throttleTimer = null;
+            }, delay);
+          }
+        }
+      };
 
       while (!done) {
         const { value, done: readerDone } = await reader.read();
@@ -266,36 +456,68 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         buffer = lines.pop() || "";
 
         for (const line of lines) {
-                      if (line.startsWith("data: ")) {
-              const dataStr = line.substring(6).trim();
-              
-              if (dataStr === "[DONE]") {
-                break;
+          if (line.startsWith("data: ")) {
+            const dataStr = line.substring(6).trim();
+            
+            if (dataStr === "[DONE]") {
+              // 스트리밍 종료 시 대기 중인 업데이트 즉시 적용
+              if (pendingUpdate) {
+                applyPendingUpdate();
               }
+              if (throttleTimer) {
+                clearTimeout(throttleTimer);
+                throttleTimer = null;
+              }
+              break;
+            }
 
-              const data = JSON.parse(dataStr);
+            // JSON 파싱 에러 처리 추가
+            let data;
+            try {
+              data = JSON.parse(dataStr);
+            } catch (parseError) {
+              // JSON 파싱 실패 시 이전 성공 결과 유지
+              console.warn(`[StoryProvider] JSON 파싱 실패, 이전 결과 유지:`, parseError);
+              if (lastSuccessfulData) {
+                data = lastSuccessfulData;
+              } else {
+                continue; // 첫 파싱 실패면 건너뛰기
+              }
+            }
 
             if (data.type === "story") {
               // <E> 토큰 필터링 (완전한 토큰과 불완전한 토큰 모두 제거)
-              const originalContent = data.content;
-              const filteredContent = originalContent
+              const originalContent: string = (data.content as string) || "";
+              const filteredContent: string = originalContent
                 .replace(/<E[^>]*>/g, '')  // 완전한 <E> 토큰 제거
                 .replace(/<E[^>]*$/g, '')  // <E로 시작하는 불완전한 토큰 제거
                 .replace(/<E$/g, '');      // <E로 끝나는 경우 제거
               
-              // 문자 단위로 실시간 타이핑 효과 구현
-              for (const char of filteredContent) {
-                accumulatedText += char;
-                setMessages((prev) => {
-                  const newMsgs = [...prev];
-                  const lastAiIdx = newMsgs.map(m => m.type).lastIndexOf('ai');
-                  if (lastAiIdx !== -1) {
-                    newMsgs[lastAiIdx] = { type: 'ai', content: accumulatedText, story_number: data.story_number, user_input: data.user_input, image_url: imageUrl };
-                  }
-                  return newMsgs;
-                });
-                // 각 문자마다 지연 (타이핑 효과)
-                await new Promise(resolve => setTimeout(resolve, 30));
+              const newLength = filteredContent.length;
+              
+              // 스트리밍 중인지 확인 (isMessageSending 상태 사용)
+              const isStreaming = isMessageSending;
+              // 스트리밍 중에는 더 완화된 임계값 사용 (50%), 일반적으로는 80%
+              const threshold = isStreaming ? 0.5 : 0.8;
+              
+              // 품질 비교: 새 결과가 이전 결과보다 나은지 확인
+              if (isResultBetter(filteredContent, newLength, threshold)) {
+                // 좋은 결과: 업데이트
+                lastSuccessfulContent = filteredContent;
+                lastSuccessfulLength = newLength;
+                lastSuccessfulData = { ...data, content: filteredContent };
+                
+                // 스로틀링된 업데이트 사용 (150ms 간격)
+                // 타이핑 효과 제거로 깜빡임 방지, 업데이트 속도 조절로 읽기 편한 속도 제공
+                throttledUpdateMessage(filteredContent, data);
+              } else {
+                // 나쁜 결과: 이전 결과 유지 (로그만 출력)
+                console.warn(
+                  `[StoryProvider] 품질이 낮은 파싱 결과 무시. ` +
+                  `이전 길이: ${lastSuccessfulLength}, 새 길이: ${newLength}, ` +
+                  `임계값: ${threshold * 100}%`
+                );
+                // 이전 성공 결과 유지 (업데이트하지 않음)
               }
               
 
