@@ -56,10 +56,10 @@ export function CarouselNovelList({
   const totalCols = Math.ceil(novelList.length / rows);
   const maxIndex = Math.max(0, totalCols - visibleCount);
 
-  const carouselVisibleWidth = visibleCount * itemWidth + (visibleCount > 1 ? (visibleCount - 1) * gap : 0) - (isMobile ? 0 : 20);
+  const carouselVisibleWidth = visibleCount * itemWidth + (visibleCount > 1 ? (visibleCount - 1) * gap : 0);
   const gridTotalWidth = totalCols * itemWidth + (totalCols > 1 ? (totalCols - 1) * gap : 0);
 
-  const bookCoverH = itemWidth * 1.33;
+  const bookCoverH = itemWidth * (9 / 7);
   const titleBarH = isMobile ? 28 : 36;
   const singleRowTotalHeight = bookCoverH + titleBarH + (gap * 2);
 

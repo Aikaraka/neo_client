@@ -42,6 +42,7 @@ export async function getRecommendedNovels({
     .from("novels")
     .select("*")
     .filter("settings->isPublic", "eq", true)
+    .filter("approval_status", "eq", "approved")
     .order("created_at", { ascending: false })
     .limit(10);
 
@@ -79,17 +80,18 @@ export async function getNovels({ safeFilter }: { safeFilter?: boolean } = {}) {
       const novelIds = (dailyRankings as RankingRow[]).map((r: RankingRow) => r.novel_id);
       const { data: novels } = await supabase
         .from("novels")
-        .select("id, settings")
+        .select("id, settings, approval_status")
         .in("id", novelIds);
       
       if (novels) {
         const excludedNovelIds = novels
           .filter(n => {
             const settings = n.settings as NovelSettings
-            // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠 필터링
+            // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠, 승인되지 않은 콘텐츠 필터링
             return (
               (safeFilterEnabled && settings?.hasAdultContent === true) ||
-              settings?.isPublic !== true
+              settings?.isPublic !== true ||
+              (n as { approval_status?: string }).approval_status !== "approved"
             )
           })
           .map(n => n.id)
@@ -154,6 +156,7 @@ export async function getRecentNovels({
     .from("novels")
     .select("*")
     .filter("settings->isPublic", "eq", true)
+    .filter("approval_status", "eq", "approved")
     .order("created_at", { ascending: false })
     .limit(10);
     
@@ -182,6 +185,7 @@ export async function getNovelsForGenreList({
     .from("novels")
     .select("*")
     .filter("settings->isPublic", "eq", true)
+    .filter("approval_status", "eq", "approved")
     .order("created_at", { ascending: false })
     .limit(100);
 
@@ -214,6 +218,7 @@ export async function getNovelsByCategory(
     .from("novels")
     .select("*")
     .filter("settings->isPublic", "eq", true)
+    .filter("approval_status", "eq", "approved")
     .filter("mood", "cs", `{${category}}`)
     .limit(10);
     
@@ -254,17 +259,18 @@ export async function getNovelsByView({
       const novelIds = (dailyRankings as RankingRow[]).map((r: RankingRow) => r.novel_id);
       const { data: novels } = await supabase
         .from("novels")
-        .select("id, settings")
+        .select("id, settings, approval_status")
         .in("id", novelIds);
       
       if (novels) {
         const excludedNovelIds = novels
           .filter(n => {
             const settings = n.settings as NovelSettings
-            // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠 필터링
+            // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠, 승인되지 않은 콘텐츠 필터링
             return (
               (safeFilterEnabled && settings?.hasAdultContent === true) ||
-              settings?.isPublic !== true
+              settings?.isPublic !== true ||
+              (n as { approval_status?: string }).approval_status !== "approved"
             )
           })
           .map(n => n.id)
@@ -289,17 +295,18 @@ export async function getNovelsByView({
     const novelIds = (allTimeRankings as RankingRow[]).map((r: RankingRow) => r.novel_id);
     const { data: novels } = await supabase
       .from("novels")
-      .select("id, settings")
+      .select("id, settings, approval_status")
       .in("id", novelIds);
     
     if (novels) {
       const excludedNovelIds = novels
         .filter(n => {
           const settings = n.settings as NovelSettings
-          // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠 필터링
+          // 보호필터가 켜져있고 성인 콘텐츠이거나, 공개되지 않은 콘텐츠, 승인되지 않은 콘텐츠 필터링
           return (
             (safeFilterEnabled && settings?.hasAdultContent === true) ||
-            settings?.isPublic !== true
+            settings?.isPublic !== true ||
+            (n as { approval_status?: string }).approval_status !== "approved"
           )
         })
         .map(n => n.id)

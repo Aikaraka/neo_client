@@ -50,7 +50,7 @@ export default function NovelListClient({ novels }: NovelListClientProps) {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {sortedNovels.map((novel) => (
           <div key={novel.id} className="flex flex-col items-center">
-            <div className="relative w-full aspect-[3/4] rounded-lg overflow-hidden bg-gray-200 cursor-pointer hover:scale-105 transition-transform">
+            <div className="relative w-full aspect-[7/9] rounded-lg overflow-hidden bg-gray-200 cursor-pointer hover:scale-105 transition-transform">
               <Image
                 src={novel.image_url || "/neo_emblem.svg"}
                 alt={novel.title || "소설 표지"}

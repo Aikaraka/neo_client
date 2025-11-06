@@ -3,6 +3,7 @@ export type Relationship = {
   targetName: string;
 };
 export type Gender = "MALE" | "FEMALE" | "NONE";
+export type ApprovalStatus = "pending" | "approved" | "rejected";
 export interface Character {
   name: string;
   description: string;
@@ -49,4 +50,5 @@ export type NovelForAdmin = {
   settings: {
     isPublic: boolean;
   } | null;
+  approval_status: ApprovalStatus;
 };

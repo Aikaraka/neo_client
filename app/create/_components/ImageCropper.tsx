@@ -19,29 +19,53 @@ function canvasPreview(
 
   const scaleX = image.naturalWidth / image.width;
   const scaleY = image.naturalHeight / image.height;
-  const pixelRatio = typeof window !== 'undefined' ? window.devicePixelRatio : 1;
 
-  canvas.width = Math.floor(crop.width * scaleX * pixelRatio);
-  canvas.height = Math.floor(crop.height * scaleY * pixelRatio);
+  // 목표 비율 (210/270 = 0.7777...)
+  const TARGET_ASPECT = 210 / 270;
 
-  ctx.scale(pixelRatio, pixelRatio);
+  // 크롭 영역의 실제 픽셀 크기 계산
+  const cropWidthPx = crop.width * scaleX;
+  const cropHeightPx = crop.height * scaleY;
+
+  // 현재 크롭 비율 확인
+  const currentAspect = cropWidthPx / cropHeightPx;
+
+  // 실제로 사용할 source 영역 계산
+  let sourceX = crop.x * scaleX;
+  let sourceY = crop.y * scaleY;
+  let sourceWidth = cropWidthPx;
+  let sourceHeight = cropHeightPx;
+
+  // 비율이 안 맞으면 source 영역을 목표 비율에 맞춰 조정 (object-cover 방식)
+  if (Math.abs(currentAspect - TARGET_ASPECT) > 0.0001) {
+    if (currentAspect > TARGET_ASPECT) {
+      // 이미지가 더 넓음 - 좌우를 잘라냄
+      sourceWidth = cropHeightPx * TARGET_ASPECT;
+      sourceX = (crop.x * scaleX) + (cropWidthPx - sourceWidth) / 2;
+    } else {
+      // 이미지가 더 높음 - 상하를 잘라냄
+      sourceHeight = cropWidthPx / TARGET_ASPECT;
+      sourceY = (crop.y * scaleY) + (cropHeightPx - sourceHeight) / 2;
+    }
+  }
+
+  // 캔버스 크기 설정 (정확한 비율 유지)
+  canvas.width = Math.round(sourceWidth);
+  canvas.height = Math.round(sourceHeight);
+
   ctx.imageSmoothingQuality = 'high';
 
-  const cropX = crop.x * scaleX;
-  const cropY = crop.y * scaleY;
-
-  // 이미지를 캔버스 중앙으로 이동시키거나 하는 복잡한 translate 로직 대신
-  // crop 영역을 기준으로 직접 그립니다.
+  // 비율에 맞춰 조정된 영역만 캔버스에 그리기
   ctx.drawImage(
     image,
-    cropX,
-    cropY,
-    crop.width * scaleX,
-    crop.height * scaleY,
+    sourceX,
+    sourceY,
+    sourceWidth,
+    sourceHeight,
     0,
     0,
-    crop.width * scaleX,
-    crop.height * scaleY
+    canvas.width,
+    canvas.height
   );
 }
 

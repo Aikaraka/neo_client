@@ -14,9 +14,9 @@ import { usePageContext } from "@/components/ui/pageContext";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { ChevronLeft, PencilLine } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import { z } from "zod";
 import { saveImageFileToStorage } from "@/app/create/_api/imageStorage.server";
@@ -55,6 +55,7 @@ function CreateNovelPageContent() {
     },
   });
   const { toast } = useToast();
+  const [isUploading, setIsUploading] = useState(false);
   const { isPending, mutate } = useMutation({
     mutationFn: createNovel,
     onSuccess: (novelId) => router.push(`/novel/${novelId}/chat`),
@@ -134,9 +135,11 @@ function CreateNovelPageContent() {
   };
 
   const onSubmit = async (data: z.infer<typeof createNovelSchema>) => {
+    setIsUploading(true);
     try {
       // 이 함수는 handleSubmit에 의해 유효성 검사를 통과한 경우에만 호출됩니다.
       if (!capturedImageDataUrl) {
+        setIsUploading(false);
         toast({
           title: SUBMIT_ERROR_TITLE,
           description: "표지 이미지가 준비되지 않았습니다. 이전 단계에서 표지를 설정해주세요.",
@@ -162,9 +165,13 @@ function CreateNovelPageContent() {
         })
       );
       
+      // 이미지 업로드가 완료되었으므로 isUploading을 false로 설정
+      // mutate 호출 후에는 isPending이 true가 되어 로딩 모달이 계속 표시됩니다.
+      setIsUploading(false);
       mutate({ ...data, characters: updatedCharacters, cover_image_url: coverImageUrl });
 
     } catch (error) {
+      setIsUploading(false);
       console.error("세계관 생성 중 오류:", error);
       let description = "세계관 생성 중 오류가 발생했습니다.";
       if (error instanceof Error) {
@@ -192,7 +199,6 @@ function CreateNovelPageContent() {
           <Header
             prevPageButton={false}
             title="나만의 세계관 만들기"
-            icon={<PencilLine />}
           >
             {prevButtonVisible && (
               <ChevronLeft
@@ -207,7 +213,7 @@ function CreateNovelPageContent() {
           </div>
         </form>
       </Form>
-      <LoadingModal visible={isPending} />
+      <LoadingModal visible={isPending || isUploading} />
     </React.Fragment>
   );
 }

@@ -31,14 +31,14 @@ function NovelListView({
                   src={novel.cover_image}
                   alt={novel.title}
                   width={isMobile ? 60 : 45}
-                  height={isMobile ? 80 : 60}
+                  height={isMobile ? 77 : 58}
                   className={`object-cover rounded-md ${
-                    isMobile ? 'w-[60px] h-[80px]' : 'w-[45px] h-[60px]'
+                    isMobile ? 'w-[60px] h-[77px]' : 'w-[45px] h-[58px]'
                   }`}
                 />
               ) : (
                 <div className={`bg-gray-200 rounded-md ${
-                  isMobile ? 'w-[60px] h-[80px]' : 'w-[45px] h-[60px]'
+                  isMobile ? 'w-[60px] h-[77px]' : 'w-[45px] h-[58px]'
                 }`} />
               )}
             </div>

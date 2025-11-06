@@ -14,6 +14,8 @@ import {
 } from "@/app/_api/safeFilter.server";
 import { useToast } from "@/hooks/use-toast";
 import SideBar from "@/components/layout/sidebar";
+import { Loader2 } from "lucide-react";
+import { useTransition } from "react";
 
 export default function MainHeader() {
   const user = useUser();
@@ -21,6 +23,7 @@ export default function MainHeader() {
   const { toast } = useToast();
   const [safeFilterEnabled, setSafeFilterEnabled] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoggingOut, startLogoutTransition] = useTransition();
 
   useEffect(() => {
     const loadSafeFilterStatus = async () => {
@@ -32,10 +35,12 @@ export default function MainHeader() {
   }, [user]);
 
   const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    startLogoutTransition(async () => {
+      const supabase = createClient();
+      await supabase.auth.signOut();
+      router.push("/");
+      router.refresh();
+    });
   };
 
   const handleSafeFilterToggle = async (checked: boolean) => {
@@ -125,8 +130,14 @@ export default function MainHeader() {
                         {/* 데스크톱 전용 로그아웃 버튼 */}
                         <button
                             onClick={handleLogout}
-                            className="block text-[clamp(0.5625rem,3vw,0.75rem)] font-medium text-gray-500 hover:text-gray-800 whitespace-nowrap"
+                            disabled={isLoggingOut}
+                            className={`flex items-center gap-2 text-[clamp(0.5625rem,3vw,0.75rem)] font-medium text-gray-500 hover:text-gray-800 whitespace-nowrap ${
+                              isLoggingOut ? "opacity-50 cursor-wait" : ""
+                            }`}
                         >
+                            {isLoggingOut && (
+                              <Loader2 className="w-3 h-3 animate-spin" />
+                            )}
                             로그아웃
                         </button>
                         <SideBar />

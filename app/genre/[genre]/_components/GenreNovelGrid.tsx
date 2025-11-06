@@ -55,7 +55,7 @@ export default function GenreNovelGrid({ novels }: { novels: Tables<"novels">[] 
                         className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10 transition-all duration-200 group-hover:scale-105"
                         style={{
                           width: "100%",
-                          aspectRatio: "3/4",
+                          aspectRatio: "7/9",
                         }}
                       >
                         <Image
@@ -83,7 +83,7 @@ export default function GenreNovelGrid({ novels }: { novels: Tables<"novels">[] 
                 {row.length < 5 &&
                   Array.from({ length: 5 - row.length }).map((_, i) => (
                     <div key={`empty-${i}`} className="invisible">
-                      <div style={{ width: "100%", aspectRatio: "3/4" }} />
+                      <div style={{ width: "100%", aspectRatio: "7/9" }} />
                     </div>
                   ))}
               </div>

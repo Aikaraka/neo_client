@@ -63,19 +63,19 @@ export default function CharactorAndPlotDesign() {
         return;
       }
 
-      // Canvas 생성 (고해상도)
+      // Canvas 생성
       const canvas = document.createElement('canvas');
-      const scale = 3; // 화질 개선을 위한 스케일
+      const scale = 1; // 유저가 본 크기와 동일하게 저장
       canvas.width = 210 * scale;
       canvas.height = 270 * scale;
       const ctx = canvas.getContext('2d');
-      
+
       if (!ctx) {
         reject(new Error("Canvas context를 생성할 수 없습니다."));
         return;
       }
 
-      // 고해상도 렌더링을 위한 스케일 적용
+      // 스케일 적용
       ctx.scale(scale, scale);
 
       // 배경 이미지 그리기
@@ -84,22 +84,64 @@ export default function CharactorAndPlotDesign() {
         bgImage.crossOrigin = 'anonymous';
         
         bgImage.onload = () => {
-          // 배경 이미지 그리기
-          ctx.drawImage(bgImage, 0, 0, 210, 270);
-          
+          // 배경 이미지 그리기 (object-cover와 동일한 방식)
+          const targetWidth = 210;
+          const targetHeight = 270;
+          const targetAspect = targetWidth / targetHeight;
+          const imageAspect = bgImage.naturalWidth / bgImage.naturalHeight;
+
+          let sourceX = 0;
+          let sourceY = 0;
+          let sourceWidth = bgImage.naturalWidth;
+          let sourceHeight = bgImage.naturalHeight;
+
+          // CoverImageEditor의 object-cover CSS와 동일한 로직 적용
+          // 이렇게 해야 유저가 본 것과 저장되는 것이 일치함
+          if (imageAspect > targetAspect) {
+            // 이미지가 더 넓음 - 좌우 잘림
+            sourceHeight = bgImage.naturalHeight;
+            sourceWidth = sourceHeight * targetAspect;
+            sourceX = (bgImage.naturalWidth - sourceWidth) / 2;
+            sourceY = 0;
+          } else if (imageAspect < targetAspect) {
+            // 이미지가 더 높음 - 상하 잘림
+            sourceWidth = bgImage.naturalWidth;
+            sourceHeight = sourceWidth / targetAspect;
+            sourceX = 0;
+            sourceY = (bgImage.naturalHeight - sourceHeight) / 2;
+          }
+          // 비율이 같으면 sourceX, sourceY, sourceWidth, sourceHeight는 초기값 그대로
+
+          ctx.drawImage(
+            bgImage,
+            sourceX, sourceY, sourceWidth, sourceHeight,
+            0, 0, targetWidth, targetHeight
+          );
+
           // 제목 텍스트 그리기
           const titleElement = editorElement.querySelector('.text-box');
-          if (titleElement) {
+          const titleContainer = titleElement?.closest('.cover-title-drag-handle');
+          if (titleElement && titleContainer) {
             const computedStyle = window.getComputedStyle(titleElement);
             const fontSize = parseInt(computedStyle.fontSize);
             const fontFamily = computedStyle.fontFamily;
-            
-            // 텍스트 위치 계산
-            const rect = titleElement.getBoundingClientRect();
+
+            // 컨테이너의 실제 위치와 크기 가져오기
+            const containerRect = (titleContainer as HTMLElement).getBoundingClientRect();
             const editorRect = editorElement.getBoundingClientRect();
-            const x = rect.left - editorRect.left;
-            const y = rect.top - editorRect.top + fontSize;
-            
+            const x = containerRect.left - editorRect.left;
+            const y = containerRect.top - editorRect.top;
+            const width = containerRect.width;
+
+            // 배경 이미지 object-cover 보정
+            // CoverImageEditor와 동일하게 상하 잘림을 반영해야 함
+            if (imageAspect < targetAspect) {
+              // 이미지가 더 높음 - 상하 잘림
+              // sourceY만큼 위쪽이 잘렸으므로, 제목의 Y 좌표를 그만큼 조정할 필요는 없음
+              // 왜냐하면 Canvas에 이미 sourceY부터 그려지기 때문
+              // 제목 좌표는 210x270 컨테이너 기준이고, Canvas도 210x270이므로 그대로 사용
+            }
+
             // 제목 텍스트 가져오기 (HTML 태그 완전 제거)
             let titleText = titleElement.textContent || '';
             
@@ -163,31 +205,34 @@ export default function CharactorAndPlotDesign() {
               gradient.addColorStop(index / (gradientColors.length - 1), color);
             });
             
-            // 텍스트 자동 줄바꿈 (표지 너비에 맞게)
-            const maxTextWidth = 180; // 표지 너비에서 여백 제외
+            // 텍스트 자동 줄바꿈 (실제 박스 너비에 맞게)
+            const maxTextWidth = width - 10; // 실제 박스 너비에서 여백 제외
             const lines = wrapText(titleText, maxTextWidth);
             const lineHeight = fontSize * 1.2;
-            
+
             // 그라디언트 테두리
             ctx.strokeStyle = gradient;
             ctx.lineWidth = 8;
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
-            
+
             lines.forEach((line, index) => {
-              ctx.strokeText(line, x, y + (index * lineHeight));
+              const textY = y + (index * lineHeight);
+              ctx.strokeText(line, x, textY);
             });
-            
+
             // 메인 텍스트 (흰색)
             ctx.fillStyle = 'white';
-            
+
             lines.forEach((line, index) => {
-              ctx.fillText(line, x, y + (index * lineHeight));
+              const textY = y + (index * lineHeight);
+              ctx.fillText(line, x, textY);
             });
           }
-          
+
           // Canvas를 Data URL로 변환 (고해상도)
-          resolve(canvas.toDataURL('image/png', 1.0));
+          const finalDataUrl = canvas.toDataURL('image/png', 1.0);
+          resolve(finalDataUrl);
         };
         
         bgImage.onerror = () => {

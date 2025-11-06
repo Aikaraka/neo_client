@@ -6,14 +6,12 @@ import {
   loginFormSchemaType,
 } from "@/app/(auth)/login/schema";
 import useModal from "@/hooks/use-modal";
-import { useAuth } from "@/utils/supabase/authProvider";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 
 export function useLogin() {
-  const { supabase } = useAuth();
   const router = useRouter();
   const {
     open: openErrorModal,
@@ -53,7 +51,7 @@ export function useLogin() {
 
   function submit(values: loginFormSchemaType) {
     const { email, password } = values;
-    mutate({ email, password, supabase });
+    mutate({ email, password });
   }
   return {
     form,
