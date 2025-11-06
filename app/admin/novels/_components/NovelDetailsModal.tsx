@@ -28,6 +28,8 @@ interface NovelDetailsModalProps {
   novel: NovelDetails | null;
   isLoading: boolean;
   onDelete: (novelId: string) => void;
+  onApprove?: (novelId: string) => void;
+  onReject?: (novelId: string) => void;
 }
 
 // Helper function to safely render content
@@ -50,7 +52,11 @@ export function NovelDetailsModal({
   novel,
   isLoading,
   onDelete,
+  onApprove,
+  onReject,
 }: NovelDetailsModalProps) {
+  const approvalStatus = novel?.approval_status;
+  const isPending = approvalStatus === "pending" || !approvalStatus;
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-3xl max-h-[80vh] flex flex-col">
@@ -107,13 +113,34 @@ export function NovelDetailsModal({
         
         {/* 고정된 푸터 */}
         <DialogFooter className="flex-shrink-0 sm:justify-between border-t pt-4">
-          <Button
-            variant="destructive"
-            onClick={() => novel && onDelete(novel.id)}
-            disabled={!novel || isLoading}
-          >
-            삭제
-          </Button>
+          <div className="flex gap-2">
+            {isPending && onApprove && (
+              <Button
+                variant="default"
+                onClick={() => novel && onApprove(novel.id)}
+                disabled={!novel || isLoading}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                승인
+              </Button>
+            )}
+            {isPending && onReject && (
+              <Button
+                variant="destructive"
+                onClick={() => novel && onReject(novel.id)}
+                disabled={!novel || isLoading}
+              >
+                거부
+              </Button>
+            )}
+            <Button
+              variant="destructive"
+              onClick={() => novel && onDelete(novel.id)}
+              disabled={!novel || isLoading}
+            >
+              삭제
+            </Button>
+          </div>
           <Button onClick={onClose} disabled={isLoading}>
             닫기
           </Button>

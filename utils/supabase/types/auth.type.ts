@@ -2,7 +2,6 @@ export type User = {
   id: string;
   email: string;
   name: string;
-  auth_provider?: "email" | "google" | "kakao";
   created_at: Date;
   nickname: string;
   birthdate: string;

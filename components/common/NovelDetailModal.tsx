@@ -54,6 +54,10 @@ export function NovelDetailModal() {
   // 로그인 유도 모달 상태
   const [isLoginPromptOpen, setIsLoginPromptOpen] = useState(false);
 
+  // 이미지 확대 모달 상태
+  const [expandedImageUrl, setExpandedImageUrl] = useState<string | null>(null);
+  const [expandedImageAlt, setExpandedImageAlt] = useState<string>("");
+
   const { data: novel, isPending } = useQuery({
     queryKey: ["novel-detail", selectedNovelId],
     queryFn: () => getNovelDetail(selectedNovelId!),
@@ -98,6 +102,8 @@ export function NovelDetailModal() {
       setScrollY(0);
       setIsSticky(false);
       setIsLoginPromptOpen(false);
+      setExpandedImageUrl(null);
+      setExpandedImageAlt("");
     }
   }, [isModalOpen, novel]);
 
@@ -315,8 +321,12 @@ export function NovelDetailModal() {
           <div className="relative flex flex-col items-center w-full p-6 md:p-8">
             {/* 표지 */}
             <div 
-              className="relative w-44 h-60 md:w-56 md:h-80 mx-auto rounded-xl overflow-hidden mb-4 transition-transform duration-150 ease-out"
+              className="relative w-44 h-60 md:w-56 md:h-80 mx-auto rounded-xl overflow-hidden mb-4 transition-transform duration-150 ease-out cursor-pointer hover:opacity-90"
               style={{ transform: `scale(${coverScale})` }}
+              onClick={() => {
+                setExpandedImageUrl(novel.image_url || "https://i.imgur.com/D1fNsoW.png");
+                setExpandedImageAlt(novel.title ?? "세계관 표지");
+              }}
             >
               <Image
                 src={novel.image_url || "https://i.imgur.com/D1fNsoW.png"}
@@ -397,8 +407,12 @@ export function NovelDetailModal() {
                          <div className="text-sm flex gap-3">
                            {protagonist.asset_url && (
                              <div
-                               className="relative flex-shrink-0 bg-gray-50 rounded-md"
+                               className="relative flex-shrink-0 bg-gray-50 rounded-md cursor-pointer hover:opacity-90 transition-opacity"
                                style={{ width: '84px', height: '108px' }}
+                               onClick={() => {
+                                 setExpandedImageUrl(protagonist.asset_url!);
+                                 setExpandedImageAlt(`${protagonist.name} 캐릭터 에셋`);
+                               }}
                              >
                                <Image
                                  src={protagonist.asset_url}
@@ -423,8 +437,12 @@ export function NovelDetailModal() {
                          <div key={i} className="text-sm flex gap-3">
                            {c.asset_url && (
                              <div
-                               className="relative flex-shrink-0 bg-gray-50 rounded-md"
+                               className="relative flex-shrink-0 bg-gray-50 rounded-md cursor-pointer hover:opacity-90 transition-opacity"
                                style={{ width: '84px', height: '108px' }}
+                               onClick={() => {
+                                 setExpandedImageUrl(c.asset_url!);
+                                 setExpandedImageAlt(`${c.name} 캐릭터 에셋`);
+                               }}
                              >
                                <Image
                                  src={c.asset_url}
@@ -487,6 +505,29 @@ export function NovelDetailModal() {
         closeModal();
       }}
     />
+
+    {/* 이미지 확대 모달 */}
+    <Dialog open={!!expandedImageUrl} onOpenChange={() => setExpandedImageUrl(null)}>
+      <DialogContent className="max-w-5xl w-[95vw] max-h-[95vh] p-4 bg-transparent border-0 shadow-none">
+        <DialogTitle asChild>
+          <VisuallyHidden>확대된 이미지: {expandedImageAlt}</VisuallyHidden>
+        </DialogTitle>
+        <div className="relative w-full h-full flex items-center justify-center">
+          {expandedImageUrl && (
+            <div className="relative w-full h-full flex items-center justify-center">
+              <Image
+                src={expandedImageUrl}
+                alt={expandedImageAlt}
+                width={1200}
+                height={1600}
+                className="max-w-full max-h-[90vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
+                priority
+              />
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }

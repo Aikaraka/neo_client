@@ -27,7 +27,6 @@ export const insertNewUser = async (session: Session | null, supabase: SupabaseC
     {
       id: session.user.id,
       email: session.user.email || "",
-      auth_provider: session.user.app_metadata.provider || "email",
       created_at: new Date().toISOString(),
       is_adult: false,
       safe_filter_enabled: true,

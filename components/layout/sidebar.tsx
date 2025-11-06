@@ -1,12 +1,21 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useTransition } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { X, Loader2 } from "lucide-react";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [, startTransition] = useTransition();
+  const [pendingLink, setPendingLink] = useState<string | null>(null);
+  const pathname = usePathname();
+
+  // 경로가 변경되면 pending 상태 초기화
+  useEffect(() => {
+    setPendingLink(null);
+  }, [pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -73,12 +82,36 @@ export default function SideBar() {
             <div className="text-sm flex flex-col py-6 border-b px-3 gap-5">
               <Link
                 href="/mypage"
-                className="hover:text-gray-600 transition-colors"
-                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-2 hover:text-gray-600 transition-colors ${
+                  pendingLink === "/mypage" ? "opacity-50 cursor-wait" : ""
+                }`}
+                onClick={() => {
+                  setPendingLink("/mypage");
+                  startTransition(() => {
+                    setIsOpen(false);
+                  });
+                }}
               >
+                {pendingLink === "/mypage" && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 계정 관리
               </Link>
-              <Link href="/mypage/history" className="hover:text-gray-600 transition-colors" onClick={() => setIsOpen(false)}>
+              <Link 
+                href="/mypage/history" 
+                className={`flex items-center gap-2 hover:text-gray-600 transition-colors ${
+                  pendingLink === "/mypage/history" ? "opacity-50 cursor-wait" : ""
+                }`}
+                onClick={() => {
+                  setPendingLink("/mypage/history");
+                  startTransition(() => {
+                    setIsOpen(false);
+                  });
+                }}
+              >
+                {pendingLink === "/mypage/history" && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 조각 구매/사용 내역
               </Link>
             </div>
@@ -86,17 +119,30 @@ export default function SideBar() {
             <div className="text-sm flex flex-col py-6 border-b px-3 gap-5">
               <Link
                 href="/support"
-                className="hover:text-gray-600 transition-colors"
-                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-2 hover:text-gray-600 transition-colors ${
+                  pendingLink === "/support" ? "opacity-50 cursor-wait" : ""
+                }`}
+                onClick={() => {
+                  setPendingLink("/support");
+                  startTransition(() => {
+                    setIsOpen(false);
+                  });
+                }}
               >
+                {pendingLink === "/support" && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 고객 지원 센터
               </Link>
               <Link 
                 href="https://neo.featurebase.app/en/help/articles/8854968-speechballoon-yujeoyong-gaideu-v1"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-gray-600 transition-colors" 
-                onClick={() => setIsOpen(false)}>
+                className="flex items-center gap-2 hover:text-gray-600 transition-colors"
+                onClick={() => {
+                  setIsOpen(false);
+                }}
+              >
                 공지사항
               </Link>
             </div>
@@ -104,23 +150,53 @@ export default function SideBar() {
             <div className="text-sm flex flex-col py-6 border-b px-3 gap-5">
               <Link
                 href="/terms/service"
-                className="hover:text-gray-600 transition-colors"
-                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-2 hover:text-gray-600 transition-colors ${
+                  pendingLink === "/terms/service" ? "opacity-50 cursor-wait" : ""
+                }`}
+                onClick={() => {
+                  setPendingLink("/terms/service");
+                  startTransition(() => {
+                    setIsOpen(false);
+                  });
+                }}
               >
+                {pendingLink === "/terms/service" && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 서비스 이용 약관
               </Link>
               <Link
                 href="/terms/privacy"
-                className="hover:text-gray-600 transition-colors"
-                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-2 hover:text-gray-600 transition-colors ${
+                  pendingLink === "/terms/privacy" ? "opacity-50 cursor-wait" : ""
+                }`}
+                onClick={() => {
+                  setPendingLink("/terms/privacy");
+                  startTransition(() => {
+                    setIsOpen(false);
+                  });
+                }}
               >
+                {pendingLink === "/terms/privacy" && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 개인정보 처리 방침
               </Link>
               <Link
                 href="/terms/copyright"
-                className="hover:text-gray-600 transition-colors"
-                onClick={() => setIsOpen(false)}
+                className={`flex items-center gap-2 hover:text-gray-600 transition-colors ${
+                  pendingLink === "/terms/copyright" ? "opacity-50 cursor-wait" : ""
+                }`}
+                onClick={() => {
+                  setPendingLink("/terms/copyright");
+                  startTransition(() => {
+                    setIsOpen(false);
+                  });
+                }}
               >
+                {pendingLink === "/terms/copyright" && (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                )}
                 저작권 및 지식재산권 관리 정책
               </Link>
             </div>

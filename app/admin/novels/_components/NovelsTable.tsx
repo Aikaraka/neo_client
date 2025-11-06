@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/pagination";
 import { NovelForAdmin } from "@/types/novel";
 import Image from "next/image";
-import { getNovelDetailsForAdmin, deleteNovelAsAdmin, getNovelsForAdmin } from "@/app/admin/_api/admin.server";
+import { getNovelDetailsForAdmin, deleteNovelAsAdmin, getNovelsForAdmin, updateNovelApprovalStatus } from "@/app/admin/_api/admin.server";
 import { NovelDetailsModal } from "./NovelDetailsModal";
 import { toast } from "@/hooks/use-toast";
 import { Json } from "@/utils/supabase/types/database.types";
@@ -177,6 +177,46 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
       });
     } finally {
       setIsDeleting(false);
+    }
+  };
+
+  const handleApproveNovel = async (novelId: string) => {
+    try {
+      await updateNovelApprovalStatus(novelId, "approved");
+      toast({ 
+        title: "승인 완료", 
+        description: "세계관이 승인되었습니다." 
+      });
+      closeDetailsModal();
+      // 현재 페이지에서 목록 새로고침
+      fetchNovels(currentPage, searchTerm);
+    } catch (error) {
+      console.error("Failed to approve novel:", error);
+      toast({ 
+        title: "승인 실패", 
+        description: error instanceof Error ? error.message : "세계관 승인 중 오류가 발생했습니다.", 
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const handleRejectNovel = async (novelId: string) => {
+    try {
+      await updateNovelApprovalStatus(novelId, "rejected");
+      toast({ 
+        title: "거부 완료", 
+        description: "세계관이 거부되었습니다." 
+      });
+      closeDetailsModal();
+      // 현재 페이지에서 목록 새로고침
+      fetchNovels(currentPage, searchTerm);
+    } catch (error) {
+      console.error("Failed to reject novel:", error);
+      toast({ 
+        title: "거부 실패", 
+        description: error instanceof Error ? error.message : "세계관 거부 중 오류가 발생했습니다.", 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -340,11 +380,20 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
                     {new Date(novel.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    {novel.settings?.isPublic ? (
-                      <Badge variant="default">공개</Badge>
-                    ) : (
-                      <Badge variant="secondary">비공개</Badge>
-                    )}
+                    <div className="flex flex-col gap-1">
+                      {novel.settings?.isPublic ? (
+                        <Badge variant="default">공개</Badge>
+                      ) : (
+                        <Badge variant="secondary">비공개</Badge>
+                      )}
+                      {novel.approval_status === "approved" ? (
+                        <Badge variant="default" className="bg-green-600">승인됨</Badge>
+                      ) : novel.approval_status === "rejected" ? (
+                        <Badge variant="destructive">거부됨</Badge>
+                      ) : (
+                        <Badge variant="outline" className="border-yellow-500 text-yellow-700">대기중</Badge>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="text-right">
                     <Button
@@ -393,6 +442,8 @@ export function NovelsTable({ initialNovels, totalCount }: NovelsTableProps) {
         novel={selectedNovel}
         isLoading={isLoadingDetails}
         onDelete={openDeleteModal}
+        onApprove={handleApproveNovel}
+        onReject={handleRejectNovel}
       />
 
       {/* 어드민 전용 삭제 확인 모달 */}

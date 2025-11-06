@@ -2,7 +2,7 @@
 
 import { createClient, createServiceRoleClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
-import { NovelForAdmin } from "@/types/novel";
+import { NovelForAdmin, ApprovalStatus } from "@/types/novel";
 
 // form action으로 사용할 수 있도록 FormData를 매개변수로 받고 void를 반환하도록 수정
 export async function updateTopNovelViews() {
@@ -307,6 +307,7 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
       title,
       image_url,
       settings,
+      approval_status,
       users ( nickname ),
       novel_stats ( total_chats )
     `,
@@ -317,7 +318,7 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
 
   if (searchTerm) {
     // 제목과 작성자 모두 검색 (두 번의 쿼리로 처리)
-    const titleQuery = supabase
+      const titleQuery = supabase
       .from("novels")
       .select(
         `
@@ -326,6 +327,7 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
         title,
         image_url,
         settings,
+        approval_status,
         users ( nickname ),
         novel_stats ( total_chats )
       `,
@@ -344,6 +346,7 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
         title,
         image_url,
         settings,
+        approval_status,
         users!inner ( nickname ),
         novel_stats ( total_chats )
       `,
@@ -411,6 +414,7 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
         settings: novel.settings as { isPublic: boolean } | null,
         author_nickname: authorNickname ?? "알 수 없음",
         total_chats: totalChats || 0,
+        approval_status: ((novel as { approval_status?: string }).approval_status || "pending") as ApprovalStatus,
       };
     });
 
@@ -448,6 +452,7 @@ export async function getNovelsForAdmin(params: GetNovelsParams) {
       settings: novel.settings as { isPublic: boolean } | null,
       author_nickname: authorNickname ?? "알 수 없음",
       total_chats: totalChats || 0,
+      approval_status: ((novel as { approval_status?: string }).approval_status || "pending") as ApprovalStatus,
     };
   });
 
@@ -482,6 +487,55 @@ export async function getNovelDetailsForAdmin(novelId: string) {
 
   // characters는 jsonb 배열일 수 있으므로 그대로 반환
   return data;
+}
+
+// 어드민 전용 세계관 승인/거부 함수
+// admin/layout.tsx에서 이미 관리자 권한을 확인하므로, 서비스 역할 클라이언트로 RLS 우회
+export async function updateNovelApprovalStatus(
+  novelId: string,
+  status: "approved" | "rejected"
+) {
+  const supabase = await createServiceRoleClient();
+
+  try {
+    // 세계관 존재 확인
+    const { data: novel, error: checkError } = await supabase
+      .from("novels")
+      .select("id")
+      .eq("id", novelId)
+      .single();
+
+    if (checkError || !novel) {
+      console.error(`[updateNovelApprovalStatus] 세계관을 찾을 수 없음:`, checkError);
+      throw new Error(`세계관을 찾을 수 없습니다: ${novelId}`);
+    }
+
+    // approval_status 업데이트
+    const { error: updateError } = await supabase
+      .from("novels")
+      .update({
+        approval_status: status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", novelId);
+
+    if (updateError) {
+      console.error("[updateNovelApprovalStatus] 업데이트 오류:", updateError);
+      throw new Error(`승인 상태 업데이트 중 오류가 발생했습니다: ${updateError.message}`);
+    }
+
+    // 관련 페이지 캐시 무효화
+    revalidatePath("/admin/novels");
+    revalidatePath("/");
+
+    return {
+      success: true,
+      message: `세계관이 ${status === "approved" ? "승인" : "거부"}되었습니다.`,
+    };
+  } catch (error) {
+    console.error("[updateNovelApprovalStatus] Unexpected error:", error);
+    throw error;
+  }
 }
 
 // 어드민 전용 세계관 삭제 함수

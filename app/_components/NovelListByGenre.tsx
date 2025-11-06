@@ -117,19 +117,19 @@ export function NovelListByGenreSelector({
                   style={{ width: 'clamp(70px, 30vw, 110px)' }}
                   onClick={() => openModal(novel.id as unknown as string)}
                 >
-                  <Book 
+                  <Book
                     className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
                     style={{
                       width: "clamp(70px, 30vw, 110px)",
-                      height: "clamp(93px, calc(30vw * 1.33), 153px)"
+                      height: "clamp(90px, calc(30vw * 1.2857), 141px)"
                     }}
                   >
                     <Image
                       src={novel.image_url || "https://i.imgur.com/D1fNsoW.png"}
                       alt={novel.title ?? "Novel Title"}
                       width={180}
-                      height={240}
-                      className="rounded-t-lg object-cover w-full h-full z-30"
+                      height={231}
+                      className="object-cover w-full h-full z-30"
                     />
                   </Book>
                   <div className="h-5 bg-transparent flex items-center justify-center mt-1 relative z-10 w-full">
@@ -165,19 +165,19 @@ export function NovelListByGenreSelector({
                     style={{ width: 'clamp(70px, 30vw, 110px)' }}
                     onClick={() => openModal(novel.id as unknown as string)}
                   >
-                    <Book 
+                    <Book
                       className="relative bg-card text-card-foreground shadow-sm shrink-0 z-10"
                       style={{
                       width: "clamp(70px, 30vw, 110px)",
-                      height: "clamp(93px, calc(30vw * 1.33), 153px)"
+                      height: "clamp(90px, calc(30vw * 1.2857), 141px)"
                       }}
                     >
                       <Image
                         src={novel.image_url || "https://i.imgur.com/D1fNsoW.png"}
                         alt={novel.title ?? "Novel Title"}
                         width={180}
-                        height={240}
-                        className="rounded-t-lg object-cover w-full h-full z-30"
+                        height={231}
+                        className="object-cover w-full h-full z-30"
                       />
                     </Book>
                     <div className="h-5 bg-transparent flex items-center justify-center mt-1 relative z-10 w-full">

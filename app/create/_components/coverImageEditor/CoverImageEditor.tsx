@@ -37,7 +37,7 @@ export default function CoverImageEditor() {
             alt="novel cover Image"
             width={210}
             height={270}
-            className="w-full h-full object-fill"
+            className="w-full h-full object-cover"
             draggable={false}
             onDragStart={(e) => e.preventDefault()}
             unoptimized
@@ -134,9 +134,10 @@ function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
   }, [watchedTitle, editor]);
 
   useEffect(() => {
-    function handleClickTextzone(event: MouseEvent) {
+    function handleClickTextzone(event: MouseEvent | TouchEvent) {
       if (wrapperRef.current) {
-        const isClickInside = wrapperRef.current.contains(event.target as Node);
+        const target = event.target as Node;
+        const isClickInside = wrapperRef.current.contains(target);
         setShowEditMode(isClickInside);
         if (isClickInside && editor && !editor.isFocused) {
           editor.commands.focus();
@@ -144,9 +145,12 @@ function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
       }
     }
 
+    // 모바일과 데스크톱 모두 지원
     document.addEventListener("click", handleClickTextzone);
+    document.addEventListener("touchend", handleClickTextzone);
     return () => {
       document.removeEventListener("click", handleClickTextzone);
+      document.removeEventListener("touchend", handleClickTextzone);
     };
    }, [editor]);
 
@@ -196,10 +200,12 @@ function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
         top: <ResizeHandle className="-translate-x-1" visible={showEditMode} />,
       }}
       dragHandleClassName="cover-title-drag-handle"
-
+      style={{
+        touchAction: 'none', // 모바일에서 터치 이벤트 처리 개선
+      }}
       className={cn(
-        "absolute text-black text-2xl font-bold cursor-pointer z-10 p-1 cover-title-drag-handle",
-        showEditMode ? "border border-primary" : "",
+        "absolute text-black text-2xl font-bold cursor-pointer z-10 cover-title-drag-handle box-border",
+        showEditMode ? "border border-primary" : "border border-transparent",
       )}
     >
        <div
@@ -211,6 +217,7 @@ function TextEdit({ titleFontSize, isTitleVisible }: TextEditProps) {
           className={cn(
             `text-box w-full h-full break-words overflow-auto cursor-text leading-[1.2] font-bold tracking-wider`,
             "scrollbar-hidden relative focus:outline-none",
+            "[&_.ProseMirror]:caret-transparent", // 커서 숨기기
           )}
           style={{
             fontFamily: fontStyles[fontStyle],
@@ -297,10 +304,16 @@ const ResizeHandle = ({
 }: HTMLAttributes<HTMLDivElement> & { visible: boolean }) => (
   <div
     className={cn(
-      "rounded-xl w-3 h-3 hover:bg-primary bg-background border border-primary cursor-pointer ",
+      "rounded-xl w-3 h-3 hover:bg-primary bg-background border border-primary cursor-pointer",
       visible ? "visible" : "invisible",
       className
     )}
+    style={{
+      touchAction: 'none', // 모바일에서 터치 이벤트 처리 개선
+      WebkitTapHighlightColor: 'transparent', // 모바일에서 탭 하이라이트 제거
+      pointerEvents: 'auto', // 모바일에서 포인터 이벤트 명시적 활성화
+      zIndex: 20, // 모바일에서도 보이도록 z-index 증가
+    }}
   />
 );
 

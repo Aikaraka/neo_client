@@ -35,11 +35,13 @@ export async function getSearchResult(keyword: string) {
 
   // 제목 + 장르(mood) 동시 검색
   // title에 키워드가 포함되거나 mood 배열에 키워드가 포함된 소설 모두 검색
+  // pending과 approved 상태의 소설 모두 검색 결과에 포함
   let query = supabase
     .from("novels")
     .select("*")
     .or(`title.ilike.%${decodedKeyword}%,mood.cs.{${decodedKeyword}}`)
     .filter("settings->isPublic", "eq", true)
+    .in("approval_status", ["pending", "approved"])
     .order("created_at", { ascending: false });
 
   // 보호필터가 켜져 있으면 성인 콘텐츠 제외

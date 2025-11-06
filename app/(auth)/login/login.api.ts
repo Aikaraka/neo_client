@@ -1,33 +1,11 @@
 import { loginFormSchemaType } from "@/app/(auth)/login/schema";
 import { signInWithEmail } from "@/utils/supabase/client";
-import { SupabaseClient } from "@supabase/supabase-js";
 
 export const handleEmailLogin = async ({
   email,
   password,
-  supabase,
-}: loginFormSchemaType & { supabase: SupabaseClient }) => {
-  // 1. 먼저 이메일로 사용자 확인
-  const { data: userData, error: userError } = await supabase
-    .from("users")
-    .select("*")
-    .eq("email", email)
-    .single();
-
-  if (userError && userError.code !== "PGRST116") {
-    throw new Error("로그인 정보가 일치하지 않습니다.");
-  }
-
-  //소셜 로그인 사용자인지 확인
-  if (userData?.auth_provider) {
-    if (userData.auth_provider !== "email") {
-      throw new Error(
-        `이 이메일은 ${userData.auth_provider} 로그인을 사용합니다. ${userData.auth_provider} 로그인 버튼을 이용해주세요.`
-      );
-    }
-  }
-
-  // 3. 이메일/비밀번호로 로그인 시도
+}: loginFormSchemaType) => {
+  // 이메일/비밀번호로 로그인 시도
   const { data, error } = await signInWithEmail(email, password);
 
   if (error) {

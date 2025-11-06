@@ -56,11 +56,11 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
     // 이미지 프리로드
     const preloadImage = new window.Image();
     preloadImage.crossOrigin = "anonymous";
-    
+
     preloadImage.onload = () => {
       setImageSrc(src);
     };
-    
+
     preloadImage.onerror = (error) => {
       console.error("CoverImageProvider: Image preload failed:", error);
       // Data URL인 경우 바로 설정 (프리로드 실패해도 사용 가능)
@@ -76,7 +76,7 @@ function CoverImageProvider({ children }: { children: React.ReactNode }) {
     } else {
       preloadImage.src = src;
     }
-    
+
     setIsCoverBgImageLoaded(false); // Reset on new image
   };
 

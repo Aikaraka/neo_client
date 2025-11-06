@@ -19,6 +19,7 @@ export async function createNovel(novel: z.infer<typeof createNovelSchema>) {
         title: novel.title,
         image_url: novel.cover_image_url,
         settings: novel.settings,
+        approval_status: "pending",
         characters:
           novel.characters.length > 0
             ? novel.characters.map((character) => {

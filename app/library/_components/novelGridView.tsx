@@ -32,7 +32,7 @@ function NovelGridView({
             className="bg-white rounded-lg shadow-sm border hover:shadow-md transition-all duration-200 overflow-hidden"
           >
             {/* 소설 표지 */}
-            <div className="relative aspect-[3/4] bg-gray-100">
+            <div className="relative aspect-[7/9] bg-gray-100">
               {novel.cover_image ? (
                 <Image
                   src={novel.cover_image}

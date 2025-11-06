@@ -68,14 +68,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshSession = async () => {
     try {
+      // 먼저 현재 세션 확인
+      const { data: currentSession } = await supabase.auth.getSession();
+      
+      // 세션이 없으면 refreshSession 호출하지 않음
+      if (!currentSession.session) {
+        console.warn("세션이 없어 토큰 갱신을 건너뜁니다.");
+        setSession(null);
+        setUser(null);
+        router.refresh();
+        return;
+      }
+
       const {
         data: { session },
         error,
       } = await supabase.auth.refreshSession();
-      if (error || !session) throw error;
+      
+      // refresh_token_not_found는 세션 만료로 정상적인 플로우
+      if (error) {
+        if (error.message?.includes("refresh_token_not_found") || error.code === "refresh_token_not_found") {
+          console.info("세션이 만료되었습니다. 재로그인 필요");
+          setSession(null);
+          setUser(null);
+          router.refresh();
+          return;
+        }
+        // 다른 에러는 실제 에러로 처리
+        throw error;
+      }
+      
+      if (!session) {
+        setSession(null);
+        setUser(null);
+        router.refresh();
+        return;
+      }
+      
       setSession(session);
       setUser(session.user);
-    } catch {
+    } catch (error) {
+      console.error("세션 갱신 중 오류:", error);
+      setSession(null);
+      setUser(null);
       router.refresh();
     }
   };
