@@ -24,9 +24,15 @@ export { dataURLToFile };
  */
 export async function convertToWebP(file: File, quality: number = 0.85): Promise<File> {
   try {
+    // 원본 파일 크기 확인
+    const originalSizeMB = file.size / (1024 * 1024);
+    
     // browser-image-compression 옵션 설정
+    // maxSizeMB는 목표 크기이므로, 원본 크기에 따라 동적으로 설정
+    const targetSizeMB = Math.min(originalSizeMB * 0.5, 1); // 원본의 50% 또는 최대 1MB
+    
     const options = {
-      maxSizeMB: 10, // 최대 파일 크기 10MB
+      maxSizeMB: targetSizeMB, // 동적 목표 크기 설정
       maxWidthOrHeight: 2048, // 최대 너비/높이 2048px (고화질 유지)
       useWebWorker: true, // 웹 워커 사용으로 성능 향상
       fileType: "image/webp", // WebP로 변환
@@ -35,6 +41,10 @@ export async function convertToWebP(file: File, quality: number = 0.85): Promise
 
     // 이미지 압축 및 WebP 변환
     const compressedFile = await imageCompression(file, options);
+    
+    // 압축 결과 확인
+    const compressedSizeMB = compressedFile.size / (1024 * 1024);
+    console.log(`이미지 압축: ${originalSizeMB.toFixed(2)}MB → ${compressedSizeMB.toFixed(2)}MB`);
     
     // 파일명을 .webp 확장자로 변경
     const webpFileName = file.name.replace(/\.[^/.]+$/, "") + ".webp";

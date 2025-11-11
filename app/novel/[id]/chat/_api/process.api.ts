@@ -1,5 +1,12 @@
 import { Session } from "@supabase/supabase-js"
 
+// 런타임에서 안전한 기본 API URL 계산 (클라이언트/서버 모두 지원)
+const RUNTIME_API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== "undefined"
+    ? `${window.location.protocol}//${window.location.hostname}:8000`
+    : "http://localhost:8000");
+
 export async function processNovel(
   session: Session,
   novelId: string,
@@ -14,8 +21,8 @@ export async function processNovel(
       throw new Error("세션 토큰이 없습니다. 다시 로그인해주세요.");
     }
     
-    // Supabase Edge Function을 통해 neo_server의 /process-novel에 요청
-    const response = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/process-novel-proxy`, {
+    // neo_server의 /process-novel에 직접 요청
+    const response = await fetch(`${RUNTIME_API_URL}/process-novel`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
