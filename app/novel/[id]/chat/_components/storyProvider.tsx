@@ -17,9 +17,9 @@ import { generateImage } from "@/app/novel/[id]/chat/_api/generateImage.api";
 import { LoadingModal } from "@/components/ui/modal";
 import { TokenInsufficientModal } from "@/components/common/TokenInsufficientModal";
 import { useToast } from "@/hooks/use-toast";
-import { useSession } from "@/utils/supabase/authProvider";
+import { useSession, useAuthLoading } from "@/utils/supabase/authProvider";
 import { useQuery } from "@tanstack/react-query";
-import { useParams} from "next/navigation";
+import { useParams, useRouter} from "next/navigation";
 
 export type Message = {
   type: "user" | "ai"
@@ -47,9 +47,9 @@ type StoryContextType = Omit<InitStoryResponse, "progress_rate"> & {
   streamingBackgroundStart: string;
   isBackgroundStreaming: boolean;
   showProtagonistMessage: boolean;
-  isAutoScrollEnabled: boolean;
-  setIsAutoScrollEnabled: (enabled: boolean) => void;
   isFirstVisit: boolean;
+  isAutoMode: boolean;
+  toggleAutoMode: () => void;
 };
 
 const StoryContext = createContext<StoryContextType | undefined>(undefined);
@@ -71,6 +71,10 @@ const TOAST_UDNO_NOVEL_ERROR_DECRIPTION = "더 되돌릴 소설이 없습니다.
 
 export function StoryProvider({ children }: { children: React.ReactNode }) {
   const { id: novelId } = useParams<{ id: string }>();
+  const router = useRouter();
+  const session = useSession();
+  const authLoading = useAuthLoading();
+  const { toast } = useToast();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [progressRate, setProgressRate] = useState(0);
@@ -85,9 +89,36 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
   const [isBackgroundStreaming, setIsBackgroundStreaming] = useState(false);
   const [showProtagonistMessage, setShowProtagonistMessage] = useState(false);
   const [hasStreamedBackground, setHasStreamedBackground] = useState(false);
-  const [isAutoScrollEnabled, setIsAutoScrollEnabled] = useState(true);
   const [isFirstVisit, setIsFirstVisit] = useState(true);
   const [isTokenModalOpen, setIsTokenModalOpen] = useState(false);
+  const [isAutoMode, setIsAutoMode] = useState(false);
+
+  // localStorage에서 모드 설정 로드
+  useEffect(() => {
+    const savedMode = localStorage.getItem("novel-auto-mode");
+    if (savedMode !== null) {
+      setIsAutoMode(savedMode === "true");
+    }
+  }, []);
+
+  // 모드 토글 함수
+  const toggleAutoMode = () => {
+    setIsAutoMode((prev) => {
+      const newMode = !prev;
+      localStorage.setItem("novel-auto-mode", String(newMode));
+      return newMode;
+    });
+  };
+
+  // 세션 체크: 로딩이 끝났고 세션이 없으면 즉시 리다이렉트 (API 호출 전)
+  useEffect(() => {
+    if (!authLoading && !session?.user) {
+      const currentUrl = typeof window !== "undefined"
+        ? window.location.pathname + window.location.search
+        : "";
+      router.replace(`/login?returnUrl=${encodeURIComponent(currentUrl)}`);
+    }
+  }, [authLoading, session, router]);
 
   const {
     data: initialData,
@@ -96,6 +127,7 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     error: initError,
   } = useQuery({
     queryKey: ["initStory", novelId],
+    enabled: !!session && !authLoading, // 세션이 있고 로딩이 끝났을 때만 API 호출
     queryFn: async () => {
       try {
         const initSetting = await initStory(novelId);
@@ -143,13 +175,12 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
           },
         });
         
-        // 세션 관련 에러인 경우 더 명확한 에러 메시지 제공
+        // 세션 관련 에러인 경우 리다이렉트 (혹시 API 내부에서 세션 체크를 하는 경우 대비)
         if (error instanceof Error && error.message.includes("세션")) {
-          toast({
-            title: "로그인이 필요합니다",
-            description: "세계관에 진입하려면 로그인이 필요합니다.",
-            variant: "destructive",
-          });
+          const currentUrl = typeof window !== "undefined" 
+            ? window.location.pathname + window.location.search 
+            : "";
+          router.replace(`/login?returnUrl=${encodeURIComponent(currentUrl)}`);
         } else if (error instanceof TypeError && error.message.includes("fetch")) {
           toast({
             title: "서버 연결 실패",
@@ -161,9 +192,6 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
       }
     },
   });
-
-  const session = useSession();
-  const { toast } = useToast();
 
   // background.start를 스트리밍으로 표시하는 함수
   const streamBackgroundText = async (text: string) => {
@@ -207,19 +235,15 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
     
     // 세션 검증 추가
     if (!session?.user?.id) {
-      toast({
-        title: "인증 오류",
-        description: "세션이 만료되었습니다. 다시 로그인해주세요.",
-        variant: "destructive",
-      });
+      const currentUrl = typeof window !== "undefined" 
+        ? window.location.pathname + window.location.search 
+        : "";
+      router.replace(`/login?returnUrl=${encodeURIComponent(currentUrl)}`);
       return;
     }
     
     const aiMessageCount = messages.filter((msg) => msg.type === "ai").length
     const shouldGenerateImage = (aiMessageCount + 1) % 1 === 0
-
-    // 유저 인풋 시 자동 스크롤 활성화
-    setIsAutoScrollEnabled(true);
     
     try {
       setIsMessageSending(true);
@@ -733,16 +757,16 @@ export function StoryProvider({ children }: { children: React.ReactNode }) {
         isBackgroundStreaming,
         protagonist_name: initialData?.protagonist_name,
         showProtagonistMessage,
-        isAutoScrollEnabled,
-        setIsAutoScrollEnabled,
         isFirstVisit,
+        isAutoMode,
+        toggleAutoMode,
       }}
     >
       {children}
       <LoadingModal visible={initPending} />
-      <TokenInsufficientModal 
-        isOpen={isTokenModalOpen} 
-        onClose={() => setIsTokenModalOpen(false)} 
+      <TokenInsufficientModal
+        isOpen={isTokenModalOpen}
+        onClose={() => setIsTokenModalOpen(false)}
       />
     </StoryContext.Provider>
   );

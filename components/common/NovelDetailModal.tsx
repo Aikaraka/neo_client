@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { getNovelDetail } from "@/app/_api/novel.server";
 import { BookOpen, Users } from "lucide-react";
 import { useNovelModal } from "@/hooks/useNovelModal"; // Zustand 스토어 import
-import { useAuth } from "@/utils/supabase/authProvider";
+import { useAuth, useAuthLoading } from "@/utils/supabase/authProvider";
 import { LoginPromptModal } from "@/components/common/LoginPromptModal";
 
 /* ---------- Zod 스키마 ---------- */
@@ -37,6 +37,7 @@ type Character = z.infer<typeof CharacterSchema>;
 export function NovelDetailModal() {
   const { isModalOpen, selectedNovelId, closeModal } = useNovelModal();
   const { session } = useAuth();
+  const authLoading = useAuthLoading();
   const router = useRouter();
   
   // 스크롤 인터랙션 상태
@@ -477,14 +478,19 @@ export function NovelDetailModal() {
             size="lg"
             className="gradient-btn w-[12rem] rounded-full text-primary-foreground font-bold text-base flex items-center justify-between px-4 absolute bottom-6 left-1/2 -translate-x-1/2 z-50"
             onClick={() => {
-              // 로그인 체크
+              // 인증 로딩 중이면 아무것도 하지 않음
+              if (authLoading) {
+                return;
+              }
+              
+              // 세션 체크: 세션이 없으면 로그인 유도 모달 표시
               if (!session?.user) {
                 // 비로그인 상태: 로그인 유도 모달 표시
                 setIsLoginPromptOpen(true);
                 return;
               }
               
-              // 로그인 상태: 페이지 이동
+              // 세션이 있는 경우: 페이지 이동
               closeModal();
               router.push(`/novel/${novel.id}/chat`);
             }}
