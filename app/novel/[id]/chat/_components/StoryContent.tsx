@@ -1,7 +1,7 @@
 "use client";
 
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 
 interface StoryContentProps {
@@ -29,6 +29,20 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
   
   const interSectionRef = useRef<HTMLDivElement>(null);
   
+  // 스마트 스크롤 관련 상태 및 ref
+  const [autoScroll, setAutoScroll] = useState(false);
+  const userInteractionRef = useRef(false);
+  
+  // 하단 근처 체크 함수 (4px threshold)
+  const checkScroll = useCallback(() => {
+    const messageBox = messageBoxRef.current;
+    if (!messageBox) return false;
+    
+    const { scrollTop, scrollHeight, clientHeight } = messageBox;
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 4;
+    return isAtBottom;
+  }, [messageBoxRef]);
+  
   // 폰트 매핑
   const getFontFamily = (fontName: string) => {
     switch (fontName) {
@@ -46,6 +60,73 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
   };
   
   const fontFamily = getFontFamily(font);
+
+  // 사용자 인터랙션 감지 (wheel, touchstart, touchmove)
+  const handleUserInteraction = useCallback(() => {
+    userInteractionRef.current = true;
+    // 100ms 후 false로 설정하여 프로그램적 스크롤과 구분
+    setTimeout(() => {
+      userInteractionRef.current = false;
+    }, 100);
+  }, []);
+
+  // 사용자 스크롤 이벤트 핸들러
+  const handleUserScroll = useCallback(() => {
+    // 사용자가 직접 스크롤 중이면 자동 스크롤 해제
+    if (userInteractionRef.current && autoScroll) {
+      setAutoScroll(false);
+    }
+
+    // 하단에 도달하면 자동 스크롤 활성화
+    const isAtBottom = checkScroll();
+    if (isAtBottom && !autoScroll) {
+      setAutoScroll(true);
+    }
+  }, [autoScroll, checkScroll]);
+
+  // 이벤트 리스너 등록
+  useEffect(() => {
+    const messageBox = messageBoxRef.current;
+    if (!messageBox) return;
+
+    // 사용자 인터랙션 이벤트 등록
+    messageBox.addEventListener('wheel', handleUserInteraction, { passive: true });
+    messageBox.addEventListener('touchstart', handleUserInteraction, { passive: true });
+    messageBox.addEventListener('touchmove', handleUserInteraction, { passive: true });
+    messageBox.addEventListener('keydown', handleUserInteraction);
+    messageBox.addEventListener('scroll', handleUserScroll, { passive: true });
+    
+    return () => {
+      messageBox.removeEventListener('wheel', handleUserInteraction);
+      messageBox.removeEventListener('touchstart', handleUserInteraction);
+      messageBox.removeEventListener('touchmove', handleUserInteraction);
+      messageBox.removeEventListener('keydown', handleUserInteraction);
+      messageBox.removeEventListener('scroll', handleUserScroll);
+    };
+  }, [messageBoxRef, handleUserInteraction, handleUserScroll]);
+
+  // 500ms 인터벌 기반 자동 스크롤
+  useEffect(() => {
+    if (!autoScroll) return;
+
+    const interval = setInterval(() => {
+      const messageBox = messageBoxRef.current;
+      if (messageBox && autoScroll) {
+        messageBox.scrollTop = messageBox.scrollHeight;
+        checkScroll();
+      }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [autoScroll, checkScroll, messageBoxRef]);
+
+  // 초기 스크롤 상태 확인
+  useEffect(() => {
+    const isAtBottom = checkScroll();
+    if (isAtBottom) {
+      setAutoScroll(true);
+    }
+  }, [checkScroll]);
 
   // 이전 스토리 로드 (IntersectionObserver)
   useLayoutEffect(() => {

@@ -2,7 +2,6 @@ import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider
 import { Button } from "@/components/ui/button";
 import { AutoChat, PaperPlane } from "@/public/novel/chat";
 import { FormEventHandler, KeyboardEvent, useRef } from "react";
-import { UndoIcon } from "lucide-react";
 import Image from "next/image";
 
 // 모드 토글 아이콘 컴포넌트
@@ -37,7 +36,6 @@ export function ChatInput() {
   const {
     sendNovelProcessMessage,
     isMessageSending,
-    undoStory,
     isBackgroundStreaming,
     isAutoMode,
     toggleAutoMode,
@@ -153,9 +151,6 @@ export function ChatInput() {
           disabled={isInputDisabled}
         />
         <div className="flex ml-2 flex-shrink-0 gap-2">
-          {/* UndoStory 버튼 주석처리 (향후 복원 가능) */}
-          {/* <Button variant={"link"} className="p-0 h-auto [&_svg]:size-5" onClick={undoStory} disabled={isInputDisabled}><UndoIcon /></Button> */}
-
           {/* 모드 토글 버튼 (자동 모드로 전환) */}
           <Button
             variant="ghost"
