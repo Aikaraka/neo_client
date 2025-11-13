@@ -1,7 +1,7 @@
 "use client";
 
 import { useStoryContext } from "@/app/novel/[id]/chat/_components/storyProvider";
-import { useEffect, useLayoutEffect, useRef, useCallback } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
 
 interface StoryContentProps {
@@ -24,13 +24,24 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
     streamingBackgroundStart, 
     isBackgroundStreaming, 
     protagonist_name, 
-    showProtagonistMessage, 
-    isAutoScrollEnabled, 
-    setIsAutoScrollEnabled,
-    isFirstVisit
+    showProtagonistMessage
   } = useStoryContext();
   
   const interSectionRef = useRef<HTMLDivElement>(null);
+  
+  // 스마트 스크롤 관련 상태 및 ref
+  const [autoScroll, setAutoScroll] = useState(false);
+  const userInteractionRef = useRef(false);
+  
+  // 하단 근처 체크 함수 (4px threshold)
+  const checkScroll = useCallback(() => {
+    const messageBox = messageBoxRef.current;
+    if (!messageBox) return false;
+    
+    const { scrollTop, scrollHeight, clientHeight } = messageBox;
+    const isAtBottom = scrollHeight - scrollTop - clientHeight < 4;
+    return isAtBottom;
+  }, [messageBoxRef]);
   
   // 폰트 매핑
   const getFontFamily = (fontName: string) => {
@@ -49,214 +60,73 @@ export function StoryContent({ fontSize, lineHeight, paragraphSpacing, paragraph
   };
   
   const fontFamily = getFontFamily(font);
-  
-  // 맨 아래에 있는지 확인
-  const isNearBottom = useCallback((element: HTMLElement, threshold = 100) => {
-    return element.scrollHeight - element.scrollTop - element.clientHeight < threshold;
+
+  // 사용자 인터랙션 감지 (wheel, touchstart, touchmove)
+  const handleUserInteraction = useCallback(() => {
+    userInteractionRef.current = true;
+    // 100ms 후 false로 설정하여 프로그램적 스크롤과 구분
+    setTimeout(() => {
+      userInteractionRef.current = false;
+    }, 100);
   }, []);
 
-  // 콘텐츠 변경 감지를 위한 시그니처 (마지막 메시지의 키와 길이)
-  const prevSignatureRef = useRef<string>("");
-  const scrollScheduledRef = useRef(false);
-  const rafIdRef = useRef<number>(0);
-
-  // 맨 아래로 스크롤 (Easing 애니메이션 사용)
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = "smooth") => {
-    const messageBox = messageBoxRef.current;
-    if (!messageBox) return;
-    
-    // 이미 스크롤이 예약되어 있으면 중복 실행 방지
-    if (scrollScheduledRef.current) return;
-    
-    const targetTop = messageBox.scrollHeight;
-    const startTop = messageBox.scrollTop;
-    const distance = targetTop - startTop;
-    
-    // 거리가 10px 미만이면 스크롤 불필요
-    if (Math.abs(distance) < 10) return;
-    
-    scrollScheduledRef.current = true;
-    
-    if (behavior === "instant") {
-      // 즉시 스크롤
-      messageBox.scrollTop = targetTop;
-      scrollScheduledRef.current = false;
-    } else {
-      // Easing 애니메이션으로 부드러운 스크롤
-      const duration = Math.min(600, Math.max(200, Math.abs(distance) * 0.5)); // 동적 duration
-      let startTime: number | null = null;
-      
-      // easeOutCubic: 시작은 빠르고 끝은 부드럽게
-      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
-      
-      const step = (ts: number) => {
-        // 자동 스크롤이 비활성화되었거나 사용자가 스크롤 중이면 중단
-        if (!isAutoScrollEnabled || isUserScrollingRef.current) {
-          rafIdRef.current = 0;
-          scrollScheduledRef.current = false;
-          return;
-        }
-        
-        if (startTime === null) startTime = ts;
-        const elapsed = ts - startTime;
-        const progress = Math.min(1, elapsed / duration);
-        const nextTop = startTop + distance * easeOutCubic(progress);
-        
-        messageBox.scrollTop = nextTop;
-        
-        if (progress < 1) {
-          rafIdRef.current = requestAnimationFrame(step);
-        } else {
-          rafIdRef.current = 0;
-          scrollScheduledRef.current = false;
-        }
-      };
-      
-      rafIdRef.current = requestAnimationFrame(step);
+  // 사용자 스크롤 이벤트 핸들러
+  const handleUserScroll = useCallback(() => {
+    // 사용자가 직접 스크롤 중이면 자동 스크롤 해제
+    if (userInteractionRef.current && autoScroll) {
+      setAutoScroll(false);
     }
-  }, [messageBoxRef, isAutoScrollEnabled]);
 
-  // 재방문자 초기 스크롤 (메시지가 로드된 직후)
-  useLayoutEffect(() => {
-    if (!isFirstVisit && messages.length > 0) {
-      scrollToBottom("instant");
+    // 하단에 도달하면 자동 스크롤 활성화
+    const isAtBottom = checkScroll();
+    if (isAtBottom && !autoScroll) {
+      setAutoScroll(true);
     }
-  }, [isFirstVisit, messages.length, scrollToBottom]);
+  }, [autoScroll, checkScroll]);
 
-  // 사용자 스크롤 추적 (자동 스크롤과 구분하기 위해)
-  const isUserScrollingRef = useRef(false);
-  const lastUserScrollTime = useRef(0);
-  const USER_SCROLL_TIMEOUT = 300; // 사용자 스크롤 종료로 간주하는 시간 (300ms)
-
-  // 스크롤 이벤트 핸들러 - 유저가 위로 올리면 자동 스크롤 즉시 멈춤, 맨 밑으로 내리면 재개
-  const SCROLL_LOCK_THRESHOLD = 200; // 하단 200px 이내에 있으면 자동 스크롤 활성화
-  
+  // 이벤트 리스너 등록
   useEffect(() => {
     const messageBox = messageBoxRef.current;
     if (!messageBox) return;
 
-    let lastScrollTop = messageBox.scrollTop;
-    let scrollTimeout: NodeJS.Timeout | null = null;
-
-    const handleScroll = () => {
-      const currentScrollTop = messageBox.scrollTop;
-      const scrollDelta = currentScrollTop - lastScrollTop;
-      lastScrollTop = currentScrollTop;
-      
-      // 하단으로부터의 거리 계산
-      const distanceFromBottom = 
-        messageBox.scrollHeight - (messageBox.scrollTop + messageBox.clientHeight);
-      
-      // 사용자가 수동으로 스크롤 중인지 감지
-      if (Math.abs(scrollDelta) > 5) { // 5px 이상 변화는 사용자 스크롤로 간주
-        isUserScrollingRef.current = true;
-        lastUserScrollTime.current = Date.now();
-        
-        // 하단 200px 이내에 있으면 자동 스크롤 활성화, 아니면 비활성화
-        const shouldAutoScroll = distanceFromBottom <= SCROLL_LOCK_THRESHOLD;
-        
-        if (shouldAutoScroll !== isAutoScrollEnabled) {
-          setIsAutoScrollEnabled(shouldAutoScroll);
-        }
-        
-        // 자동 스크롤이 꺼졌으면 진행 중인 애니메이션도 중단
-        if (!shouldAutoScroll && rafIdRef.current) {
-          cancelAnimationFrame(rafIdRef.current);
-          rafIdRef.current = 0;
-          scrollScheduledRef.current = false;
-        }
-      }
-      
-      // 스크롤이 멈춘 후 상태 체크 (디바운싱)
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-      
-      scrollTimeout = setTimeout(() => {
-        // 사용자 스크롤 종료 체크
-        const timeSinceLastScroll = Date.now() - lastUserScrollTime.current;
-        if (timeSinceLastScroll >= USER_SCROLL_TIMEOUT) {
-          isUserScrollingRef.current = false;
-        }
-        
-        // 최종 상태 체크
-        const finalDistanceFromBottom = 
-          messageBox.scrollHeight - (messageBox.scrollTop + messageBox.clientHeight);
-        const shouldAutoScroll = finalDistanceFromBottom <= SCROLL_LOCK_THRESHOLD;
-        
-        if (shouldAutoScroll !== isAutoScrollEnabled) {
-          setIsAutoScrollEnabled(shouldAutoScroll);
-        }
-      }, 200); // 200ms 후 스크롤 완료로 간주
-    };
-
-    messageBox.addEventListener('scroll', handleScroll, { passive: true });
+    // 사용자 인터랙션 이벤트 등록
+    messageBox.addEventListener('wheel', handleUserInteraction, { passive: true });
+    messageBox.addEventListener('touchstart', handleUserInteraction, { passive: true });
+    messageBox.addEventListener('touchmove', handleUserInteraction, { passive: true });
+    messageBox.addEventListener('keydown', handleUserInteraction);
+    messageBox.addEventListener('scroll', handleUserScroll, { passive: true });
+    
     return () => {
-      messageBox.removeEventListener('scroll', handleScroll);
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-      // 컴포넌트 언마운트 시 애니메이션 정리
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = 0;
-      }
+      messageBox.removeEventListener('wheel', handleUserInteraction);
+      messageBox.removeEventListener('touchstart', handleUserInteraction);
+      messageBox.removeEventListener('touchmove', handleUserInteraction);
+      messageBox.removeEventListener('keydown', handleUserInteraction);
+      messageBox.removeEventListener('scroll', handleUserScroll);
     };
-  }, [messageBoxRef, isAutoScrollEnabled, setIsAutoScrollEnabled]);
+  }, [messageBoxRef, handleUserInteraction, handleUserScroll]);
 
-  // 자동 스크롤 - 메시지가 업데이트될 때 (스트리밍 중일 때만)
-  // 시그니처 기반 변경 감지로 불필요한 스크롤 방지
+  // 500ms 인터벌 기반 자동 스크롤
   useEffect(() => {
-    // 사용자가 수동으로 스크롤 중이면 자동 스크롤 완전 차단
-    const timeSinceLastUserScroll = Date.now() - lastUserScrollTime.current;
-    const USER_SCROLL_TIMEOUT_MS = 300; // 사용자 스크롤 종료로 간주하는 시간
-    const isCurrentlyUserScrolling = isUserScrollingRef.current || timeSinceLastUserScroll < USER_SCROLL_TIMEOUT_MS;
-    
-    // 자동 스크롤이 활성화되어 있고, 스트리밍 중일 때만 스크롤
-    if (!isAutoScrollEnabled || messages.length === 0 || !isMessageSending || isCurrentlyUserScrolling) {
-      return;
-    }
-    
-    // 콘텐츠 변경 감지: 마지막 메시지의 시그니처 계산
-    const currentSignature = (() => {
-      if (messages.length === 0) return "";
-      const lastMessage = messages[messages.length - 1];
-      if (lastMessage.type !== "ai") return "";
-      // 메시지 키(story_number)와 콘텐츠 길이로 시그니처 생성
-      const contentLength = lastMessage.content?.length || 0;
-      return `${lastMessage.story_number || 0}-${contentLength}`;
-    })();
-    
-    // 변경이 없으면 스크롤 생략
-    if (currentSignature === prevSignatureRef.current) return;
-    if (scrollScheduledRef.current) return; // 이미 스크롤 예약됨
-    
-    // 시그니처 업데이트
-    prevSignatureRef.current = currentSignature;
-    
-    // 이중 requestAnimationFrame으로 DOM 업데이트 보장
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        // DOM 업데이트 후 스크롤 실행
-        scrollToBottom("smooth");
-      });
-    });
-  }, [messages, isAutoScrollEnabled, isMessageSending, scrollToBottom]);
-  
-  // 스트리밍 완료 시 자동 스크롤 (한 번만)
-  useEffect(() => {
-    // 스트리밍이 완료되고 자동 스크롤이 활성화되어 있으면 맨 아래로
-    if (!isMessageSending && isAutoScrollEnabled && messages.length > 0) {
+    if (!autoScroll) return;
+
+    const interval = setInterval(() => {
       const messageBox = messageBoxRef.current;
-      if (messageBox) {
-        const nearBottom = isNearBottom(messageBox, 150);
-        // 맨 아래 근처에 있으면 자동 스크롤
-        if (nearBottom) {
-          scrollToBottom("smooth");
-        }
+      if (messageBox && autoScroll) {
+        messageBox.scrollTop = messageBox.scrollHeight;
+        checkScroll();
       }
+    }, 500);
+
+    return () => clearInterval(interval);
+  }, [autoScroll, checkScroll, messageBoxRef]);
+
+  // 초기 스크롤 상태 확인
+  useEffect(() => {
+    const isAtBottom = checkScroll();
+    if (isAtBottom) {
+      setAutoScroll(true);
     }
-  }, [isMessageSending, isAutoScrollEnabled, messages.length, isNearBottom, scrollToBottom, messageBoxRef]);
+  }, [checkScroll]);
 
   // 이전 스토리 로드 (IntersectionObserver)
   useLayoutEffect(() => {

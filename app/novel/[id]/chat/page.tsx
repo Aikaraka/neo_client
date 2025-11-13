@@ -36,28 +36,14 @@ function ChatPageContent() {
   const darkColors = ["#3C3C3C", "#000000", "#2B3531"];
   const isDark = darkColors.includes(bgColor);
 
+  // initError는 이제 storyProvider에서 세션 체크를 먼저 하므로 
+  // 세션 에러는 발생하지 않을 것이지만, 다른 에러(네트워크 등)는 여전히 가능
   if (initError) {
-    // 세션 관련 에러인 경우 로그인 안내 페이지 표시
     const errorMessage = (initError as unknown as Error)?.message || String(initError);
+    // 세션 에러는 storyProvider에서 이미 리다이렉트 처리되므로 여기서는 다른 에러만 처리
     if (errorMessage.includes("세션")) {
-      return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-8">
-          <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 text-center">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              로그인이 필요합니다
-            </h2>
-            <p className="text-gray-600 mb-6">
-              세계관에 진입하려면 로그인이 필요합니다.
-            </p>
-            <a 
-              href="/login" 
-              className="inline-block bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-            >
-              로그인하기
-            </a>
-          </div>
-        </div>
-      );
+      // 리다이렉트가 진행 중일 수 있으므로 로딩 표시
+      return null;
     }
     return <NotFound />;
   }
